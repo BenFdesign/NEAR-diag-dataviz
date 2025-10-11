@@ -1,0 +1,32 @@
+[
+  {
+    "Id": 1,
+    "name": "Sphères d'Usages",
+    "description": "",
+    "is_typeform": true,
+    "created_at": "",
+    "updated_at": "",
+    "status": "",
+    "settings": ""
+  },
+  {
+    "Id": 2,
+    "name": "Qualité de Vie",
+    "description": "",
+    "is_typeform": true,
+    "created_at": "",
+    "updated_at": "",
+    "status": "",
+    "settings": ""
+  },
+  {
+    "Id": 3,
+    "name": "Nos GEStes Climat",
+    "description": "",
+    "is_typeform": false,
+    "created_at": "",
+    "updated_at": "",
+    "status": "",
+    "settings": ""
+  }
+]

@@ -1,0 +1,33 @@
+[
+{
+    "Survey ID":1,
+    "Name":"Porte d'Orléans",
+    "Iris Selectors":"{751145501,751145503,751145601}",
+
+    "Population Femme Sum":3297.739135282948,
+    "Population Homme Sum":2273.566689057873,
+    "Population Sum":5571.30582434083,
+    "Population Sum With Under Fifteen":7408.041396142169,
+
+    "P21 Pop1529 Sum":1556.818376839665,
+    "P21 Pop3044 Sum":1050.221777493231,
+    "P21 Pop4559 Sum":1615.963100625803,
+    "P21 Pop6074 Sum":937.071751655006,
+    "P21 Pop75p Sum":552.497113839396,
+
+    "C21 Pop15p Cs1 Sum":0.0,
+    "C21 Pop15p Cs2 Sum":80.8343798434129,
+    "C21 Pop15p Cs3 Sum":762.491968054594,
+    "C21 Pop15p Cs4 Sum":844.807213665638,
+    "C21 Pop15p Cs5 Sum":1155.454471981829,
+    "C21 Pop15p Cs6 Sum":345.58911273492424,
+    "C21 Pop15p Cs7 Sum":1045.5678850275278,
+    "C21 Pop15p Cs8 Sum":1336.560793032901,
+
+    "Population Sum Threshold 3p":895.575316579208,
+    "Population Sum Threshold 4p":541.8692492209235,
+    "Population Sum Threshold 5p":359.37958651885396,
+    "Population Sum Threshold 4 5p":450.6244178698887
+}
+]
+
