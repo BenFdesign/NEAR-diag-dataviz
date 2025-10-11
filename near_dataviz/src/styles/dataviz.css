@@ -74,6 +74,7 @@
 
 .su-selector-button:hover {
   transform: translateY(-1px);
+  /* /!\ D'autres changement appliqués dans LeftSidebar.tsx pour la couleur de Su */
 }
 
 .su-selector-button.selected {

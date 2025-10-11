@@ -13,12 +13,3 @@ body {
   font-family: var(--font-sans);
   background-color: #f8f9fa;
 }
-
-/* Menu title styling */
-.menu-main-title {
-  color: #ffffffff;
-  font-weight: 600;
-  font-size: 18px;
-  margin-bottom: 12px;
-  line-height: 1.3;
-}

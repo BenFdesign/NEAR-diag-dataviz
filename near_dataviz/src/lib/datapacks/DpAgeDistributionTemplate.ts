@@ -144,7 +144,7 @@ const DEFAULT_COLORS = [
 
 /**
  * Charge les réponses individuelles depuis Su Answer.json
- */
+*/
 const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
   try {
     const response = await fetch('/api/data/Su%20Answer')

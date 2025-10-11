@@ -124,7 +124,7 @@ export default function LeftSidebar({ availableSus, selectedSus, onSusChange }: 
                   }
                 }}
               >
-                {/* Icône, protection XSS avec une solution simple dans src/app/lib/icon-validator.ts passé à su-service.ts */}
+                {/* Icône, protection XSS avec une solution simple de regex dans src/app/lib/icon-validator.ts passé à su-service.ts */}
                 <div
                   dangerouslySetInnerHTML={{ __html: su.icon }}
                   className={`w-6 h-6 flex-shrink-0 ${isSelected ? 'invert' : 'grayscale-50'}`}
