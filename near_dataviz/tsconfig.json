@@ -27,7 +27,7 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"] //FAIT: correspond bien à ce qui est fait dans le repo NEAR principal
     }
   },
   "include": [

@@ -1,6 +1,6 @@
-import type { BoardDefinition, BoardProps, Board } from '~/lib/types'
-import DvSuTitle from '../dataviz/DvSuTitle'
-import { DemographieBoard } from '~/lib/boards/DemographieBoard'
+import React from 'react'
+import type { BoardProps } from '~/lib/types'
+import { DvSuTitle } from '../'
 
 // Board de test simple
 const TestBoard: React.FC<BoardProps> = ({ selectedSus, allSus }) => {
@@ -70,36 +70,4 @@ const TestBoard: React.FC<BoardProps> = ({ selectedSus, allSus }) => {
   )
 }
 
-// Board registry (old system)
-export const BOARD_REGISTRY: BoardDefinition[] = [
-  {
-    id: 'test',
-    name: 'Test Dashboard',
-    description: 'Un tableau de bord de test pour vérifier que tout fonctionne correctement.',
-    component: TestBoard,
-    defaultSus: [1, 2, 3] // Default to first 3 SUs
-  }
-]
-
-// New Board registry
-export const NEW_BOARD_REGISTRY: Board[] = [
-  DemographieBoard
-]
-
-// Utility functions
-export const getBoardById = (id: string): BoardDefinition | undefined => {
-  return BOARD_REGISTRY.find(board => board.id === id)
-}
-
-export const getDefaultBoard = (): BoardDefinition => {
-  return BOARD_REGISTRY[0]!
-}
-
-// New board utilities
-export const getNewBoardById = (id: string): Board | undefined => {
-  return NEW_BOARD_REGISTRY.find(board => board.id === id)
-}
-
-export const getDefaultNewBoard = (): Board => {
-  return NEW_BOARD_REGISTRY[0]!
-}
+export default TestBoard

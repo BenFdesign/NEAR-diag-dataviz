@@ -1,4 +1,4 @@
-import DatavizDashboard from "~/components/DatavizDashboard";
+import { DatavizDashboard } from "./_components";
 
 export default function Home() {
   return (
