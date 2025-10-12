@@ -8,22 +8,54 @@ import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
 interface DvCspProps {
   selectedSus?: number[]
-  containerWidth?: number
-  containerHeight?: number
 }
 
 const DvCsp: React.FC<DvCspProps> = ({
-  selectedSus,
-  containerWidth = 400,
-  containerHeight = 250
+  selectedSus
 }) => {
   const svgRef = useRef<SVGSVGElement>(null)
+  const svgContainer = useRef<HTMLDivElement>(null)
   const [data, setData] = useState<CspDistributionResult | null>(null)
   const [colors, setColors] = useState<string[]>([])
   const [mainColor, setMainColor] = useState<string>('#002878')
   const [lightColor3, setLightColor3] = useState<string>('#99AAFF')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // State to track width and height of SVG Container
+  const [width, setWidth] = useState<number>()
+  const [height, setHeight] = useState<number>()
+
+  // This function calculates width and height of the container
+  const getSvgContainerSize = () => {
+    if (svgContainer.current) {
+      const newWidth = svgContainer.current.clientWidth
+      const newHeight = svgContainer.current.clientHeight
+      setWidth(newWidth)
+      setHeight(newHeight)
+      console.log('📐 DvCsp dimensions updated:', { width: newWidth, height: newHeight })
+    }
+  }
+
+  useEffect(() => {
+    // detect 'width' and 'height' on render
+    getSvgContainerSize()
+    // listen for resize changes, and detect dimensions again when they change
+    window.addEventListener("resize", getSvgContainerSize)
+    // cleanup event listener
+    return () => window.removeEventListener("resize", getSvgContainerSize)
+  }, [])
+
+  // Additional effect to ensure dimensions are set after data loads
+  useEffect(() => {
+    if (data && svgContainer.current && (!width || !height)) {
+      // Small delay to ensure DOM is fully rendered
+      const timer = setTimeout(() => {
+        getSvgContainerSize()
+      }, 10)
+      return () => clearTimeout(timer)
+    }
+  }, [data, width, height])
 
   // Load data and colors effect
   useEffect(() => {
@@ -76,9 +108,24 @@ const DvCsp: React.FC<DvCspProps> = ({
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove() // Clear previous content
 
-    const margin = { top: 40, right: 20, bottom: 120, left: 20 }
-    const width = containerWidth - margin.left - margin.right
-    const height = containerHeight - margin.top - margin.bottom
+    // Use fallback dimensions if responsive dimensions not yet available
+    const fallbackWidth = 400
+    const fallbackHeight = 250
+    
+    // Dimensions and margins
+    const dimensions = {
+      width: width ?? fallbackWidth,
+      height: height ?? fallbackHeight,
+      margins: { top: 20, right: 20, bottom: 20, left: 20 }
+    }
+
+    const chartWidth = dimensions.width - dimensions.margins.left - dimensions.margins.right
+    const chartHeight = dimensions.height - dimensions.margins.top - dimensions.margins.bottom
+
+    // Set SVG dimensions
+    svg
+      .attr('width', dimensions.width)
+      .attr('height', dimensions.height)
 
     // Calculate cumulative values for stacking
     let cumulative = 0
@@ -95,12 +142,15 @@ const DvCsp: React.FC<DvCspProps> = ({
     // Create scales
     const xScale = d3.scaleLinear()
       .domain([0, 100])
-      .range([0, width])
+      .range([0, chartWidth])
 
-    const barHeight = Math.min(60, height / 3) // Maximum 60px height, or 1/3 of available height
+    const barHeight = Math.min(50, chartHeight / 3) // Maximum 50px height ?? 1/3 du height disponible
 
     const g = svg.append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top + (height - barHeight) / 2})`)
+      .attr('transform', `translate(
+        ${dimensions.margins.left},
+        ${dimensions.margins.top + (barHeight) / 2}
+        )`)
 
     // Create stacked bars
     const bars = g.selectAll('.csp-bar')
@@ -172,10 +222,10 @@ const DvCsp: React.FC<DvCspProps> = ({
 
     // Create legend below the bar chart using HTML foreignObject for natural flow
     const legend = svg.append('foreignObject')
-      .attr('x', margin.left)
-      .attr('y', containerHeight - margin.bottom + 20)
-      .attr('width', width)
-      .attr('height', margin.bottom - 20)
+      .attr('x', dimensions.margins.left)
+      .attr('y', (chartHeight/3)*2+5)
+      .attr('width', chartWidth)
+      .attr('height', (chartHeight/3)*1+dimensions.margins.bottom)
 
     const legendContainer = legend.append('xhtml:div')
       .style('display', 'flex')
@@ -216,13 +266,13 @@ const DvCsp: React.FC<DvCspProps> = ({
 
     // Add title
     svg.append('text')
-      .attr('x', margin.left)
-      .attr('y', 25)
+      .attr('x', dimensions.margins.left)
+      .attr('y', dimensions.margins.top)
       .attr('class', 'dv-title')
       .style('fill', mainColor)
       .text(`${data.questionLabels.title} ${data.questionLabels.emoji}`)
 
-  }, [data, colors, mainColor, lightColor3, containerWidth, containerHeight])
+  }, [data, colors, mainColor, lightColor3, width, height])
 
   if (loading) {
     return (
@@ -249,13 +299,8 @@ const DvCsp: React.FC<DvCspProps> = ({
   }
 
   return (
-    <div className="w-full h-full">
-      <svg
-        ref={svgRef}
-        width={containerWidth}
-        height={containerHeight}
-        className="w-full h-full"
-      />
+    <div ref={svgContainer} className="w-full h-full">
+      <svg ref={svgRef} className="w-full h-full" />
     </div>
   )
 }

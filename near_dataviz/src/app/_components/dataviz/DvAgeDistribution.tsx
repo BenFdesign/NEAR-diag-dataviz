@@ -8,22 +8,54 @@ import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
 interface DvAgeDistributionProps {
   selectedSus?: number[]
-  containerWidth?: number
-  containerHeight?: number
 }
 
 const DvAgeDistribution: React.FC<DvAgeDistributionProps> = ({
-  selectedSus,
-  containerWidth = 400,
-  containerHeight = 200
+  selectedSus
 }) => {
   const svgRef = useRef<SVGSVGElement>(null)
+  const svgContainer = useRef<HTMLDivElement>(null)
   const [data, setData] = useState<AgeDistributionResult | null>(null)
   const [colors, setColors] = useState<string[]>([])
   const [mainColor, setMainColor] = useState<string>('#002878')
   const [lightColor3, setLightColor3] = useState<string>('#99AAFF')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // State to track width and height of SVG Container
+  const [width, setWidth] = useState<number>()
+  const [height, setHeight] = useState<number>()
+
+  // This function calculates width and height of the container
+  const getSvgContainerSize = () => {
+    if (svgContainer.current) {
+      const newWidth = svgContainer.current.clientWidth
+      const newHeight = svgContainer.current.clientHeight
+      setWidth(newWidth)
+      setHeight(newHeight)
+      console.log('📐 DvAgeDistribution dimensions updated:', { width: newWidth, height: newHeight })
+    }
+  }
+
+  useEffect(() => {
+    // detect 'width' and 'height' on render
+    getSvgContainerSize()
+    // listen for resize changes, and detect dimensions again when they change
+    window.addEventListener("resize", getSvgContainerSize)
+    // cleanup event listener
+    return () => window.removeEventListener("resize", getSvgContainerSize)
+  }, [])
+
+  // Additional effect to ensure dimensions are set after data loads
+  useEffect(() => {
+    if (data && svgContainer.current && (!width || !height)) {
+      // Small delay to ensure DOM is fully rendered
+      const timer = setTimeout(() => {
+        getSvgContainerSize()
+      }, 10)
+      return () => clearTimeout(timer)
+    }
+  }, [data, width, height])
 
   // Load data and colors effect
   useEffect(() => {
@@ -76,25 +108,40 @@ const DvAgeDistribution: React.FC<DvAgeDistributionProps> = ({
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove() // Clear previous content
 
-    const margin = { top: 80, right: 20, bottom: 60, left: 20 }
-    const width = containerWidth - margin.left - margin.right
-    const height = containerHeight - margin.top - margin.bottom
+    // Use fallback dimensions if responsive dimensions not yet available
+    const fallbackWidth = 400
+    const fallbackHeight = 200
+    
+    // Dimensions following ResponsiveD3 pattern
+    const dimensions = {
+      width: width ?? fallbackWidth,
+      height: height ?? fallbackHeight,
+      margins: { top: 20, right: 20, bottom: 20, left: 20 }
+    }
+
+    const chartWidth = dimensions.width - dimensions.margins.left - dimensions.margins.right
+    const chartHeight = dimensions.height - dimensions.margins.top*2 - dimensions.margins.bottom*2
+
+    // Set SVG dimensions
+    svg
+      .attr('width', chartWidth)
+      .attr('height', chartHeight)
 
     const g = svg.append('g')
       .attr('transform', `translate(
-        ${margin.left},
-        ${margin.top -10}
+        ${dimensions.margins.left},
+        ${dimensions.margins.top * 2.5}
         )`)
 
     // Create scales for line chart
     const xScale = d3.scalePoint()
       .domain(data.data.map(d => d.label))
-      .range([0, width])
+      .range([0, chartWidth])
       .padding(0.1)
 
     const yScale = d3.scaleLinear()
       .domain([0, d3.max(data.data, d => d.percentage) ?? 100])
-      .range([height, 0])
+      .range([chartHeight, 0])
 
     // Create line generator
     const line = d3.line<typeof data.data[0]>()
@@ -105,7 +152,7 @@ const DvAgeDistribution: React.FC<DvAgeDistributionProps> = ({
     // Create area generator for fill
     const area = d3.area<typeof data.data[0]>()
       .x(d => xScale(d.label) ?? 0)
-      .y0(height)
+      .y0(chartHeight)
       .y1(d => yScale(d.percentage))
       .curve(d3.curveCardinal.tension(0.3))
 
@@ -194,7 +241,7 @@ const DvAgeDistribution: React.FC<DvAgeDistributionProps> = ({
 
     // Add X axis
      g.append('g')
-      .attr('transform', `translate(0,${height})`)
+      .attr('transform', `translate(0,${chartHeight})`)
       .call(d3.axisBottom(xScale).offset(10))
       .selectAll("path,line,text")
       .attr('stroke-opacity', 0)
@@ -213,7 +260,7 @@ const DvAgeDistribution: React.FC<DvAgeDistributionProps> = ({
 
     // Add title
     svg.append('text')
-      .attr('x', 0 + margin.left)
+      .attr('x', dimensions.margins.left)
       .attr('y', 25)
       .attr('class', 'dv-title')
       .style('fill', mainColor)
@@ -228,7 +275,7 @@ const DvAgeDistribution: React.FC<DvAgeDistributionProps> = ({
       .style('fill', '#666')
       .text(data.isQuartier ? 'Ensemble du quartier' : `SU #${data.suId}`)*/}
 
-  }, [data, colors, mainColor, lightColor3, containerWidth, containerHeight])
+  }, [data, colors, mainColor, lightColor3, width, height])
 
   if (loading) {
     return (
@@ -255,13 +302,8 @@ const DvAgeDistribution: React.FC<DvAgeDistributionProps> = ({
   }
 
   return (
-    <div className="w-full h-full">
-      <svg
-        ref={svgRef}
-        width={containerWidth}
-        height={containerHeight}
-        className="w-full h-full"
-      />
+    <div ref={svgContainer} className="w-full h-full">
+      <svg ref={svgRef} className="w-full h-full" />
     </div>
   )
 }
