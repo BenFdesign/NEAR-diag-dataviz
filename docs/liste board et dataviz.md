@@ -10,11 +10,16 @@ Quels sont les différents groupes qui partagent des habitudes similaires ?
 📊 Démographie
 Population, âge, activités professionnelles, …
 [] Dv population / fiche d'identité
-[] Dv âge (graph en barres horizontale)
-[] Dv genre (graph en barres horizontale)
+[] Dv âge (line chart horizontale)
+[] Dv genre (pie chart horizontale)
 [] Dv CSP (graph en barres horizontale)
 [] Dv CSP/genre (graph en barres horizontale) (opt.)
 [] Dv Accès aux soins (graph en barres horizontale) (opt.)
+
+| Dv Titre (30%) | Empty (30%)| Dv Genre (30%) |
+| Dv Âge (35%)      | DvCsp (65%)              |
+| Espace vide (35%) | DvUsages (65%)           |
+
 
 🚗 Mobilité
 Comment se déplacent le habitants autour du quartier ?

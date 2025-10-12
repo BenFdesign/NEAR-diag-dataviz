@@ -72,8 +72,6 @@ La moyenne pondérée serait utile si :
 
 1. **Pas de données quartier disponibles** → Reconstituer depuis les SUs
 2. **Comparaison** → "Quartier reconstitué" vs "Quartier INSEE officiel"
-3. **Données SU plus récentes** → Mettre à jour les données quartier
-4. **Analyse spécifique** → "Que donnerait le quartier si on ne prenait que certaines SUs ?"
 5. **⚠️ IMPORTANT : Certains datapacks en auront besoin** → Voir section suivante
 
 ## 🔢 **Moyenne pondérée nécessaire pour certains datapacks**
@@ -168,7 +166,7 @@ const calculateWeightedQuartierDistribution = async (questionKey: string): Promi
 ## 📊 **Pour certains autres datapacks (Transport, Satisfaction, etc.)**
 
 - ❌ **Pas de données quartier directes** dans `Quartiers.json`
-- ✅ **Données SU disponibles** dans `Su Answer.json`
+- ✅ **Données SU disponibles** dans `Su Answer.json` ou autre fichier `* Answer.json`
 - ✅ **Pondération disponible** via `Pop Percentage` dans `Su Data.json`
 - ✅ **Calcul nécessaire** → Moyenne pondérée par population des SUs
 

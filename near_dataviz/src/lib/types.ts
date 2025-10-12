@@ -72,6 +72,7 @@ export type SuInfo = {
 // Board Registry structure
 export type BoardDefinition = {
   id: string
+  emoji: string
   name: string
   description: string
   component: React.ComponentType<BoardProps>
@@ -100,8 +101,7 @@ export interface Board {
   description: string
   renderComponent: (props: {
     selectedSus?: number[]
-    containerWidth?: number
-    containerHeight?: number
+    // Removed containerWidth/containerHeight - Board manages its own dimensions
   }) => React.ReactElement
 }
 

@@ -1,17 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import LeftSidebar from './LeftSidebar'
-import RightSidebar from './RightSidebar'
-import BoardViewer from './BoardViewer'
+import { LeftSidebar, RightSidebar, BoardViewer } from './'
 import { getSuInfo } from '~/lib/su-service'
-import { getBoardById, getDefaultBoard, getNewBoardById } from './boards/registry'
+import { getBoardById, getDefaultBoard } from './'
 import type { MenuState, SuInfo } from '~/lib/types'
 
 export default function DatavizDashboard() {
   const [allSus, setAllSus] = useState<SuInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false)
+  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false)
 
   // Load SU data on mount
   useEffect(() => {
@@ -33,6 +33,7 @@ export default function DatavizDashboard() {
 
   // Initialize menu state
   const [menuState, setMenuState] = useState<MenuState>(() => {
+    // Use default board from unified BOARD_REGISTRY
     const defaultBoard = getDefaultBoard()
     return {
       selectedBoard: defaultBoard.id,
@@ -44,39 +45,24 @@ export default function DatavizDashboard() {
   // Update menu state when allSus is loaded
   useEffect(() => {
     if (allSus.length > 0 && menuState.availableSus.length === 0) {
-      const defaultBoard = getDefaultBoard()
+      // For new board system, we select all SUs by default
       setMenuState(prev => ({
         ...prev,
-        selectedSus: defaultBoard.defaultSus ?? allSus.map(su => su.su),
+        selectedSus: allSus.map(su => su.su),
         availableSus: allSus
       }))
     }
   }, [allSus, menuState.availableSus.length])
 
-  // Board definition + component (supporting both old and new systems)
-  const currentBoardDef = getBoardById(menuState.selectedBoard)
-  const currentNewBoard = menuState.selectedBoard.startsWith('new-') 
-    ? getNewBoardById(menuState.selectedBoard.replace('new-', ''))
-    : null
-  const BoardComponent = currentBoardDef?.component
+  // Board definition + component
+  const currentBoard = getBoardById(menuState.selectedBoard)
 
   const handleBoardChange = (boardId: string) => {
-    if (boardId.startsWith('new-')) {
-      // New board system
-      setMenuState(prev => ({
-        ...prev,
-        selectedBoard: boardId,
-        selectedSus: prev.selectedSus // Keep current selection
-      }))
-    } else {
-      // Old board system
-      const newBoard = getBoardById(boardId)
-      setMenuState(prev => ({
-        ...prev,
-        selectedBoard: boardId,
-        selectedSus: newBoard?.defaultSus ?? prev.selectedSus
-      }))
-    }
+    setMenuState(prev => ({
+      ...prev,
+      selectedBoard: boardId,
+      selectedSus: prev.selectedSus // Keep current selection
+    }))
   }
 
   const handleSusChange = (sus: number[]) => {
@@ -84,6 +70,26 @@ export default function DatavizDashboard() {
       ...prev,
       selectedSus: sus
     }))
+  }
+
+  const toggleLeftSidebar = () => {
+    setLeftSidebarCollapsed(prev => !prev)
+  }
+
+  const toggleRightSidebar = () => {
+    setRightSidebarCollapsed(prev => !prev)
+  }
+
+  // Calculate board container classes based on sidebar states
+  const getBoardContainerClass = () => {
+    if (!leftSidebarCollapsed && !rightSidebarCollapsed) {
+      return 'board-container both-expanded'
+    } else if (!leftSidebarCollapsed && rightSidebarCollapsed) {
+      return 'board-container left-expanded'
+    } else if (leftSidebarCollapsed && !rightSidebarCollapsed) {
+      return 'board-container right-expanded'
+    }
+    return 'board-container'
   }
 
   if (loading) {
@@ -118,30 +124,25 @@ export default function DatavizDashboard() {
     <div className="dataviz-dashboard">
       <div className="dashboard-grid">
         {/* LeftSidebar.tsx - Menu de filtre */}
-        <aside className="menu-filter">
+        <aside className={`menu-filter ${leftSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
           <LeftSidebar 
             availableSus={menuState.availableSus}
             selectedSus={menuState.selectedSus}
             onSusChange={handleSusChange}
+            isCollapsed={leftSidebarCollapsed}
+            onToggleCollapse={toggleLeftSidebar}
           />
         </aside>
 
         {/* Main Board Container */}
-        <main className="board-container">
+        <main className={getBoardContainerClass()}>
           <BoardViewer>
-            {currentNewBoard ? (
-              // Render new board system
-              currentNewBoard.renderComponent({
-                selectedSus: menuState.selectedSus,
-                containerWidth: 800, // Default width
-                containerHeight: 600 // Default height
+            {currentBoard ? (
+              // Render board, the board manages its own dimensions
+              currentBoard.renderComponent({
+                selectedSus: menuState.selectedSus
+                // Remove fixed dimensions - let Board handle sizing
               })
-            ) : BoardComponent ? (
-              // Render old board system
-              <BoardComponent 
-                selectedSus={menuState.selectedSus}
-                allSus={menuState.availableSus}
-              />
             ) : (
               <div className="p-10 text-center text-gray-500">
                 <h2 className="text-xl mb-4">Petit bug</h2>
@@ -152,10 +153,14 @@ export default function DatavizDashboard() {
         </main>
 
         {/* RightSidebar.tsx - Menu des Boards */}
-        <RightSidebar 
-          selectedBoard={menuState.selectedBoard}
-          onBoardChange={handleBoardChange}
-        />
+        <aside className={`board-selector ${rightSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
+          <RightSidebar 
+            selectedBoard={menuState.selectedBoard}
+            onBoardChange={handleBoardChange}
+            isCollapsed={rightSidebarCollapsed}
+            onToggleCollapse={toggleRightSidebar}
+          />
+        </aside>
       </div>
     </div>
   )

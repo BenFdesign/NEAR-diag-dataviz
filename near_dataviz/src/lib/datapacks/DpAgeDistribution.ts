@@ -1,171 +1,592 @@
-// Simplified Age Distribution Datapack with Mock Data
-import type { SuBankData } from '~/lib/types'
-import { 
-  loadSuBankData,
-  getCacheStatus 
-} from '~/lib/data-loader'
+/**
+ * DATAPACK - Distribution des âges
+ * 
+ * Ce datapack charge les données réelles de distribution d'âge depuis :
+ * - Su Answer.json : Réponses individuelles pour les SUs spécifiques
+ * - Quartiers.json : Données agrégées INSEE pour la vue quartier
+ * - MetaSuQuestions.json et MetaSuChoices.json : Métadonnées
+ */
+
+import { getCacheStatus } from '~/lib/data-loader'
+
+import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
+
+// =====================================
+// INTERFACES ET TYPES
+// =====================================
+
+// Interface pour les réponses individuelles (Su Answer.json)
+interface SuAnswer {
+  ID: number
+  "Su ID": number
+  "Age Category": string
+  Gender?: string
+  [key: string]: unknown
+}
+
+// Interface pour les données de quartier (Quartiers.json)
+interface QuartierData {
+  "Survey ID": number
+  "Population Sum": number
+  "P21 Pop1529 Sum": number    // 15-29 ans
+  "P21 Pop3044 Sum": number    // 30-44 ans
+  "P21 Pop4559 Sum": number    // 45-59 ans
+  "P21 Pop6074 Sum": number    // 60-74 ans
+  "P21 Pop75p Sum": number     // 75+ ans
+  [key: string]: unknown
+}
+
+// Interface pour les métadonnées des questions
+interface MetaQuestion {
+  Id: number
+  "Question Origin": string
+  "Question Short": string
+  "Emoji": string
+  "Metabase Question Key": string
+}
+
+// Interface pour les métadonnées des choix
+interface MetaChoice {
+  Id: number
+  "Label Origin": string
+  "Label Long": string
+  "Label Short": string
+  "Emoji": string
+  "Metabase Question Key": string
+  "Metabase Choice Key": string
+}
 
 // Export interface (backward compatibility)
 export interface AgeDistributionResult {
   data: {
-    value: string
-    label: string
-    emoji: string
-    count: number
-    percentage: number
-    color: string
-    midpoint: number
+    value: string         // Clé du choix (ex: "FROM_15_TO_29")
+    label: string         // Label affiché (ex: "15-29 ans")
+    emoji: string         // Emoji associé
+    count: number         // Nombre absolu de réponses
+    percentage: number    // Pourcentage
+    midpoint: number      // Point médian de la tranche (pour calculs)
   }[]
-  color: string
-  isQuartier: boolean
+  isQuartier: boolean     // True si vue quartier, false si SU spécifique
   questionLabels: {
     title: string
     emoji: string
     questionOrigin: string
     questionShort: string
   }
-  suId?: number
+  suId?: number          // ID de la SU si vue spécifique
+  totalResponses: number // Nombre total de réponses
+  dataSource: string     // Source des données
 }
 
-// Constants
+// ===========================
+// CONSTANTES ET CONFIGURATION
+// ===========================
+
 const DATAPACK_NAME = 'DpAgeDistribution'
 
-// Client-side cache for computed data
+// Cache côté client pour éviter les recalculs
 const dataCache = new Map<string, AgeDistributionResult>()
 let cacheTimestamp = 0
+const CACHE_DURATION = 3600000 // 1 heure en millisecondes
 
-// Get category colors
-const getCategoryColors = (): string[] => {
-  return [
-    '#3b82f6', // blue-500
-    '#10b981', // emerald-500  
-    '#f59e0b', // amber-500
-    '#ef4444', // red-500
-    '#8b5cf6', // violet-500
-  ]
+// Mappage des tranches d'âge INSEE vers nos codes
+const INSEE_AGE_MAPPING = {
+  'P21 Pop1529 Sum': 'FROM_15_TO_29',
+  'P21 Pop3044 Sum': 'FROM_30_TO_44', 
+  'P21 Pop4559 Sum': 'FROM_45_TO_59',
+  'P21 Pop6074 Sum': 'FROM_60_TO_74',
+  'P21 Pop75p Sum': 'ABOVE_75'
 }
 
-// Mock age distribution data (for demonstration)
-const getMockAgeData = (isQuartier: boolean): AgeDistributionResult['data'] => {
-  const colors = getCategoryColors()
-  const baseData = [
-    { key: 'FROM_15_TO_29', label: '15-29 ans', midpoint: 22, quartierPct: 18, suPct: 25 },
-    { key: 'FROM_30_TO_44', label: '30-44 ans', midpoint: 37, quartierPct: 32, suPct: 35 },
-    { key: 'FROM_45_TO_59', label: '45-59 ans', midpoint: 52, quartierPct: 28, suPct: 22 },
-    { key: 'FROM_60_TO_74', label: '60-74 ans', midpoint: 67, quartierPct: 15, suPct: 12 },
-    { key: 'ABOVE_75', label: '75+ ans', midpoint: 82, quartierPct: 7, suPct: 6 },
-  ]
+// Points médians pour les calculs (ex: moyenne d'âge)
+const AGE_MIDPOINTS: Record<string, number> = {
+  FROM_15_TO_29: 22,
+  FROM_30_TO_44: 37,
+  FROM_45_TO_59: 52,
+  FROM_60_TO_74: 67,
+  ABOVE_75: 82
+}
 
-  return baseData.map((item, index) => {
-    const percentage = isQuartier ? item.quartierPct : item.suPct
+// Les couleurs sont gérées par DpColor dans les composants Dv
+
+// =====================================
+// FONCTIONS DE CHARGEMENT DES DONNÉES
+// =====================================
+
+/**
+ * Charge les réponses individuelles depuis Su Answer.json
+*/
+const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
+  try {
+    const response = await fetch('/api/data/Su%20Answer')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = await response.json() as SuAnswer[]
+    console.log(`📊 Chargé ${data.length} réponses individuelles`)
+    return data
+  } catch (error) {
+    console.error('Erreur lors du chargement de Su Answer:', error)
+    return []
+  }
+}
+
+/**
+ * Charge les données de quartier depuis Quartiers.json
+ */
+const loadQuartierData = async (): Promise<QuartierData[]> => {
+  try {
+    const response = await fetch('/api/data/Quartiers')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = await response.json() as QuartierData[]
+    console.log(`🏘️ Chargé ${data.length} quartiers`)
+    return data
+  } catch (error) {
+    console.error('Erreur lors du chargement des quartiers:', error)
+    return []
+  }
+}
+
+/**
+ * Charge les métadonnées des questions depuis MetaSuQuestions.json
+ */
+const loadMetaQuestions = async (): Promise<MetaQuestion[]> => {
+  try {
+    const response = await fetch('/api/data/MetaSuQuestions')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = await response.json() as MetaQuestion[]
+    console.log(`🔍 Chargé ${data.length} métadonnées de questions`)
+    return data
+  } catch (error) {
+    console.error('Erreur lors du chargement des métadonnées de questions:', error)
+    return []
+  }
+}
+
+/**
+ * Charge les métadonnées des choix depuis MetaSuChoices.json
+ */
+const loadMetaChoices = async (): Promise<MetaChoice[]> => {
+  try {
+    const response = await fetch('/api/data/MetaSuChoices')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = await response.json() as MetaChoice[]
+    console.log(`🎯 Chargé ${data.length} métadonnées de choix`)
+    return data
+  } catch (error) {
+    console.error('Erreur lors du chargement des métadonnées de choix:', error)
+    return []
+  }
+}
+
+
+
+// =====================================
+// FONCTIONS DE TRAITEMENT DES MÉTADONNÉES
+// =====================================
+
+/**
+ * Extrait les métadonnées de la question "Age Category"
+ */
+const getAgeQuestionMetadata = (metaQuestions: MetaQuestion[]) => {
+  const ageQuestion = metaQuestions.find(q => q["Metabase Question Key"] === "Age Category")
+  
+  if (!ageQuestion) {
+    console.warn('⚠️ Métadonnées de question âge non trouvées, utilisation des valeurs par défaut')
     return {
-      value: item.key,
-      label: item.label,
+      title: 'Distribution d\'âge',
       emoji: '👥',
-      count: Math.round(percentage * 10), // Mock count
-      percentage,
-      color: colors[index] ?? colors[0]!,
-      midpoint: item.midpoint
+      questionOrigin: 'Quelle est votre tranche d\'âge ?',
+      questionShort: 'Tranches d\'âges'
+    }
+  }
+
+  return {
+    title: ageQuestion["Question Short"] || 'Distribution d\'âge',
+    emoji: ageQuestion.Emoji || '👥',
+    questionOrigin: ageQuestion["Question Origin"] || 'Quelle est votre tranche d\'âge ?',
+    questionShort: ageQuestion["Question Short"] || 'Tranches d\'âges'
+  }
+}
+
+/**
+ * Crée un dictionnaire des choix d'âge avec leurs métadonnées
+ */
+const getAgeChoicesMetadata = (metaChoices: MetaChoice[]) => {
+  const ageChoices = metaChoices.filter(c => c["Metabase Question Key"] === "Age Category")
+  
+  if (ageChoices.length === 0) {
+    console.warn('⚠️ Métadonnées de choix âge non trouvées, utilisation des valeurs par défaut')
+    return {
+      FROM_15_TO_29: { label: '15-29 ans', emoji: '' },
+      FROM_30_TO_44: { label: '30-44 ans', emoji: '' },
+      FROM_45_TO_59: { label: '45-59 ans', emoji: '' },
+      FROM_60_TO_74: { label: '60-74 ans', emoji: '' },
+      ABOVE_75: { label: '75+ ans', emoji: '' }
+    }
+  }
+
+  const choicesMap: Record<string, { label: string; emoji: string }> = {}
+  
+  ageChoices.forEach(choice => {
+    const key = choice["Metabase Choice Key"]
+    choicesMap[key] = {
+      label: choice["Label Origin"] || choice["Label Short"] || key,
+      emoji: choice.Emoji || '👥'
     }
   })
+
+  return choicesMap
 }
 
-// Main export function with caching
+// =====================================
+// FONCTIONS DE TRAITEMENT DES DONNÉES
+// =====================================
+
+/**
+ * Traite les réponses individuelles pour calculer la distribution d'âge
+ */
+const processAgeDistribution = (
+  answers: SuAnswer[],
+  choicesMetadata: Record<string, { label: string; emoji: string }>
+): AgeDistributionResult['data'] => {
+  
+  // Compter les réponses par catégorie d'âge
+  const ageCounts: Record<string, number> = {}
+  const totalAnswers = answers.length
+
+  // Initialiser les compteurs
+  Object.keys(choicesMetadata).forEach(key => {
+    ageCounts[key] = 0
+  })
+
+  // Compter les réponses valides
+  answers.forEach(answer => {
+    const ageCategory = answer["Age Category"]
+    if (ageCategory && ageCounts.hasOwnProperty(ageCategory)) {
+      ageCounts[ageCategory] = (ageCounts[ageCategory] ?? 0) + 1
+    }
+  })
+
+  // Calculer les pourcentages et créer les données finales
+  return Object.entries(ageCounts).map(([key, count]) => {
+    const percentage = totalAnswers > 0 ? (count / totalAnswers) * 100 : 0
+    const metadata = choicesMetadata[key] ?? { label: key, emoji: '👥' }
+    
+    return {
+      value: key,
+      label: metadata.label,
+      emoji: metadata.emoji,
+      count,
+      percentage: Math.round(percentage * 10) / 10, // Arrondir à 1 décimale
+      midpoint: AGE_MIDPOINTS[key] ?? 0
+    }
+  }).filter(item => item.count > 0) // Exclure les catégories vides
+}
+
+/**
+ * Traite les données de quartier INSEE pour la distribution d'âge
+ */
+const processQuartierAgeDistribution = (
+  quartiers: QuartierData[],
+  selectedQuartierNames: string[]
+): AgeDistributionResult['data'] => {
+  
+  // Filtrer les quartiers sélectionnés (ou tous si aucun spécifié)
+  const targetQuartiers = selectedQuartierNames.length > 0 
+    ? quartiers.filter(q => selectedQuartierNames.includes(String(q.Nom)))
+    : quartiers
+
+  console.log(`📊 Traitement de ${targetQuartiers.length} quartiers pour la distribution d'âge`)
+
+  // Agréger les données INSEE par tranche d'âge
+  const aggregatedData: Record<string, number> = {}
+  
+  // Initialiser les compteurs
+  Object.values(INSEE_AGE_MAPPING).forEach(ageKey => {
+    aggregatedData[ageKey] = 0
+  })
+
+  // Sommer les populations par tranche d'âge
+  targetQuartiers.forEach(quartier => {
+    Object.entries(INSEE_AGE_MAPPING).forEach(([inseeKey, ageKey]) => {
+      const population = quartier[inseeKey as keyof QuartierData] as number || 0
+      aggregatedData[ageKey] = (aggregatedData[ageKey] ?? 0) + population
+    })
+  })
+
+  // Calculer le total pour les pourcentages
+  const totalPopulation = Object.values(aggregatedData).reduce((sum, count) => sum + count, 0)
+
+  // Métadonnées par défaut pour les quartiers
+  const defaultChoicesMetadata = {
+    FROM_15_TO_29: { label: '15-29 ans', emoji: '🧒' },
+    FROM_30_TO_44: { label: '30-44 ans', emoji: '👨' },
+    FROM_45_TO_59: { label: '45-59 ans', emoji: '👨‍💼' },
+    FROM_60_TO_74: { label: '60-74 ans', emoji: '👴' },
+    ABOVE_75: { label: '75+ ans', emoji: '👵' }
+  }
+
+  // Créer les données finales
+  return Object.entries(aggregatedData).map(([key, count]) => {
+    const percentage = totalPopulation > 0 ? (count / totalPopulation) * 100 : 0
+    const metadata = defaultChoicesMetadata[key as keyof typeof defaultChoicesMetadata] || { label: key, emoji: '👥' }
+    
+    return {
+      value: key,
+      label: metadata.label,
+      emoji: metadata.emoji,
+      count,
+      percentage: Math.round(percentage * 10) / 10, // Arrondir à 1 décimale
+      midpoint: AGE_MIDPOINTS[key] ?? 0
+    }
+  }).filter(item => item.count > 0) // Exclure les tranches vides
+}
+
+// =====================================
+// FONCTION PRINCIPALE
+// =====================================
+
+// Fonction principale avec cache
 export const getDpAgeDistributionData = async (selectedSus?: number[]): Promise<AgeDistributionResult> => {
   try {
     const cacheKey = JSON.stringify(selectedSus ?? [])
     
-    // Check cache (1 hour expiry)
-    if (dataCache.has(cacheKey) && (Date.now() - cacheTimestamp) < 3600000) {
-      console.log(`✅ Using cached age distribution data`)
+    // Vérifier le cache (1 heure d'expiration)
+    if (dataCache.has(cacheKey) && (Date.now() - cacheTimestamp) < CACHE_DURATION) {
+      console.log(`✅ Utilisation des données mises en cache pour ${DATAPACK_NAME}`)
       return dataCache.get(cacheKey)!
     }
 
-    console.log(`🔄 Computing age distribution data (mock)...`)
+    console.log(`🔄 Calcul des données pour ${DATAPACK_NAME}...`)
     
-    // Determine if this is a quartier view
+    // Déterminer si c'est une vue quartier ou SU
     const isQuartier = !selectedSus || selectedSus.length === 0 || selectedSus.length > 1
     
-    let mainColor = '#002878'
-    
-    if (!isQuartier && selectedSus.length === 1) {
-      // Get SU color from bank data
-      try {
-        const bankData = await loadSuBankData()
-        const suInfo = bankData.find((su: SuBankData) => su.Id === selectedSus[0])
-        mainColor = suInfo?.colorMain ?? '#3b82f6'
-      } catch {
-        console.warn('Failed to load SU color, using default')
+    if (!isQuartier && selectedSus && selectedSus.length === 1) {
+      // Mapper les ID locaux vers les ID globaux si nécessaire
+      const mappedSuIds = await mapLocalToGlobalIds(selectedSus)
+      const targetSuId = mappedSuIds[0]!
+      
+      // Traitement des données SU (réponses individuelles)
+      console.log(`📋 Traitement des réponses SU: ${selectedSus[0]} → ${targetSuId}`)
+      
+      const [suAnswers, metaQuestions, metaChoices] = await Promise.all([
+        loadSuAnswerData(),
+        loadMetaQuestions(),
+        loadMetaChoices()
+      ])
+
+      console.log(`📊 Total des réponses chargées: ${suAnswers.length}`)
+      
+      // Analyser les ID disponibles pour le debug
+      const availableSuIds = [...new Set(suAnswers.map(answer => answer["Su ID"]))].sort((a, b) => a - b)
+      console.log(`🔍 ID des SU disponibles dans les données:`, availableSuIds)
+      console.log(`🔍 ID recherché:`, targetSuId)
+
+      // Filtrer les réponses pour le SU sélectionné (utiliser l'ID mappé)
+      const filteredAnswers = suAnswers.filter(answer => 
+        answer["Su ID"] === targetSuId
+      )
+
+      console.log(`🎯 ${filteredAnswers.length} réponses trouvées pour le SU ${targetSuId}`)
+      
+      // Si aucune réponse trouvée, suggérer des ID valides
+      if (filteredAnswers.length === 0 && availableSuIds.length > 0) {
+        console.warn(`⚠️ Aucune réponse pour SU ${targetSuId}. Essayez avec: ${availableSuIds.slice(0, 3).join(', ')}`)
       }
-    }
 
-    const result: AgeDistributionResult = {
-      data: getMockAgeData(isQuartier),
-      color: mainColor,
-      isQuartier,
-      questionLabels: {
-        title: 'Distribution d\'âge',
-        emoji: '👥',
-        questionOrigin: 'Su',
-        questionShort: 'Catégorie d\'âge'
-      },
-      suId: isQuartier ? undefined : selectedSus?.[0]
-    }
+      // Récupérer les métadonnées
+      const questionMetadata = getAgeQuestionMetadata(metaQuestions)
+      const choicesMetadata = getAgeChoicesMetadata(metaChoices)
 
-    // Cache the result
-    dataCache.set(cacheKey, result)
-    cacheTimestamp = Date.now()
-    
-    console.log(`✅ Age distribution data computed and cached`)
-    return result
+      // Traiter la distribution d'âge
+      const ageData = processAgeDistribution(filteredAnswers, choicesMetadata)
+
+      const result: AgeDistributionResult = {
+        data: ageData,
+        isQuartier: false,
+        questionLabels: questionMetadata,
+        suId: targetSuId, // Utiliser l'ID mappé
+        totalResponses: filteredAnswers.length,
+        dataSource: 'Su Answer'
+      }
+      
+      // Mettre en cache le résultat
+      dataCache.set(cacheKey, result)
+      cacheTimestamp = Date.now()
+      
+      console.log(`✅ Données de distribution d'âge calculées et mises en cache`)
+      return result
+      
+    } else {
+      // Traitement des données de quartier INSEE
+      console.log(`🏘️ Traitement des données de quartier`)
+      
+      const quartiers = await loadQuartierData()
+      
+      // Traiter la distribution d'âge des quartiers (tous par défaut)
+      const quartierAgeData = processQuartierAgeDistribution(quartiers, [])
+      
+      // Calculer le total des réponses
+      const totalPopulation = quartierAgeData.reduce((sum, item) => sum + item.count, 0)
+      
+      const result: AgeDistributionResult = {
+        data: quartierAgeData,
+        isQuartier: true,
+        questionLabels: {
+          title: 'Tranches d\'âges',
+          emoji: '🧒👵',
+          questionOrigin: 'Tranche d\'âges (Données INSEE)',
+          questionShort: 'Tranches d\'âges'
+        },
+        totalResponses: totalPopulation,
+        dataSource: 'Quartiers INSEE'
+      }
+
+      // Mettre en cache le résultat
+      dataCache.set(cacheKey, result)
+      cacheTimestamp = Date.now()
+      
+      console.log(`✅ Données de quartier calculées et mises en cache`)
+      return result
+    }
     
   } catch (error) {
-    console.error(`Error in ${DATAPACK_NAME}:`, error)
+    console.error(`❌ Erreur dans ${DATAPACK_NAME}:`, error)
     
-    // Return fallback data
+    // Retourner des données de fallback
     return {
-      data: getMockAgeData(true),
-      color: '#6c757d',
+      data: [],
       isQuartier: true,
       questionLabels: {
-        title: 'Distribution d\'âge',
-        emoji: '👥',
-        questionOrigin: 'Su', 
-        questionShort: 'Catégorie d\'âge'
-      }
+        title: 'Erreur de chargement',
+        emoji: '❌',
+        questionOrigin: 'Erreur', 
+        questionShort: 'Erreur'
+      },
+      totalResponses: 0,
+      dataSource: 'Erreur'
     }
   }
 }
 
-// Testing function
-export const testDpAgeDistribution = async () => {
-  console.log(`🧪 Testing ${DATAPACK_NAME} (mock version)...`)
+// =====================================
+// FONCTIONS DE TEST ET UTILITAIRES
+// =====================================
+
+// Fonction pour analyser les ID de SU disponibles dans les données
+export const analyzeSuIds = async () => {
+  console.log('🔍 Analyse des ID de SU disponibles...')
   
   try {
-    // Show cache status
-    console.log('📊 Cache status:', getCacheStatus())
+    const suAnswers = await loadSuAnswerData()
     
-    // Test quartier data
-    const quartierResult = await getDpAgeDistributionData()
-    console.log('✅ Quartier result:', {
-      isQuartier: quartierResult.isQuartier,
-      dataPoints: quartierResult.data.length,
-      totalPercentage: quartierResult.data.reduce((sum, item) => sum + item.percentage, 0).toFixed(1),
-      hasColor: !!quartierResult.color
+    // Extraire les ID uniques
+    const suIds = [...new Set(suAnswers.map(answer => answer["Su ID"]))].sort((a, b) => a - b)
+    
+    console.log('📊 ID des SU trouvés:', suIds)
+    console.log('📈 Nombre total de réponses:', suAnswers.length)
+    
+    // Compter les réponses par SU
+    const countBySu: Record<number, number> = {}
+    suAnswers.forEach(answer => {
+      const suId = answer["Su ID"]
+      countBySu[suId] = (countBySu[suId] ?? 0) + 1
     })
     
-    // Test single SU
-    const singleSuResult = await getDpAgeDistributionData([1])
-    console.log('✅ Single SU result:', {
+    console.log('📋 Répartition des réponses par SU:')
+    Object.entries(countBySu).forEach(([suId, count]) => {
+      console.log(`  SU ${suId}: ${count} réponses`)
+    })
+    
+    // Analyser les catégories d'âge disponibles
+    const ageCategories = [...new Set(suAnswers.map(answer => answer["Age Category"]).filter(Boolean))]
+    console.log('🎯 Catégories d\'âge trouvées:', ageCategories)
+    
+    return { suIds, countBySu, ageCategories, totalAnswers: suAnswers.length }
+    
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'analyse des SU:', error)
+    return null
+  }
+}
+
+// Fonction de test
+export const testDpAgeDistribution = async () => {
+  console.log(`🧪 Test de ${DATAPACK_NAME} avec données réelles...`)
+  
+  try {
+    // Afficher le statut du cache
+    console.log('📊 Statut du cache:', getCacheStatus())
+    
+    // Test des données de quartier
+    const quartierResult = await getDpAgeDistributionData()
+    console.log('✅ Résultat quartier:', {
+      isQuartier: quartierResult.isQuartier,
+      dataPoints: quartierResult.data.length,
+      totalResponses: quartierResult.totalResponses,
+      dataSource: quartierResult.dataSource,
+      totalPercentage: quartierResult.data.reduce((sum, item) => sum + item.percentage, 0).toFixed(1)
+    })
+    
+    // Test SU individuel (utiliser un vrai ID de SU: 477, 478, 479...)
+    const singleSuResult = await getDpAgeDistributionData([477])
+    console.log('✅ Résultat SU individuel (ID 477):', {
       isQuartier: singleSuResult.isQuartier,
       suId: singleSuResult.suId,
       dataPoints: singleSuResult.data.length,
+      totalResponses: singleSuResult.totalResponses,
+      dataSource: singleSuResult.dataSource,
       totalPercentage: singleSuResult.data.reduce((sum, item) => sum + item.percentage, 0).toFixed(1)
     })
     
-    console.log('✅ All age distribution tests completed!')
+    // Test avec un autre SU
+    const singleSuResult2 = await getDpAgeDistributionData([478])
+    console.log('✅ Résultat SU individuel (ID 478):', {
+      isQuartier: singleSuResult2.isQuartier,
+      suId: singleSuResult2.suId,
+      dataPoints: singleSuResult2.data.length,
+      totalResponses: singleSuResult2.totalResponses,
+      dataSource: singleSuResult2.dataSource,
+      totalPercentage: singleSuResult2.data.reduce((sum, item) => sum + item.percentage, 0).toFixed(1)
+    })
+    
+    // Afficher quelques échantillons de données
+    if (singleSuResult.data.length > 0) {
+      console.log('📋 Échantillon de données SU 477:', singleSuResult.data.slice(0, 3).map(item => ({
+        label: item.label,
+        count: item.count,
+        percentage: item.percentage + '%'
+      })))
+    }
+    
+    if (singleSuResult2.data.length > 0) {
+      console.log('📋 Échantillon de données SU 478:', singleSuResult2.data.slice(0, 3).map(item => ({
+        label: item.label,
+        count: item.count,
+        percentage: item.percentage + '%'
+      })))
+    }
+    
+    // Test avec ID local (qui devrait être mappé automatiquement)
+    console.log('\n🔄 Test du mappage automatique avec ID local...')
+    const localIdResult = await getDpAgeDistributionData([1])
+    console.log('✅ Résultat avec ID local 1 (mappé automatiquement):', {
+      isQuartier: localIdResult.isQuartier,
+      suId: localIdResult.suId,
+      dataPoints: localIdResult.data.length,
+      totalResponses: localIdResult.totalResponses,
+      dataSource: localIdResult.dataSource,
+      totalPercentage: localIdResult.data.reduce((sum, item) => sum + item.percentage, 0).toFixed(1)
+    })
+    
+    // Test du service de mappage centralisé
+    console.log('\n🧪 Test du service de mappage centralisé...')
+    const { testSuIdMapping } = await import('~/lib/services/suIdMapping')
+    await testSuIdMapping()
+    
+    console.log('✅ Tous les tests de distribution d\'âge terminés avec succès!')
   } catch (error) {
-    console.error(`❌ ${DATAPACK_NAME} test failed:`, error)
+    console.error(`❌ Test ${DATAPACK_NAME} échoué:`, error)
   }
 }
 
