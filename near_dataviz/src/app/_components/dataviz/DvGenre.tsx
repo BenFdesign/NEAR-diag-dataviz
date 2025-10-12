@@ -8,16 +8,13 @@ import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
 interface DvGenreProps {
   selectedSus?: number[]
-  containerWidth?: number
-  containerHeight?: number
 }
 
-const DvGenre: React.FC<DvGenreProps> = ({
-  selectedSus,
-  containerWidth = 400,
-  containerHeight = 300
+const DvGenre: React.FC<DvGenreProps> = ({ 
+  selectedSus
 }) => {
   const svgRef = useRef<SVGSVGElement>(null)
+  const svgContainer = useRef<HTMLDivElement>(null)
   const [data, setData] = useState<GenreDistributionResult | null>(null)
   const [colors, setColors] = useState<string[]>([])
   const [mainColor, setMainColor] = useState<string>('#002878')
@@ -27,9 +24,41 @@ const DvGenre: React.FC<DvGenreProps> = ({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // State to track width and height of SVG Container
+  const [width, setWidth] = useState<number>()
+  const [height, setHeight] = useState<number>()
 
+  // This function calculates width and height of the container
+  const getSvgContainerSize = () => {
+    if (svgContainer.current) {
+      const newWidth = svgContainer.current.clientWidth
+      const newHeight = svgContainer.current.clientHeight
+      setWidth(newWidth)
+      setHeight(newHeight)
+    }
+  }
 
-  // Load data and colors effect
+  useEffect(() => {
+    // detect 'width' and 'height' on render
+    getSvgContainerSize()
+    // listen for resize changes, and detect dimensions again when they change
+    window.addEventListener("resize", getSvgContainerSize)
+    // cleanup event listener
+    return () => window.removeEventListener("resize", getSvgContainerSize)
+  }, [])
+
+  // Additional effect to ensure dimensions are set after data loads
+  useEffect(() => {
+    if (data && svgContainer.current && (!width || !height)) {
+      // Small delay to ensure DOM is fully rendered
+      const timer = setTimeout(() => {
+        getSvgContainerSize()
+      }, 10)
+      return () => clearTimeout(timer)
+    }
+  }, [data, width, height])
+
+  // Load data + colors effect
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -84,15 +113,38 @@ const DvGenre: React.FC<DvGenreProps> = ({
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove() // Clear previous content
 
-    const margin = { top: 20, right: 20, bottom: 40, left: 20 }
-    const width = containerWidth
-    const height = containerHeight
-    const radius = height*0.25
+    // Use fallback dimensions if responsive dimensions not yet available
+    const fallbackWidth = 300
+    const fallbackHeight = 250
+    
+    // Dimensions following ResponsiveD3 pattern
+    const dimensions = {
+      width: width ?? fallbackWidth,
+      height: height ?? fallbackHeight,
+      margins: 20,
+      containerWidth: 0,
+      containerHeight: 0
+    }
 
-    const g = svg.append('g')
+    dimensions.containerWidth = dimensions.width - dimensions.margins * 2
+    dimensions.containerHeight = dimensions.height - dimensions.margins * 2
+    
+    // Calculate radius based on available space
+    const radius = Math.min(dimensions.containerWidth, dimensions.containerHeight) * 0.5
+
+    // Set SVG dimensions
+    svg
+      .attr('width', dimensions.width)
+      .attr('height', dimensions.height)
+
+    const container = svg.append('g')
+      .attr('class', 'container')
+      .attr('transform', `translate(${dimensions.margins}, ${dimensions.margins})`)
+
+    const g = container.append('g')
       .attr('transform', `translate(
-        ${containerWidth/2},
-        ${containerHeight/2-10}
+        ${dimensions.containerWidth/2},
+        ${dimensions.containerHeight/2 + dimensions.margins/2}
         )`)
 
     // Create pie generator
@@ -217,23 +269,14 @@ const DvGenre: React.FC<DvGenreProps> = ({
     */  
     // Add title
     svg.append('text')
-      .attr('x', margin.left)
-      .attr('y', 25)
+      .attr('x', dimensions.margins)
+      .attr('y', 20)
       .attr('class', 'dv-title')
       .style('fill', mainColor)
       .text(`${data.questionLabels.title} ${data.questionLabels.emoji}`)
-    
+  
 
-    // Add subtitle showing context
-    /* svg.append('text')
-      .attr('x', containerWidth / 2)
-      .attr('y', containerHeight - 5)
-      .attr('text-anchor', 'middle')
-      .style('font-size', '10px')
-      .style('fill', '#666')
-      .text(data.isQuartier ? 'Ensemble du quartier' : `SU #${data.suId}`) */
-
-  }, [data, colors, mainColor, lightColor3, lightColor1, darkColor1, containerWidth, containerHeight])
+  }, [data, colors, mainColor, lightColor3, lightColor1, darkColor1, width, height])
 
   if (loading) {
     return (
@@ -260,13 +303,8 @@ const DvGenre: React.FC<DvGenreProps> = ({
   }
 
   return (
-    <div className="w-full h-full">
-      <svg
-        ref={svgRef}
-        width={containerWidth}
-        height={containerHeight}
-        className="w-full h-full"
-      />
+    <div ref={svgContainer} className="w-full h-full">
+      <svg ref={svgRef} className="w-full h-full" />
     </div>
   )
 }

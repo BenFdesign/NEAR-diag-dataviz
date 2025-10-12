@@ -39,30 +39,18 @@
   width: 280px;
 }
 
-/* Main board container - always centered */
+/* Main board container - always full width, centered */
 .board-container {
   position: absolute;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100vw - 120px); /* Account for collapsed sidebars */
+  width: 100vw;
   max-width: 1200px;
   height: 100vh;
   padding: 20px;
   box-sizing: border-box;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.board-container.left-expanded {
-  width: calc(100vw - 340px); /* Left expanded + right collapsed TODO: Responsivité (vérifier la réaction au hardcode px) */
-}
-
-.board-container.right-expanded {
-  width: calc(100vw - 340px); /* Right expanded + left collapsed (vérifier la réaction au hardcode px) */
-}
-
-.board-container.both-expanded {
-  width: calc(100vw - 560px); /* Both expanded (vérifier la réaction au hardcode px) */
+  /* Remove transition since width no longer changes */
 }
 
 /* Right sidebar - board selection menu */
@@ -501,7 +489,7 @@
   }
 }
 
-/* Future: Multi-visualization layout with CSP */
+/* Future: Layout multi avec CSP */
 /*
 .demographie-board .board-grid {
   grid-template-columns: 2fr 1fr;
@@ -648,16 +636,8 @@
 
 @media (max-width: 1024px) {
   .board-container {
-    width: calc(100vw - 80px);
-  }
-  
-  .board-container.left-expanded,
-  .board-container.right-expanded {
-    width: calc(100vw - 300px);
-  }
-  
-  .board-container.both-expanded {
-    width: calc(100vw - 520px);
+    width: 100vw;
+    max-width: 1000px;
   }
 
   .menu-filter.expanded,
@@ -668,17 +648,9 @@
 
 @media (max-width: 768px) {
   .board-container {
-    width: calc(100vw - 60px);
+    width: 100vw;
+    max-width: 800px;
     padding: 10px;
-  }
-  
-  .board-container.left-expanded,
-  .board-container.right-expanded {
-    width: calc(100vw - 220px);
-  }
-  
-  .board-container.both-expanded {
-    width: calc(100vw - 380px);
   }
 
   .menu-filter.expanded,

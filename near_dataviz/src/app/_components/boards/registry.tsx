@@ -6,13 +6,12 @@
  */
 
 import type { Board } from '~/lib/types'
-import { DemographieBoard } from './DemographieBoard'
+import { FicheSuBoard} from './FicheSuBoard'
 // import TestBoard from './TestBoard' // Décommentez si vous voulez utiliser le TestBoard
 
 // Board registry - Configuration centrale des tableaux de bord
 export const BOARD_REGISTRY: Board[] = [
-  DemographieBoard,
-  // TestBoard // Décommentez si vous voulez utiliser le TestBoard
+  FicheSuBoard,
 ]
 
 // Utility functions

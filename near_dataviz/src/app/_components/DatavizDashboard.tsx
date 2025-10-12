@@ -80,15 +80,8 @@ export default function DatavizDashboard() {
     setRightSidebarCollapsed(prev => !prev)
   }
 
-  // Calculate board container classes based on sidebar states
+  // Board container now always uses the same class since it doesn't resize
   const getBoardContainerClass = () => {
-    if (!leftSidebarCollapsed && !rightSidebarCollapsed) {
-      return 'board-container both-expanded'
-    } else if (!leftSidebarCollapsed && rightSidebarCollapsed) {
-      return 'board-container left-expanded'
-    } else if (leftSidebarCollapsed && !rightSidebarCollapsed) {
-      return 'board-container right-expanded'
-    }
     return 'board-container'
   }
 

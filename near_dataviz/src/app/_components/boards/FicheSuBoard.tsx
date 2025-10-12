@@ -1,24 +1,24 @@
 // Demographie Board - Age, CSP, genre des échantillons par SU + données INSEE pour le quartier
-import { DvAgeDistribution } from '../'
-import { DvGenre } from '../'
-import { DvCsp } from '../'
+import { DvAgeDistribution } from '..'
+import { DvGenre } from '..'
+import { DvCsp } from '..'
 import type { Board } from '~/lib/types'
 
-export const DemographieBoard: Board = {
-  id: 'demographie',
-  name: 'Démographie',
-  emoji: '📊',
-  description: 'Découvrir la composition sociologique du quartier : âges, catégories socio-professionnelles et genre',
+export const FicheSuBoard: Board = {
+  id: 'SU',
+  name: 'Sphères d\'Usages',
+  emoji: '🔮',
+  description: 'Découvrir la sociologie et les grandes habitudes du quartier et des différentes S.U. : âges, catégories socio-professionnelles et genre',
   renderComponent: ({ selectedSus }: {
     selectedSus?: number[]
   }) => (
     <div className="demographie-board">
       <header className="board-header">
         <h2 className="board-title">
-          {DemographieBoard.emoji} {DemographieBoard.name}
+          {FicheSuBoard.emoji} {FicheSuBoard.name}
         </h2>
         <p className="board-subtitle">
-          {DemographieBoard.description}
+          {FicheSuBoard.description}
         </p>
       </header>
       
@@ -39,8 +39,6 @@ export const DemographieBoard: Board = {
         <div className="dv-container genre-dist">
           <DvGenre 
             selectedSus={selectedSus}
-            containerWidth={300}
-            containerHeight={250}
           />
         </div>
 
@@ -48,16 +46,12 @@ export const DemographieBoard: Board = {
         <div className="dv-container age-dist">
           <DvAgeDistribution 
             selectedSus={selectedSus}
-            containerWidth={400}
-            containerHeight={250}
           />
         </div>
 
         <div className="dv-container csp-dist">
           <DvCsp 
             selectedSus={selectedSus}
-            containerWidth={590}
-            containerHeight={250}
           />
         </div>
 
@@ -77,4 +71,4 @@ export const DemographieBoard: Board = {
   )
 }
 
-export default DemographieBoard
+export default FicheSuBoard
