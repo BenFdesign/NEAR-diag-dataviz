@@ -379,14 +379,6 @@ const createTestimonyLinks = (
 
 export const getDpTestimonyData = async (selectedSus?: number[]): Promise<TestimonyNetworkResult> => {
   try {
-    const cacheKey = JSON.stringify(selectedSus ?? [])
-    
-    // Vérifier le cache
-    if (dataCache.has(cacheKey) && (Date.now() - cacheTimestamp) < CACHE_DURATION) {
-      console.log(`✅ Utilisation des données mises en cache pour ${DATAPACK_NAME}`)
-      return dataCache.get(cacheKey)!
-    }
-
     console.log(`🔄 Calcul des données pour ${DATAPACK_NAME}...`)
     
     // Charger toutes les données
@@ -398,6 +390,15 @@ export const getDpTestimonyData = async (selectedSus?: number[]): Promise<Testim
     
     // Déterminer si c'est une vue quartier ou SU
     const isQuartier = !selectedSus || selectedSus.length === 0 || selectedSus.length > 1
+
+    // Construire une clé de cache cohérente avec la logique (quartier = toutes SU)
+    const cacheKey = isQuartier ? 'quartier' : JSON.stringify(selectedSus ?? [])
+
+    // Vérifier le cache
+    if (dataCache.has(cacheKey) && (Date.now() - cacheTimestamp) < CACHE_DURATION) {
+      console.log(`✅ Utilisation des données mises en cache pour ${DATAPACK_NAME} (key=${cacheKey})`)
+      return dataCache.get(cacheKey)!
+    }
     let mappedSuIds = selectedSus
     
     // Mapper les IDs si nécessaire pour SU spécifique
@@ -411,9 +412,10 @@ export const getDpTestimonyData = async (selectedSus?: number[]): Promise<Testim
     
     // Extraire les témoignages
     const { testimonies, subcategoriesFound } = extractTestimonies(
-      wayOfLifeAnswers, 
-      suAnswers, 
-      mappedSuIds
+      wayOfLifeAnswers,
+      suAnswers,
+      // En mode quartier, on ignore tout filtrage SU pour exposer l'ensemble des témoignages
+      isQuartier ? undefined : mappedSuIds
     )
     
     // Créer les nodes parents
@@ -443,7 +445,7 @@ export const getDpTestimonyData = async (selectedSus?: number[]): Promise<Testim
     }
     
     // Mettre en cache
-    dataCache.set(cacheKey, result)
+  dataCache.set(cacheKey, result)
     cacheTimestamp = Date.now()
     
     console.log(`✅ Réseau de témoignages calculé: ${allNodes.length} nodes, ${links.length} links`)

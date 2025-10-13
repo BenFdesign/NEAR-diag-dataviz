@@ -10,6 +10,7 @@ import { FicheSuBoard } from './FicheSuBoard'
 import { TestimonyBoard } from './TestimonyBoard'
 import { EmdvByCategoryBoards } from './EmdvByCategoryBoards'
 import BarrierBoards from './BarrierBoards'
+import BarrierQuestionBoards from './BarrierQuestionBoards'
 
 // import TestBoard from './TestBoard' // Décommentez si vous voulez utiliser le TestBoard
 
@@ -17,8 +18,9 @@ import BarrierBoards from './BarrierBoards'
 export const BOARD_REGISTRY: Board[] = [
   FicheSuBoard,
   TestimonyBoard,
-  ...EmdvByCategoryBoards,
   ...BarrierBoards,
+  ...BarrierQuestionBoards,
+  ...EmdvByCategoryBoards,
 ]
 
 // Utility functions

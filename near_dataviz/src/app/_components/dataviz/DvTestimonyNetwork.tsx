@@ -4,18 +4,15 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import type { ZoomTransform } from 'd3'
 import { getDpTestimonyData, type TestimonyNetworkResult, type TestimonyNode, type TestimonyLink } from '~/lib/datapacks/DpTestimony'
+import { getSuColors } from '~/lib/datapacks/DpColor'
+import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
 // D3 event interfaces for better type safety
 interface D3ZoomEvent {
   transform: ZoomTransform
 }
 
-interface D3DragEvent {
-  active: number
-  x: number
-  y: number
-  stopPropagation(): void
-}
+// (drag event typing handled via d3.D3DragEvent in callbacks to avoid TS friction)
 
 // TestimonyNetworkComponent.tsx
 // A React component that renders a D3 force-directed network graph from real testimony data.
@@ -184,6 +181,17 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
   const [networkData, setNetworkData] = useState<TestimonyNetworkResult | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // SU-themed colors (like DvGenre)
+  const [mainColor, setMainColor] = useState<string>('#002878')
+  const [lightColor1, setLightColor1] = useState<string>('#99AAFF')
+  const [lightColor3, setLightColor3] = useState<string>('#6677DD')
+
+  // In quartier view, child nodes must use their own SU color
+  const [suColorMap, setSuColorMap] = useState<Record<number, string>>({})
+
+  // Quartier base color (used for parent nodes regardless of view)
+  const [quartierMainColor, setQuartierMainColor] = useState<string>('#002878')
+
   // State to track width and height of SVG Container
   const [width, setWidth] = useState<number>()
   const [height, setHeight] = useState<number>()
@@ -224,18 +232,18 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     const loadData = async () => {
       setLoading(true)
       try {
-        console.log('📊 Loading testimony network data...', { selectedSus })
+        console.log('📊 Chargement des témoignages format Network Graph...', { selectedSus })
         const data = await getDpTestimonyData(selectedSus)
         setNetworkData(data)
         setNodes(data.nodes.map(node => ({ ...node }))) // Add D3 properties
         setLinks(data.links)
-        console.log('✅ Testimony network data loaded:', {
+        console.log('✅ Témoingages chargés !', {
           nodes: data.nodes.length,
           links: data.links.length,
           testimonies: data.totalTestimonies
         })
       } catch (error) {
-        console.error('❌ Error loading testimony data:', error)
+        console.error('❌ Erreur au chargement des témoignages:', error)
         // Set empty data on error
         setNodes([])
         setLinks([])
@@ -247,12 +255,83 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     void loadData()
   }, [selectedSus])
 
+  // Load SU colors (like DvGenre) for theming nodes/links
+  useEffect(() => {
+    const loadColors = async () => {
+      try {
+        let globalSuId: number | undefined = undefined
+        if (selectedSus && selectedSus.length === 1 && selectedSus[0] !== undefined) {
+          const globalIds = await mapLocalToGlobalIds([selectedSus[0]])
+          globalSuId = globalIds[0]
+          console.log(`🎨 Mapping couleur: SU locale ${selectedSus[0]} → SU globale ${globalSuId}`)
+        }
+
+        const [suColors, quartierColors] = await Promise.all([
+          getSuColors(globalSuId),
+          getSuColors(undefined)
+        ])
+        if (suColors?.colorMain) setMainColor(suColors.colorMain)
+        if (suColors?.colorLight1) setLightColor1(suColors.colorLight1)
+        if (suColors?.colorLight3) setLightColor3(suColors.colorLight3)
+        if (quartierColors?.colorMain) setQuartierMainColor(quartierColors.colorMain)
+        console.log('🎨 Couleurs SU chargées:', {
+          main: suColors.colorMain,
+          light1: suColors.colorLight1,
+          light3: suColors.colorLight3,
+        })
+        console.log('🎨 Couleur Quartier:', quartierColors.colorMain)
+      } catch (error) {
+        console.warn('⚠️ Impossible de charger les couleurs SU, utilisation des valeurs par défaut', error)
+      }
+    }
+
+    void loadColors()
+  }, [selectedSus])
+
+  // Preload SU colors for all child nodes in quartier view
+  useEffect(() => {
+    const loadSuColorsForQuartier = async () => {
+      try {
+        if (!networkData?.isQuartier) {
+          setSuColorMap({})
+          return
+        }
+        // Unique SU IDs from child nodes
+        const suIds = Array.from(new Set(
+          nodes
+            .filter(n => n.type === 'child' && typeof n.suId === 'number')
+            .map(n => n.suId!)
+        ))
+        if (suIds.length === 0) {
+          setSuColorMap({})
+          return
+        }
+        const entries = await Promise.all(
+          suIds.map(async (id) => {
+            try {
+              const colors = await getSuColors(id)
+              return [id, colors.colorMain] as const
+            } catch {
+              return [id, undefined] as const
+            }
+          })
+        )
+        const map: Record<number, string> = {}
+        entries.forEach(([id, color]) => {
+          if (color) map[id] = color
+        })
+        setSuColorMap(map)
+      } catch (err) {
+        console.warn('⚠️ Impossible de précharger les couleurs SU pour la vue quartier', err)
+        setSuColorMap({})
+      }
+    }
+    void loadSuColorsForQuartier()
+  }, [networkData?.isQuartier, nodes])
+
   useEffect(() => {
     if (!svgRef.current) return;
 
-    // Declare simulation variable
-    // Declare simulation variable that will be assigned
-    let simulation: d3.Simulation<NodeDatum, undefined>;
 
     // Use fallback dimensions if responsive dimensions not yet available
     const fallbackWidth = 960
@@ -277,7 +356,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     // Set SVG dimensions
     svg
       .attr('width', dimensions.width)
-      .attr('height', dimensions.height)
+      .attr('height', dimensions.height - 80)
 
     // defs for arrowheads (optional)
     const defs = svg.append("defs");
@@ -292,7 +371,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M0,-5L10,0L0,5")
-      .attr("fill", "#999");
+      .attr("fill", lightColor3);
 
     // container for zoom
     const g = svg.append("g").attr("class", "g-zoom-root");
@@ -307,6 +386,20 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
 
     svg.call(zoom);
 
+    // Prepare link force with proper id accessor and safe cast to Force<NodeDatum, undefined>
+    const linkForce = d3
+      .forceLink<NodeDatum, LinkDatum>(linksCopy)
+      .id((d: NodeDatum) => d.id)
+      .distance(100) as unknown as d3.Force<NodeDatum, undefined>
+
+    // Create force simulation early so drag handlers can reference it
+    const simulation = d3
+      .forceSimulation<NodeDatum>(nodesCopy)
+      .force("link", linkForce)
+      .force("charge", d3.forceManyBody().strength(-50))
+      .force("center", d3.forceCenter(dimensions.width / 2, dimensions.height / 2))
+      .force("collision", d3.forceCollide().radius(25))
+
     // link lines
     const link = g
       .append("g")
@@ -314,7 +407,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       .selectAll("line")
       .data(linksCopy)
       .join("line")
-      .attr("stroke", "#999")
+      .attr("stroke", lightColor3)
       .attr("stroke-opacity", 0.6)
       .attr("stroke-width", 1.5)
       .attr("marker-end", "url(#arrow)");
@@ -323,7 +416,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     const node = g
       .append("g")
       .attr("class", "nodes")
-      .selectAll("g")
+      .selectAll<SVGGElement, NodeDatum>("g")
       .data(nodesCopy)
       .join("g")
       .attr("class", "node-group")
@@ -345,14 +438,9 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
             d.fy = event.y;
           })
       )
-      .on("click", (event: d3.D3DragEvent<SVGGElement, NodeDatum, unknown>, d: NodeDatum) => {
-        // stop propagation so zoom/pan doesn't catch it
-        if (
-          event.sourceEvent &&
-          typeof (event.sourceEvent as Event).stopPropagation === 'function'
-        ) {
-          (event.sourceEvent as Event).stopPropagation();
-        }
+      .on("click", function (event: MouseEvent, d: NodeDatum) {
+        // Stop propagation to prevent the SVG background click from closing the modal immediately
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
         setSelectedNode(d);
         setIsModalOpen(true);
       });
@@ -360,14 +448,32 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     // circles
     node
       .append("circle")
-      .attr("r", 14)
-      .attr("fill", (d) => colorOf(d.group))
+      .attr("r", (d) => (d.type === 'parent' ? 26 : 14))
+      .attr("fill", (d) => {
+        if (d.type === 'parent') return quartierMainColor
+        // Quartier mode: color children by their own SU color
+        if (networkData?.isQuartier && typeof d.suId === 'number') {
+          return suColorMap[d.suId] ?? lightColor1
+        }
+        return lightColor1
+      })
       .attr("stroke", "#fff")
       .attr("stroke-width", 1.5)
       .attr("cursor", "pointer");
 
-    // labels
+    // Emoji inside parent nodes
     node
+      .filter(d => d.type === 'parent')
+      .append("text")
+      .attr("text-anchor", "middle")
+      .attr("dy", "0.35em")
+      .attr("font-size", 16)
+      .attr("pointer-events", "none")
+      .text(d => d.emoji ?? '🧩');
+
+    // Side labels for child nodes
+    node
+      .filter(d => d.type !== 'parent')
       .append("text")
       .attr("x", 18)
       .attr("y", 4)
@@ -375,29 +481,19 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       .attr("font-size", 12)
       .attr("pointer-events", "none");
 
-    // force simulation
-    simulation = d3
-      .forceSimulation(nodesCopy)
-      .force("link", d3.forceLink(linksCopy).id((d: NodeDatum) => d.id).distance(120))
-      .force("charge", d3.forceManyBody().strength(-200))
-      .force("center", d3.forceCenter(dimensions.width / 2, dimensions.height / 2))
-      .force("collision", d3.forceCollide().radius(25))
-      .on("tick", () => {
-        link
-          .attr("x1", (d: TestimonyLink) => (d.source as unknown as NodeDatum).x ?? 0)
-          .attr("y1", (d: TestimonyLink) => (d.source as unknown as NodeDatum).y ?? 0)
-          .attr("x2", (d: TestimonyLink) => (d.target as unknown as NodeDatum).x ?? 0)
-          .attr("y2", (d: TestimonyLink) => (d.target as unknown as NodeDatum).y ?? 0);
+    // tick handler after elements exist
+    simulation.on("tick", () => {
+      link
+        .attr("x1", (d: TestimonyLink) => (d.source as unknown as NodeDatum).x ?? 0)
+        .attr("y1", (d: TestimonyLink) => (d.source as unknown as NodeDatum).y ?? 0)
+        .attr("x2", (d: TestimonyLink) => (d.target as unknown as NodeDatum).x ?? 0)
+        .attr("y2", (d: TestimonyLink) => (d.target as unknown as NodeDatum).y ?? 0);
 
-        node.attr("transform", (d: NodeDatum) => `translate(${d.x ?? 0},${d.y ?? 0})`);
-      });
+      node.attr("transform", (d: NodeDatum) => `translate(${d.x ?? 0},${d.y ?? 0})`);
+    });
 
     // helper: color scale
-    function colorOf(group: string | undefined): string {
-      if (!group) return '#999'
-      const scale = d3.scaleOrdinal(d3.schemeTableau10)
-      return scale(String(group))
-    }
+    // No colorOf() needed anymore: theming handled via DpColor SU colors
 
     // on click background to deselect
     svg.on("click", () => {
@@ -410,12 +506,12 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       simulation.stop();
       svg.selectAll("*").remove();
     };
-  }, [nodes, links, width, height]);
+  }, [nodes, links, width, height, mainColor, lightColor1, lightColor3, networkData?.isQuartier, suColorMap, quartierMainColor]);
 
   return (
     <div ref={svgContainer} className="w-full h-full">
       <div className="flex items-center justify-between mb-4 px-4 pt-4">
-        <h3 className="text-lg font-semibold">🗣 Testimony Network</h3>
+        <h3 className="text-lg font-semibold">🗣 Carte mentale des témoignages</h3>
         <div className="space-x-2">
           {loading && (
             <span className="px-3 py-1 text-xs text-gray-500">
@@ -424,7 +520,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
           )}
           {!loading && networkData && (
             <span className="px-3 py-1 text-xs text-gray-600">
-              {networkData.totalTestimonies} témoignages • {networkData.subcategories.length} catégories
+              {networkData.totalTestimonies} témoignages • {networkData.subcategories.length} thêmes
             </span>
           )}
           <button
@@ -444,7 +540,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
             }}
             disabled={loading}
           >
-            Actualiser
+            Ré-initialiser
           </button>
         </div>
       </div>
@@ -460,7 +556,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       />
 
       <div className="px-4 pb-2 text-xs text-gray-600">
-        Click nodes for details. Drag to reposition. Scroll to zoom.
+        (●) Cliquez pour les détails d&apos;un témoignage. ☩ Faites glisser pour vous déplacer dans la carte. ↕ Scrollez pour zoomer (utilisez  la molette de la souris).
       </div>
     </div>
   );

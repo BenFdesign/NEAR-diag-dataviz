@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import * as d3 from 'd3'
 import { getBarrierDataForQuestion } from '~/lib/datapacks/DpBarrierAnalysisV2'
-import type { BarrierQuestionData, BarrierCategoryData } from '~/lib/datapacks/DpBarrierAnalysisV2'
+import type { BarrierQuestionData } from '~/lib/datapacks/DpBarrierAnalysisV2'
 
 interface DvBarrierGradientProps {
   selectedSus?: number[]
@@ -46,7 +46,7 @@ const DvBarrierGradient: React.FC<DvBarrierGradientProps> = ({ selectedSus, sele
       }, 10)
       return () => clearTimeout(timer)
     }
-  }, [data, width, height])
+  }, [data, width, height, selectedQuestionKey])
 
   useEffect(() => {
     const load = async () => {
@@ -78,7 +78,7 @@ const DvBarrierGradient: React.FC<DvBarrierGradientProps> = ({ selectedSus, sele
     // Groupe racine
     const root = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`)
 
-    // Titre (au-dessus des barres)
+    // Titre (au-dessus des barres) avec emoji de la question
     root
       .append('text')
       .attr('x', 0)
@@ -86,7 +86,7 @@ const DvBarrierGradient: React.FC<DvBarrierGradientProps> = ({ selectedSus, sele
       .attr('class', 'H2-Dv')
       .style('font-size', '14px')
       .style('font-weight', '600')
-      .text(data.questionLabels.title)
+      .text(`${data.questionLabels.emoji ? data.questionLabels.emoji + ' ' : ''}${data.questionLabels.title}`)
 
     // Légende verticale à droite
     const legendWidth = Math.max(16, innerW * 0.08)
@@ -99,21 +99,37 @@ const DvBarrierGradient: React.FC<DvBarrierGradientProps> = ({ selectedSus, sele
     const availableHForBars = innerH - 20 - explanatoryH // -20 for title padding
     const maxBarsCount = Math.floor((availableHForBars + gap) / (rowH + gap))
 
-    const filtered = data.categories.filter(
-      (c) => c.percentage > 0 && c.percentage < 100 && c.familleBarriere !== 'Non concerné'
-    )
+    // Préparer les éléments à afficher: par choix (thématique) si disponible, sinon par famille (agrégé)
+    type RowItem = { label: string; percentage: number; emoji: string }
+    const useChoices = !!data.categoriesByChoice && selectedQuestionKey !== '__ALL_QUESTIONS_AGGREGATED__'
+    const allItems: RowItem[] = useChoices
+      ? (data.categoriesByChoice ?? []).map((c) => ({
+          label: (c.labelShort && c.labelShort.trim() !== '' ? c.labelShort : (c.labelLong && c.labelLong.trim() !== '' ? c.labelLong : c.choiceKey)),
+          percentage: c.percentage,
+          emoji: c.emoji,
+        }))
+      : data.categories.map((c) => ({
+          label: c.familleBarriere,
+          percentage: c.percentage,
+          emoji: c.emoji,
+        }))
+
+    const filtered = allItems.filter((c) => c.percentage > 0 && c.percentage < 100 && c.label !== 'Non concerné')
     const sorted = [...filtered].sort((a, b) => b.percentage - a.percentage)
-    const visible: BarrierCategoryData[] = sorted.slice(0, maxBarsCount)
+    const visible = sorted.slice(0, maxBarsCount)
 
     const totalH = visible.length * (rowH + gap)
     const yStart = Math.max(12, (innerH - totalH) / 2)
 
-    // Tooltip flottante
-    // Tooltip sur le body (comme DvGenre)
-    const tooltipSel = d3
-      .select('body')
-      .append('div')
-      .attr('class', 'tooltip')
+    // Tooltip flottante (persistante): réutilise si déjà présente, sinon crée
+    const existingTooltip = d3.select('body').select<HTMLDivElement>('div.dv-barrier-tooltip')
+    const tooltipSel = existingTooltip.empty()
+      ? d3
+          .select('body')
+          .append('div')
+          .attr('class', 'tooltip dv-barrier-tooltip')
+      : existingTooltip
+    tooltipSel
       .style('position', 'absolute')
       .style('background', 'rgba(0,0,0,0.8)')
       .style('color', 'white')
@@ -137,7 +153,7 @@ const DvBarrierGradient: React.FC<DvBarrierGradientProps> = ({ selectedSus, sele
       .append('g')
       .attr('transform', `translate(0, ${yStart})`)
       .selectAll('g.row')
-      .data(visible)
+  .data(visible)
       .enter()
       .append('g')
       .attr('class', 'row')
@@ -153,36 +169,33 @@ const DvBarrierGradient: React.FC<DvBarrierGradientProps> = ({ selectedSus, sele
       .attr('height', rowH)
       .attr('fill', (d) => generateGradientColor(d.percentage))
       .style('cursor', 'pointer')
-      .on('mousemove', function (event: PointerEvent, d) {
+      .on('mousemove', function (event: PointerEvent, d: RowItem) {
         tooltipSel
           .style('left', `${event.pageX + 10}px`)
           .style('top', `${event.pageY - 10}px`)
           .style('opacity', 1)
-          .html(`<div><strong>${d.isOtherReasons ? '💬' : '🚧'} ${d.familleBarriere}</strong></div><div>${d.percentage.toFixed(1)}%</div>`)
+          .html(`<div><strong>${d.emoji} ${d.label}</strong></div><div>${d.percentage.toFixed(1)}%</div>`)
       })
       .on('mouseout', function () {
-        tooltipSel.style('opacity', 0).remove()
+        tooltipSel.style('opacity', 0)
       })
 
-    // Emojis
+    // Masquer le tooltip quand la souris sort du SVG
+    svg.on('mouseleave', () => {
+      tooltipSel.style('opacity', 0)
+    })
+
+    // Labels catégorie
     rows
       .append('text')
       .attr('x', 8)
       .attr('y', rowH / 2)
       .attr('dominant-baseline', 'central')
-      .text((d) => (d.isOtherReasons ? '💬' : '🚧'))
-
-    // Labels catégorie
-    rows
-      .append('text')
-      .attr('x', 26)
-      .attr('y', rowH / 2)
-      .attr('dominant-baseline', 'central')
       .attr('class', 'p2-labels')
       .style('font-size', '11px')
       .style('fill', '#0f172a')
-      .text((d) => d.familleBarriere)
-
+      .text((d: RowItem) => `${d.emoji} ${d.label}`)
+      
     // Pourcentage à droite
     rows
       .append('text')
@@ -193,7 +206,7 @@ const DvBarrierGradient: React.FC<DvBarrierGradientProps> = ({ selectedSus, sele
       .attr('class', 'p2-labels')
       .style('font-size', '11px')
       .style('font-weight', '700')
-      .text((d) => `${d.percentage.toFixed(1)}%`)
+  .text((d: RowItem) => `${d.percentage.toFixed(1)}%`)
 
     // Texte explicatif
     root
@@ -255,7 +268,7 @@ const DvBarrierGradient: React.FC<DvBarrierGradientProps> = ({ selectedSus, sele
       .style('font-size', '10px')
       .style('font-weight', '700')
       .text('0%')
-  }, [data, width, height])
+  }, [data, width, height, selectedQuestionKey])
 
   if (loading) {
     return (

@@ -8,10 +8,15 @@ type ChoiceRow = Record<string, unknown> & {
   is_bareer?: boolean
   famille_barriere?: string
   ['Label Origin']?: string
+  Emoji?: string
+  ['Label Short']?: string
+  ['Label Long']?: string
 }
 type QuestionRow = Record<string, unknown> & {
   ['Metabase Question Key']?: string
   ['Question Short']?: string
+  ['Question Long']?: string
+  Emoji?: string
 }
 type WolRow = Record<string, unknown> & {
   ['Su ID']?: number
@@ -25,6 +30,18 @@ export interface BarrierCategoryData {
   percentage: number
   maxPossible: number
   isOtherReasons?: boolean
+  emoji: string
+}
+
+export interface ChoiceCategoryData {
+  choiceKey: string
+  labelShort: string
+  labelLong: string
+  absoluteCount: number
+  percentage: number
+  maxPossible: number
+  emoji: string
+  isOtherReasons?: boolean
 }
 
 export interface BarrierQuestionData {
@@ -36,6 +53,7 @@ export interface BarrierQuestionData {
     questionShort: string
   }
   categories: BarrierCategoryData[]
+  categoriesByChoice?: ChoiceCategoryData[]
 }
 
 interface PrecomputedBarrierData {
@@ -112,11 +130,14 @@ const calculateBarrierDataForSu = (
   barrierQuestions.forEach((qChoices, questionKey) => {
     const firstChoice = qChoices[0]
     const qMeta = questions.find((q) => String(q['Metabase Question Key']) === questionKey)
+    const qShort = typeof qMeta?.['Question Short'] === 'string' && qMeta['Question Short'] ? qMeta['Question Short'] : undefined
+  const qEmojiRaw = qMeta?.Emoji
+    const qEmoji = (typeof qEmojiRaw === 'string' && qEmojiRaw.trim() !== '') ? qEmojiRaw : '🧩'
     const questionLabels = {
-      title: qMeta?.['Question Short'] ?? `Barrières : ${questionKey}`,
-      emoji: '🚧',
+      title: qShort ?? `Barrières : ${questionKey}`,
+      emoji: qEmoji,
       questionOrigin: String(firstChoice?.['Label Origin'] ?? ''),
-      questionShort: qMeta?.['Question Short'] ?? questionKey,
+      questionShort: qShort ?? questionKey,
     }
 
     // Group by famille_barriere
@@ -127,12 +148,14 @@ const calculateBarrierDataForSu = (
       familleGroups.get(fam)!.push(ch)
     }
 
-    const categories: BarrierCategoryData[] = []
+  const categories: BarrierCategoryData[] = []
     const maxPossible = suAnswers.length
 
     // Compute per famille
     familleGroups.forEach((famChoices, familleBarriere) => {
       let absoluteCount = 0
+      // pick emoji from first non-empty Emoji in famChoices
+  const famEmoji = (famChoices.map((c) => String(c.Emoji ?? '')).find((e) => e && e.trim() !== '') ?? '🚧')
       for (const ans of suAnswers) {
   const answerField = (ans as Record<string, unknown>)[questionKey]
         const selected = parseAnswerField(answerField)
@@ -140,11 +163,28 @@ const calculateBarrierDataForSu = (
         if (hasFromFam) absoluteCount++
       }
       const pct = maxPossible > 0 ? Math.round(((absoluteCount / maxPossible) * 100) * 10) / 10 : 0
-      categories.push({ familleBarriere, absoluteCount, percentage: pct, maxPossible, isOtherReasons: false })
+      categories.push({ familleBarriere, absoluteCount, percentage: pct, maxPossible, isOtherReasons: false, emoji: famEmoji })
     })
 
     // Autres raisons
     const otherChoice = otherChoicesMapping.get(questionKey)
+    const categoriesByChoice: ChoiceCategoryData[] = []
+
+    // Par choix (AbsChoixMultiple)
+    for (const ch of qChoices) {
+      const chKey = String(ch['Metabase Choice Key'] ?? '')
+      let absoluteCount = 0
+      for (const ans of suAnswers) {
+        const selected = parseAnswerField((ans as Record<string, unknown>)[questionKey])
+        if (selected.includes(chKey)) absoluteCount++
+      }
+      const pct = maxPossible > 0 ? Math.round(((absoluteCount / maxPossible) * 100) * 10) / 10 : 0
+      const labelShort = ch['Label Short'] ?? ''
+      const labelLong = ch['Label Long'] ?? ''
+      const emoji = (ch.Emoji && ch.Emoji.trim() !== '') ? ch.Emoji : '▫️'
+      categoriesByChoice.push({ choiceKey: chKey, labelShort, labelLong, absoluteCount, percentage: pct, maxPossible, emoji, isOtherReasons: false })
+    }
+
     if (otherChoice) {
       let otherCount = 0
       for (const ans of suAnswers) {
@@ -154,12 +194,17 @@ const calculateBarrierDataForSu = (
       }
       if (otherCount > 0) {
         const pct = maxPossible > 0 ? Math.round(((otherCount / maxPossible) * 100) * 10) / 10 : 0
-        categories.push({ familleBarriere: String(otherChoice.famille_barriere), absoluteCount: otherCount, percentage: pct, maxPossible, isOtherReasons: true })
+        const otherEmoji = (otherChoice.Emoji && otherChoice.Emoji.trim() !== '') ? otherChoice.Emoji : '💬'
+        categories.push({ familleBarriere: String(otherChoice.famille_barriere), absoluteCount: otherCount, percentage: pct, maxPossible, isOtherReasons: true, emoji: otherEmoji })
+        const labelShort = otherChoice['Label Short'] ?? 'Autres raisons'
+        const labelLong = otherChoice['Label Long'] ?? 'Autres raisons'
+        categoriesByChoice.push({ choiceKey: 'OTHER', labelShort, labelLong, absoluteCount: otherCount, percentage: pct, maxPossible, emoji: otherEmoji, isOtherReasons: true })
       }
     }
 
     categories.sort((a, b) => b.percentage - a.percentage)
-    results.push({ questionKey, questionLabels, categories })
+    categoriesByChoice.sort((a, b) => b.percentage - a.percentage)
+    results.push({ questionKey, questionLabels, categories, categoriesByChoice })
   })
 
   return results
@@ -193,11 +238,14 @@ const precomputeAllBarrierData = async (): Promise<PrecomputedBarrierData> => {
   barrierQuestions.forEach((qChoices, questionKey) => {
     const firstChoice = qChoices[0]
     const qMeta = questions.find((q) => String(q['Metabase Question Key']) === questionKey)
+    const qShort = typeof qMeta?.['Question Short'] === 'string' && qMeta['Question Short'] ? qMeta['Question Short'] : undefined
+  const qEmojiRaw = qMeta?.Emoji
+    const qEmoji = (typeof qEmojiRaw === 'string' && qEmojiRaw.trim() !== '') ? qEmojiRaw : '🧩'
     const questionLabels = {
-      title: qMeta?.['Question Short'] ?? `Barrières : ${questionKey}`,
-      emoji: '🚧',
+      title: qShort ?? `Barrières : ${questionKey}`,
+      emoji: qEmoji,
       questionOrigin: String(firstChoice?.['Label Origin'] ?? ''),
-      questionShort: qMeta?.['Question Short'] ?? questionKey,
+      questionShort: qShort ?? questionKey,
     }
 
     // group by famille
@@ -209,9 +257,11 @@ const precomputeAllBarrierData = async (): Promise<PrecomputedBarrierData> => {
     }
 
     const categories: BarrierCategoryData[] = []
+    const categoriesByChoice: ChoiceCategoryData[] = []
     familleGroups.forEach((famChoices, familleBarriere) => {
       let totalWeightedCount = 0
       let totalWeightedMaxPossible = 0
+  const famEmoji = (famChoices.map((c) => String(c.Emoji ?? '')).find((e) => e && e.trim() !== '') ?? '🚧')
       for (const su of suBank) {
         const suRow = suData.find((sd) => sd.ID === su.Id)
         const popPct = suRow ? (parseFloat(String(suRow['Pop Percentage'] ?? '0')) / 100) : 0
@@ -231,8 +281,37 @@ const precomputeAllBarrierData = async (): Promise<PrecomputedBarrierData> => {
       const absoluteCount = Math.round(totalWeightedCount)
       const maxPossible = Math.round(totalWeightedMaxPossible)
       const pct = maxPossible > 0 ? Math.round(((totalWeightedCount / totalWeightedMaxPossible) * 100) * 10) / 10 : 0
-      categories.push({ familleBarriere, absoluteCount, percentage: pct, maxPossible, isOtherReasons: false })
+      categories.push({ familleBarriere, absoluteCount, percentage: pct, maxPossible, isOtherReasons: false, emoji: famEmoji })
     })
+
+    // Par choix (pondéré)
+    for (const ch of qChoices) {
+      const chKey = String(ch['Metabase Choice Key'] ?? '')
+      let totalWeightedCount = 0
+      let totalWeightedMax = 0
+      for (const su of suBank) {
+        const suRow = suData.find((sd) => sd.ID === su.Id)
+        const popPct = suRow ? (parseFloat(String(suRow['Pop Percentage'] ?? '0')) / 100) : 0
+        const suAnswers = wol.filter((a) => a['Su ID'] === su.Id)
+        if (popPct > 0 && suAnswers.length > 0) {
+          let suCount = 0
+          const suMax = suAnswers.length
+          for (const ans of suAnswers) {
+            const selected = parseAnswerField((ans as Record<string, unknown>)[questionKey])
+            if (selected.includes(chKey)) suCount++
+          }
+          totalWeightedCount += suCount * popPct
+          totalWeightedMax += suMax * popPct
+        }
+      }
+      const absoluteCount = Math.round(totalWeightedCount)
+      const maxPossible = Math.round(totalWeightedMax)
+      const pct = maxPossible > 0 ? Math.round(((totalWeightedCount / totalWeightedMax) * 100) * 10) / 10 : 0
+      const labelShort = ch['Label Short'] ?? ''
+      const labelLong = ch['Label Long'] ?? ''
+      const emoji = (ch.Emoji && ch.Emoji.trim() !== '') ? ch.Emoji : '▫️'
+      categoriesByChoice.push({ choiceKey: chKey, labelShort, labelLong, absoluteCount, percentage: pct, maxPossible, emoji, isOtherReasons: false })
+    }
 
     const otherChoice = otherChoicesMapping.get(questionKey)
     if (otherChoice) {
@@ -257,12 +336,17 @@ const precomputeAllBarrierData = async (): Promise<PrecomputedBarrierData> => {
         const absoluteCount = Math.round(totalWeightedOtherCount)
         const maxPossible = Math.round(totalWeightedOtherMax)
         const pct = maxPossible > 0 ? Math.round(((totalWeightedOtherCount / totalWeightedOtherMax) * 100) * 10) / 10 : 0
-        categories.push({ familleBarriere: String(otherChoice.famille_barriere), absoluteCount, percentage: pct, maxPossible, isOtherReasons: true })
+        const otherEmoji = (otherChoice.Emoji && otherChoice.Emoji.trim() !== '') ? otherChoice.Emoji : '💬'
+        categories.push({ familleBarriere: String(otherChoice.famille_barriere), absoluteCount, percentage: pct, maxPossible, isOtherReasons: true, emoji: otherEmoji })
+        const labelShort = otherChoice['Label Short'] ?? 'Autres raisons'
+        const labelLong = otherChoice['Label Long'] ?? 'Autres raisons'
+        categoriesByChoice.push({ choiceKey: 'OTHER', labelShort, labelLong, absoluteCount, percentage: pct, maxPossible, emoji: otherEmoji, isOtherReasons: true })
       }
     }
 
     categories.sort((a, b) => b.percentage - a.percentage)
-    quartierResults.push({ questionKey, questionLabels, categories })
+    categoriesByChoice.sort((a, b) => b.percentage - a.percentage)
+    quartierResults.push({ questionKey, questionLabels, categories, categoriesByChoice })
   })
 
   return { allSuResults, quartierResults, lastComputed: Date.now() }
@@ -317,20 +401,22 @@ export async function getAggregatedBarrierData(selectedSus?: number[]) {
   const all = await getBarrierData(selectedSus)
   if (all.data.length === 0) return { ...all, data: [] }
 
-  const map = new Map<string, { totalCount: number; totalMax: number; isOtherReasons: boolean }>()
+  const map = new Map<string, { totalCount: number; totalMax: number; isOtherReasons: boolean; emoji?: string }>()
   for (const q of all.data) {
     for (const c of q.categories) {
-  const cur = map.get(c.familleBarriere) ?? { totalCount: 0, totalMax: 0, isOtherReasons: !!c.isOtherReasons }
+  const cur = map.get(c.familleBarriere) ?? { totalCount: 0, totalMax: 0, isOtherReasons: !!c.isOtherReasons, emoji: undefined }
       cur.totalCount += c.absoluteCount
       cur.totalMax += c.maxPossible
       cur.isOtherReasons = cur.isOtherReasons || !!c.isOtherReasons
+      if (!cur.emoji && c.emoji && c.emoji.trim() !== '') cur.emoji = c.emoji
       map.set(c.familleBarriere, cur)
     }
   }
   const categories: BarrierCategoryData[] = []
   map.forEach((v, k) => {
     const pct = v.totalMax > 0 ? Math.round(((v.totalCount / v.totalMax) * 100) * 10) / 10 : 0
-    categories.push({ familleBarriere: k, absoluteCount: v.totalCount, percentage: pct, maxPossible: v.totalMax, isOtherReasons: v.isOtherReasons })
+    const emoji = (v.emoji && v.emoji.trim() !== '') ? v.emoji : (v.isOtherReasons ? '💬' : '🚧')
+    categories.push({ familleBarriere: k, absoluteCount: v.totalCount, percentage: pct, maxPossible: v.totalMax, isOtherReasons: v.isOtherReasons, emoji })
   })
   categories.sort((a, b) => b.percentage - a.percentage)
   const aggregated: BarrierQuestionData = {
