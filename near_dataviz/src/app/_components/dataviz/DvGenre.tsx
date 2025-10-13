@@ -19,6 +19,7 @@ const DvGenre: React.FC<DvGenreProps> = ({
   const [colors, setColors] = useState<string[]>([])
   const [mainColor, setMainColor] = useState<string>('#002878')
   const [lightColor3, setLightColor3] = useState<string>('#99AAFF')
+  const [lightColor4, setLightColor4] = useState<string>('#E6EAFF')
   const [lightColor1, setLightColor1] = useState<string>('#E6EAFF')
   const [darkColor1, setDarkColor1] = useState<string>('#001A4D')
   const [loading, setLoading] = useState(true)
@@ -91,6 +92,7 @@ const DvGenre: React.FC<DvGenreProps> = ({
         setData(result)
         setColors(palette)
         setMainColor(suColors.colorMain)
+        setLightColor4(suColors.colorLight4)
         setLightColor3(suColors.colorLight3)
         setLightColor1(suColors.colorLight1)
         setDarkColor1(suColors.colorDark1)
@@ -136,6 +138,19 @@ const DvGenre: React.FC<DvGenreProps> = ({
     svg
       .attr('width', dimensions.width)
       .attr('height', dimensions.height)
+
+    // Background de couleur avec même border-radius que le conteneur (.dv-container)
+    /*
+    svg.append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', dimensions.width)
+      .attr('height', dimensions.height)
+      .attr('fill', lightColor4)
+      .attr('opacity', 0.3)
+      .attr('rx', 12) // border-radius en SVG - même valeur que .dv-container
+      .attr('ry', 12)
+    */
 
     const container = svg.append('g')
       .attr('class', 'container')
@@ -276,7 +291,7 @@ const DvGenre: React.FC<DvGenreProps> = ({
       .text(`${data.questionLabels.title} ${data.questionLabels.emoji}`)
   
 
-  }, [data, colors, mainColor, lightColor3, lightColor1, darkColor1, width, height])
+  }, [data, colors, mainColor, lightColor3, lightColor1, darkColor1, width, height, lightColor4])
 
   if (loading) {
     return (

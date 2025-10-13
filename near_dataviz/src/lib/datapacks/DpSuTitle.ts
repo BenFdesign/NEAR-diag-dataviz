@@ -138,13 +138,17 @@ const precomputeSuTitleData = async (): Promise<PrecomputedSuTitleData> => {
   })
   
   // Process quartier - use a special approach for quartier data
+  // Try to get ornament (and optional color) from Su Bank id 0
+  const quartierBankInfo = getSuInfoFromBank(bankData, 0)
+  const quartierOrnament = quartierBankInfo?.ornament ?? ''
+  const quartierColor = '#002878'
   const quartierResult: SuTitleData = {
     suId: 0,
     suNumber: null,
     titleLabels: {
       nameFr: quartierName,
-      color: '#002878', 
-      ornament: '',
+      color: quartierColor, 
+      ornament: quartierOrnament,
       popPercentage: 100,
       totalPopulation: 100
     },

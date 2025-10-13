@@ -8,6 +8,7 @@
 export * from './DpAgeDistribution'
 export * from './DpGenre'
 export * from './DpCsp'
+export * from './DpCarbonSankey'
 
 // Autres datapacks (à décommenter selon les besoins)
 // export * from './DpColor'

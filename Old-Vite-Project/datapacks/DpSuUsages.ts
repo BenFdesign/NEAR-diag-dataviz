@@ -7,8 +7,7 @@ import { fetchHeatSourceData } from './DpHeatSource';
 import metaSuQuestionsData from '../data/MetaSuQuestions.json';
 import suData from '../data/Su Data.json';
 
-// Dans la requête SQL, appliquer le filtre global SurveyId = 1
-// (Survey Id = diagnostic millésimé quartier).
+
 
 // Su Usages - Agrégateur intelligent des sphères d'usages
 

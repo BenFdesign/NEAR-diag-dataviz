@@ -82,19 +82,28 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+
 }
 
 /* Left sidebar specific styles */
 .sidebar-left {
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
+  overflow: hidden;
 }
 
 /* Right sidebar specific styles */
 .sidebar-right {
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
+  /* Hide vertical scroll by default; only show when the right sidebar is expanded */
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+/* When the right sidebar container is expanded, allow vertical scrolling */
+.board-selector.expanded .sidebar-right {
+  overflow-y: auto;
 }
 
 /* Sidebar content container */
@@ -105,13 +114,14 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .sidebar-content.collapsed {
   padding: 10px 5px;
   opacity: 0;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .sidebar-content.expanded {
@@ -192,8 +202,8 @@
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
-  transition: all 0.3s ease 0.1s; /* Slight delay for smooth transition */
-  overflow-y: auto;
+  transition: all 0.3s ease 0.1s;
+  overflow-y: hidden;
 }
 
 .collapsed-buttons.visible {
@@ -453,7 +463,14 @@
   grid-template-areas: 
     "title-dist title-dist title-dist empty-dist empty-dist empty-dist empty-dist genre-dist genre-dist genre-dist"
     "age-dist age-dist age-dist age-dist csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist"
-    "space-dist space-dist space-dist space-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist";
+    "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
+    "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
+    "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
+    "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
+    "left-dist left-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist right-dist right-dist"
+    "left-dist left-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist right-dist right-dist"
+    "left-dist left-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist right-dist right-dist"
+    "bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist";
   gap: 15px;
   padding: 10px;
 }
@@ -540,6 +557,19 @@
 .dv-container.usages-dist {
   --dv-width: 300px;
   --dv-height: 250px;
+}
+
+.dv-container.sankey-dist {
+  grid-area: sankey-dist;
+  --dv-width: 100%;
+  --dv-height: 100%;
+}
+
+.dv-container.bottom-dist {
+  grid-area: bottom-dist;
+  height: 40px;
+  --dv-width: 100%;
+  --dv-height: 100%;
 }
 
 /* Tablet adjustments */

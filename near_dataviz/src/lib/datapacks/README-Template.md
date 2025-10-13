@@ -32,7 +32,6 @@ interface AgeDistributionResult {
     color: string         // Couleur pour la visualisation
     midpoint: number      // Point médian de la tranche
   }[]
-  color: string           // Couleur principale
   isQuartier: boolean     // True si vue quartier
   questionLabels: {       // Métadonnées de la question
     title: string
