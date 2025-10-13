@@ -65,6 +65,21 @@ interface SuAnswer {
   [key: string]: unknown
 }
 
+// Interface pour MetaSuChoices (labels SU: Genre, Âge, etc.)
+interface MetaSuChoice {
+  Id: number
+  "Form Id": number
+  "Question Id": number
+  "Label Origin": string
+  "Label Long": string
+  "Label Short": string
+  "Emoji": string
+  TypeSQL: string
+  TypeData: string
+  "Metabase Question Key": string
+  "Metabase Choice Key": string
+}
+
 // Node du réseau (parent = subcategory, child = témoignage)
 export interface TestimonyNode {
   id: string              // Identifiant unique
@@ -76,8 +91,13 @@ export interface TestimonyNode {
   testimony?: string      // Texte du témoignage
   suId?: number          // ID de la SU
   respondentGender?: string     // Genre du répondant
+  respondentGenderLabel?: string // Label humain du genre
   respondentAge?: string        // Tranche d'âge
+  respondentAgeLabel?: string   // Label humain de l'âge
   respondentCsp?: string        // CSP du répondant
+  // Référence de question (pour l'intitulé court)
+  questionShort?: string       // "Question Short" de la question de témoignage
+  questionKey?: string         // Clé Metabase de la question
   
   // Métadonnées pour les parents
   subcategory?: string    // Subcategory pour les parents
@@ -205,6 +225,22 @@ const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
   }
 }
 
+/**
+ * Charge les labels SU (ex: Genre) depuis MetaSuChoices.json
+ */
+const loadMetaSuChoices = async (): Promise<MetaSuChoice[]> => {
+  try {
+    const response = await fetch('/api/data/MetaSuChoices')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = await response.json() as MetaSuChoice[]
+    console.log(`🧾 Chargé ${data.length} MetaSuChoices`)
+    return data
+  } catch (error) {
+    console.error('Erreur lors du chargement MetaSuChoices:', error)
+    return []
+  }
+}
+
 // =====================================
 // FONCTIONS DE TRAITEMENT DES MÉTADONNÉES
 // =====================================
@@ -244,7 +280,10 @@ const getTestimonySubcategories = (metaQuestions: MetaEmdvQuestion[]): Record<st
 const extractTestimonies = (
   wayOfLifeAnswers: WayOfLifeAnswer[],
   suAnswers: SuAnswer[],
-  selectedSuIds?: number[]
+  selectedSuIds?: number[],
+  testimonyMetaByKey?: Record<string, MetaEmdvQuestion>,
+  genderLabelMap?: Record<string, string>,
+  ageLabelMap?: Record<string, string>
 ): { testimonies: TestimonyNode[], subcategoriesFound: Set<string> } => {
   
   // Créer un dictionnaire pour les métadonnées des répondants
@@ -285,7 +324,14 @@ const extractTestimonies = (
         
         subcategoriesFound.add(subcategory)
         
-        // Créer le node de témoignage
+  // Créer le node de témoignage
+  const meta = testimonyMetaByKey?.[fieldKey]
+  const questionShort = meta?.["Question Short"]?.trim?.() ?? ''
+  const genderRaw = answer.Gender ?? 'Non spécifié'
+  const genderLabel = genderLabelMap?.[String(genderRaw)] ?? undefined
+  const ageRaw = answer["Age Category"] ?? 'Non spécifié'
+  const ageLabel = ageLabelMap?.[String(ageRaw)] ?? undefined
+
         const testimonyNode: TestimonyNode = {
           id: `testimony_${answerIndex}_${fieldKey}`,
           label: cleanTestimony.length > 100 
@@ -295,9 +341,13 @@ const extractTestimonies = (
           type: 'child',
           testimony: cleanTestimony,
           suId: suId,
-          respondentGender: answer.Gender ?? 'Non spécifié',
-          respondentAge: answer["Age Category"] ?? 'Non spécifié',
-          respondentCsp: respondent?.["Home Occupation Type"] ?? 'Non spécifié'
+          respondentGender: genderRaw,
+          respondentGenderLabel: genderLabel,
+          respondentAge: ageRaw,
+          respondentAgeLabel: ageLabel,
+          respondentCsp: respondent?.["Home Occupation Type"] ?? 'Non spécifié',
+          questionShort: questionShort,
+          questionKey: fieldKey
         }
         
         testimonies.push(testimonyNode)
@@ -382,10 +432,11 @@ export const getDpTestimonyData = async (selectedSus?: number[]): Promise<Testim
     console.log(`🔄 Calcul des données pour ${DATAPACK_NAME}...`)
     
     // Charger toutes les données
-    const [metaQuestions, wayOfLifeAnswers, suAnswers] = await Promise.all([
+    const [metaQuestions, wayOfLifeAnswers, suAnswers, metaSuChoices] = await Promise.all([
       loadMetaEmdvQuestions(),
       loadWayOfLifeAnswers(),
-      loadSuAnswerData()
+      loadSuAnswerData(),
+      loadMetaSuChoices()
     ])
     
     // Déterminer si c'est une vue quartier ou SU
@@ -409,13 +460,40 @@ export const getDpTestimonyData = async (selectedSus?: number[]): Promise<Testim
     
     // Extraire les métadonnées des subcategories
     const subcategoryEmojis = getTestimonySubcategories(metaQuestions)
+
+    // Indexer les questions de témoignage par leur clé Metabase
+    const testimonyMetaByKey: Record<string, MetaEmdvQuestion> = {}
+    metaQuestions
+      .filter(q => q.Category === 'EmdvTestimony' && q["Metabase Question Key"])
+      .forEach(q => {
+        testimonyMetaByKey[q["Metabase Question Key"]] = q
+      })
     
+    // Construire une map Genre code -> Label humain depuis MetaSuChoices
+    const genderLabelMap: Record<string, string> = {}
+    metaSuChoices
+      .filter(c => c["Metabase Question Key"] === 'Gender')
+      .forEach(c => {
+        genderLabelMap[c["Metabase Choice Key"]] = c["Label Long"] || c["Label Short"] || c["Label Origin"]
+      })
+
+    // Construire une map Âge code -> Label humain depuis MetaSuChoices
+    const ageLabelMap: Record<string, string> = {}
+    metaSuChoices
+      .filter(c => c["Metabase Question Key"] === 'Age Category')
+      .forEach(c => {
+        ageLabelMap[c["Metabase Choice Key"]] = c["Label Long"] || c["Label Short"] || c["Label Origin"]
+      })
+
     // Extraire les témoignages
     const { testimonies, subcategoriesFound } = extractTestimonies(
       wayOfLifeAnswers,
       suAnswers,
       // En mode quartier, on ignore tout filtrage SU pour exposer l'ensemble des témoignages
-      isQuartier ? undefined : mappedSuIds
+      isQuartier ? undefined : mappedSuIds,
+      testimonyMetaByKey,
+      genderLabelMap,
+      ageLabelMap
     )
     
     // Créer les nodes parents
@@ -428,6 +506,8 @@ export const getDpTestimonyData = async (selectedSus?: number[]): Promise<Testim
     const links = createTestimonyLinks(testimonies, parentNodes)
     
     // Construire le résultat
+    // Titre global: si une seule subcategory et qu'une Question Short existe pour elle, on pourrait l'utiliser.
+    // Mais le besoin principal: le titre du modal par témoignage (géré côté DV). On garde un titre général ici.
     const result: TestimonyNetworkResult = {
       nodes: allNodes,
       links: links,

@@ -5,7 +5,7 @@ import * as d3 from "d3";
 import type { ZoomTransform } from 'd3'
 import { getDpTestimonyData, type TestimonyNetworkResult, type TestimonyNode, type TestimonyLink } from '~/lib/datapacks/DpTestimony'
 import { getSuColors } from '~/lib/datapacks/DpColor'
-import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
+import { mapLocalToGlobalIds, mapGlobalToLocalIds, getSuInfoByGlobalId } from '~/lib/services/suIdMapping'
 
 // D3 event interfaces for better type safety
 interface D3ZoomEvent {
@@ -46,116 +46,163 @@ function Modal({ open, onClose, node }: { open: boolean; onClose: () => void; no
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  // Card sizing similar to a playing card
+  const cardWidth = 384 // ~w-96
+  const cardHeight = 560
+  const illustrationHeight = Math.round(cardHeight / 3)
+
+  // Dynamic background and SU info
+  const [bgColor, setBgColor] = useState<string>('#ffffff')
+  const [suLocalNo, setSuLocalNo] = useState<number | null>(null)
+  const [suName, setSuName] = useState<string>('')
+
+  // ----- Labels nodes catégories -----
+  const SUBCATEGORY_LABELS: Record<string, string> = {
+    Food: 'Alimentation',
+    Housing: 'Logement',
+    Politics: 'Participation citoyenne',
+    Solidarity: 'Solidarité',
+    NghLife: 'Vie de quartier',
+    Parks: 'Parcs et espaces verts',
+    Shopping: 'Réparation / Shopping',
+    Services: 'Services',
+    Mobility: 'Mobilité',
+    General: 'Général'
+  }
+
+  const labelForSubcategory = (code?: string): string => {
+    if (!code) return 'Catégorie'
+    return SUBCATEGORY_LABELS[code] ?? code
+  }
+
+  const formatGenderLabel = (value?: string): string => {
+    if (!value) return '—'
+    const v = String(value).toLowerCase()
+    if (['male', 'homme', 'm', 'masculin', 'man'].includes(v)) return 'Homme'
+    if (['female', 'femme', 'f', 'féminin', 'feminin', 'woman'].includes(v)) return 'Femme'
+    if (['other', 'autre', 'non-binaire', 'non binaire'].includes(v)) return 'Autre'
+    return value
+  }
+
+  const formatAgeLabel = (value?: string): string => {
+    if (!value) return '—'
+    const map: Record<string, string> = {
+      FROM_0_TO_14: '0–14 ans',
+      FROM_15_TO_29: '15–29 ans',
+      FROM_30_TO_44: '30–44 ans',
+      FROM_45_TO_59: '45–59 ans',
+      FROM_60_TO_74: '60–74 ans',
+      ABOVE_75: '75 ans et +' 
+    }
+    const direct = map[value]
+    if (direct) return direct
+    // Try to prettify ranges like '15-29'
+    const re = /^(\d{1,2})\s*[-–]\s*(\d{1,2})$/
+    const m = re.exec(value)
+    if (m) return `${m[1]}–${m[2]} ans`
+    return value
+  }
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const isParentNode = node?.type === 'parent'
+        const isChildNode = node?.type === 'child'
+        if (isParentNode) {
+          // Quartier palette for parent nodes
+          const qc = await getSuColors(undefined)
+          if (!cancelled) setBgColor(qc.colorLight2)
+        } else if (isChildNode && typeof node?.suId === 'number') {
+          // SU-specific palette + mapping and name
+          const [colors, localIds, info] = await Promise.all([
+            getSuColors(node.suId),
+            mapGlobalToLocalIds([node.suId]),
+            getSuInfoByGlobalId(node.suId)
+          ])
+          if (!cancelled) {
+            setBgColor(colors.colorLight2)
+            setSuLocalNo(localIds?.[0] ?? null)
+            setSuName(info?.name ?? '')
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setBgColor('#f3f4f6') // gray-100 fallback
+        }
+      }
+    }
+    void load()
+    return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, node?.id])
+
   if (!open || !node) return null;
 
-  // Differentiate between parent and child nodes
+  // Differentiation parent et child nodes
   const isParent = node.type === 'parent'
   const isChild = node.type === 'child'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative z-10 max-w-4xl w-full mx-4 bg-white rounded-2xl shadow-2xl p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h3 className="text-xl font-semibold flex items-center gap-2">
-              {isParent ? (
-                <>
-                  <span className="text-2xl">{node.emoji}</span>
-                  <span>Catégorie: {node.subcategory}</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-blue-600">💬</span>
-                  <span>Témoignage</span>
-                </>
-              )}
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              {isParent ? `Parent node - ${node.subcategory}` : `SU ${node.suId} - ${node.group}`}
-            </p>
+      <div
+        className="relative z-10 rounded-2xl shadow-2xl border border-black/5 backdrop-blur-sm"
+        style={{ width: cardWidth, height: cardHeight, backgroundColor: bgColor }}
+      >
+        {/* Top bar: left category, right close */}
+          <div className="flex items-center justify-between px-5 py-3">
+          <div className="flex items-center gap-2 text-sm text-white">
+              {isParent && <span className="text-xl">{node.emoji}</span>}
+              <span className="font-semibold truncate max-w-[260px]">
+                {isParent
+                  ? labelForSubcategory(node.subcategory)
+                  : (node.questionShort && node.questionShort.trim().length > 0
+                      ? node.questionShort
+                      : labelForSubcategory(node.group))}
+              </span>
           </div>
           <button
-            className="text-gray-500 hover:text-gray-700 text-xl"
+            className="text-gray-500 hover:text-gray-700 text-xl leading-none"
             onClick={onClose}
-            aria-label="Close modal"
+            aria-label="Fermer"
+            title="Fermer"
           >
             ✕
           </button>
         </div>
 
-        <div className="mt-6">
+        {/* Illustration placeholder*/}
+        <div
+          className="mx-5 mt-4 rounded-lg border border-dashed border-white flex items-center justify-center text-gray-400 text-xs"
+          style={{ height: illustrationHeight, backgroundColor: "#f3f4f6" }}
+        >
+          Illustration
+        </div>
+
+        {/* Main */}
+        <div className="px-5 pt-4 pb-5 h-[calc(100%-theme(spacing.12)-theme(spacing.4)-theme(spacing.5)-theme(spacing.5))] overflow-y-auto">
+          {/* Testimony */}
           {isChild && node.testimony && (
-            <div className="mb-6">
-              <h4 className="font-semibold text-lg mb-3">📝 Témoignage</h4>
-              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+            <div className="mb-4">
+              <div className="text-xs tracking-wide text-white mb-1">{node.respondentGenderLabel ?? formatGenderLabel(node.respondentGender)}, {node.respondentAgeLabel ?? formatAgeLabel(node.respondentAge)}, S.U. n°{suLocalNo ?? '?'} &quot;{suName}&quot; :</div>
+                <div className="bg-white p-4 rounded-lg">
                 <p className="text-gray-800 italic leading-relaxed">&ldquo;{node.testimony}&rdquo;</p>
               </div>
             </div>
           )}
 
-          {isChild && (
-            <div className="mb-6">
-              <h4 className="font-semibold text-lg mb-3">👤 Profil du répondant</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-50 border rounded-lg p-3">
-                  <div className="text-sm text-gray-600">SU (Secteur Urbain)</div>
-                  <div className="font-semibold text-lg">{node.suId}</div>
-                </div>
-                <div className="bg-gray-50 border rounded-lg p-3">
-                  <div className="text-sm text-gray-600">Genre</div>
-                  <div className="font-semibold">{node.respondentGender}</div>
-                </div>
-                <div className="bg-gray-50 border rounded-lg p-3">
-                  <div className="text-sm text-gray-600">Tranche d&apos;âge</div>
-                  <div className="font-semibold">{node.respondentAge}</div>
-                </div>
-                <div className="bg-gray-50 border rounded-lg p-3">
-                  <div className="text-sm text-gray-600">Catégorie socio-professionnelle</div>
-                  <div className="font-semibold">{node.respondentCsp}</div>
-                </div>
-              </div>
-            </div>
-          )}
-
+          {/* Parent info si témoignage */}
           {isParent && (
-            <div className="mb-6">
-              <h4 className="font-semibold text-lg mb-3">📊 Catégorie thématique</h4>
-              <div className="bg-gray-50 border rounded-lg p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-3xl">{node.emoji}</span>
-                  <div>
-                    <div className="font-semibold text-lg">{node.subcategory}</div>
-                    <div className="text-sm text-gray-600">Nœud parent - regroupe les témoignages de cette catégorie</div>
-                  </div>
-                </div>
+            <div className="mb-4">
+              <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">Thème</div>
+              <div className="bg-gray-50 border p-4 rounded-lg flex items-center gap-3">
+                <span className="text-2xl">{node.emoji}</span>
+                <div className="font-semibold">{node.subcategory}</div>
               </div>
             </div>
           )}
-
-          <div className="border-t pt-4">
-            <h5 className="font-medium text-sm text-gray-600 mb-2">Détails techniques</h5>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-              <div className="bg-gray-50 rounded p-2">
-                <div className="text-gray-500">ID</div>
-                <div className="font-mono break-all">{node.id}</div>
-              </div>
-              <div className="bg-gray-50 rounded p-2">
-                <div className="text-gray-500">Type</div>
-                <div className="font-semibold">{node.type}</div>
-              </div>
-              <div className="bg-gray-50 rounded p-2">
-                <div className="text-gray-500">Groupe</div>
-                <div className="font-semibold">{node.group}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 flex justify-end">
-          <button className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium" onClick={onClose}>
-            Fermer
-          </button>
+         
         </div>
       </div>
     </div>
@@ -232,18 +279,18 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     const loadData = async () => {
       setLoading(true)
       try {
-        console.log('📊 Chargement des témoignages format Network Graph...', { selectedSus })
+        console.log('Chargement des témoignages format Network Graph...', { selectedSus })
         const data = await getDpTestimonyData(selectedSus)
         setNetworkData(data)
         setNodes(data.nodes.map(node => ({ ...node }))) // Add D3 properties
         setLinks(data.links)
-        console.log('✅ Témoingages chargés !', {
+        console.log('Témoingages chargés !', {
           nodes: data.nodes.length,
           links: data.links.length,
           testimonies: data.totalTestimonies
         })
       } catch (error) {
-        console.error('❌ Erreur au chargement des témoignages:', error)
+        console.error('Erreur au chargement des témoignages:', error)
         // Set empty data on error
         setNodes([])
         setLinks([])
@@ -350,7 +397,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     const nodesCopy = nodes.map((d) => ({ ...d }));
     const linksCopy = links.map((d) => ({ ...d }));
 
-    const svg = d3.select(svgRef.current);
+  const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); // clear before redraw
     
     // Set SVG dimensions
@@ -390,22 +437,45 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     const linkForce = d3
       .forceLink<NodeDatum, LinkDatum>(linksCopy)
       .id((d: NodeDatum) => d.id)
-      .distance(100) as unknown as d3.Force<NodeDatum, undefined>
+      .distance(150) as unknown as d3.Force<NodeDatum, undefined>
 
     // Create force simulation early so drag handlers can reference it
     const simulation = d3
       .forceSimulation<NodeDatum>(nodesCopy)
       .force("link", linkForce)
-      .force("charge", d3.forceManyBody().strength(-50))
+      .force("charge", d3.forceManyBody().strength(-150))
       .force("center", d3.forceCenter(dimensions.width / 2, dimensions.height / 2))
       .force("collision", d3.forceCollide().radius(25))
+
+    // Build adjacency map for hover highlighting
+    const neighborMap = new Map<string, Set<string>>();
+    type D3Linkish = { source: unknown; target: unknown }
+    const hasId = (x: unknown): x is { id: string | number } => typeof x === 'object' && x !== null && 'id' in x
+    const getId = (x: unknown): string => {
+      if (typeof x === 'string' || typeof x === 'number') return String(x)
+      if (hasId(x)) return String(x.id)
+      return ''
+    }
+    const addNeighbor = (a: string, b: string) => {
+      if (!neighborMap.has(a)) neighborMap.set(a, new Set<string>())
+      neighborMap.get(a)!.add(b)
+    }
+    linksCopy.forEach((l) => {
+      const linkish = l as unknown as D3Linkish
+      const s = getId(linkish.source)
+      const t = getId(linkish.target)
+      if (s && t) {
+        addNeighbor(s, t)
+        addNeighbor(t, s)
+      }
+    })
 
     // link lines
     const link = g
       .append("g")
       .attr("class", "links")
-      .selectAll("line")
-      .data(linksCopy)
+      .selectAll<SVGLineElement, D3Linkish>("line")
+      .data(linksCopy as unknown as D3Linkish[])
       .join("line")
       .attr("stroke", lightColor3)
       .attr("stroke-opacity", 0.6)
@@ -438,6 +508,21 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
             d.fy = event.y;
           })
       )
+      .on("mouseover", function (event: MouseEvent, d: NodeDatum) {
+        const keep = new Set<string>([d.id])
+        const neigh = neighborMap.get(d.id)
+        if (neigh) neigh.forEach((id) => keep.add(id))
+        node.attr("opacity", (n: NodeDatum) => (keep.has(n.id) ? 1 : 0.15))
+        link.attr("stroke-opacity", (l: D3Linkish) => {
+          const s = getId(l.source)
+          const t = getId(l.target)
+          return s === d.id || t === d.id || (keep.has(s) && keep.has(t)) ? 0.9 : 0.1
+        })
+      })
+      .on("mouseout", function () {
+        node.attr("opacity", 1)
+        link.attr("stroke-opacity", 0.6)
+      })
       .on("click", function (event: MouseEvent, d: NodeDatum) {
         // Stop propagation to prevent the SVG background click from closing the modal immediately
         if (typeof event.stopPropagation === 'function') event.stopPropagation();
@@ -461,7 +546,18 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       .attr("stroke-width", 1.5)
       .attr("cursor", "pointer");
 
-    // Emoji inside parent nodes
+    // Side labels for child nodes
+    node
+      .filter(d => d.type !== 'parent')
+      .append("text")
+      .attr("x", 18)
+      .attr("y", 4)
+      .text((d) => d.label ?? d.id)
+      .attr("font-size", 12)
+      .attr("pointer-events", "auto")
+      .attr("cursor", "pointer");
+
+    // Emoji inside parent nodes (ensure these are appended last for stacking)
     node
       .filter(d => d.type === 'parent')
       .append("text")
@@ -471,23 +567,15 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       .attr("pointer-events", "none")
       .text(d => d.emoji ?? '🧩');
 
-    // Side labels for child nodes
-    node
-      .filter(d => d.type !== 'parent')
-      .append("text")
-      .attr("x", 18)
-      .attr("y", 4)
-      .text((d) => d.label ?? d.id)
-      .attr("font-size", 12)
-      .attr("pointer-events", "none");
-
     // tick handler after elements exist
+    type NodePosish = { x?: number; y?: number }
+    const hasXY = (v: unknown): v is NodePosish => typeof v === 'object' && v !== null && ('x' in v || 'y' in v)
     simulation.on("tick", () => {
       link
-        .attr("x1", (d: TestimonyLink) => (d.source as unknown as NodeDatum).x ?? 0)
-        .attr("y1", (d: TestimonyLink) => (d.source as unknown as NodeDatum).y ?? 0)
-        .attr("x2", (d: TestimonyLink) => (d.target as unknown as NodeDatum).x ?? 0)
-        .attr("y2", (d: TestimonyLink) => (d.target as unknown as NodeDatum).y ?? 0);
+        .attr("x1", (d: D3Linkish) => (hasXY(d.source) && typeof d.source.x === 'number' ? d.source.x : 0))
+        .attr("y1", (d: D3Linkish) => (hasXY(d.source) && typeof d.source.y === 'number' ? d.source.y : 0))
+        .attr("x2", (d: D3Linkish) => (hasXY(d.target) && typeof d.target.x === 'number' ? d.target.x : 0))
+        .attr("y2", (d: D3Linkish) => (hasXY(d.target) && typeof d.target.y === 'number' ? d.target.y : 0));
 
       node.attr("transform", (d: NodeDatum) => `translate(${d.x ?? 0},${d.y ?? 0})`);
     });

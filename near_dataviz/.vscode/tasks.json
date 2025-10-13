@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Typecheck: near_dataviz",
+			"type": "shell",
+			"command": "npm run -s typecheck",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc - pretty"
+			],
+			"group": "build"
+		}
+	]
+}

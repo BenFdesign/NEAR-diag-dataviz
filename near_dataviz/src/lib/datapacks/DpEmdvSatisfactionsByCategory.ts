@@ -68,16 +68,11 @@ const getAvailableSubcategories = (questions: MetaQuestion[]): string[] => {
 const getSubcategoryInfo = (subcategory: string) => {
   const map: Record<string, { label: string; emoji: string }> = {
     Food: { label: 'Alimentation', emoji: '🍽️' },
-    FoodStores: { label: 'Magasins alimentaires', emoji: '🛒' },
     Politics: { label: 'Politique', emoji: '🏛️' },
     NghLife: { label: 'Vie de quartier', emoji: '🏘️' },
-    Solidarity: { label: 'Solidarité', emoji: '🤝' },
     Services: { label: 'Services', emoji: '🏢' },
     Mobility: { label: 'Mobilité', emoji: '🚌' },
     Housing: { label: 'Logement', emoji: '🏠' },
-    Parks: { label: 'Parcs et espaces verts', emoji: '🌳' },
-    Shopping: { label: 'Commerces', emoji: '🛍️' },
-    General: { label: 'Général', emoji: '🌟' },
   }
   return map[subcategory] ?? { label: subcategory, emoji: '📊' }
 }
