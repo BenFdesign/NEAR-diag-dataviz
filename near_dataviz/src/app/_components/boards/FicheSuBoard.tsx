@@ -1,8 +1,10 @@
 // Demographie Board - Age, CSP, genre des échantillons par SU + données INSEE pour le quartier
-import { DvAgeDistribution } from '..'
+import type { Board } from '~/lib/types'
+import { DvAgeDistribution, DvSuTitle } from '..'
 import { DvGenre } from '..'
 import { DvCsp } from '..'
-import type { Board } from '~/lib/types'
+import { DvUsages } from '../'
+import { DvCarbonSankey } from '../'
 
 export const FicheSuBoard: Board = {
   id: 'SU',
@@ -26,10 +28,8 @@ export const FicheSuBoard: Board = {
       <div className="board-grid">
         {/* Row 1: Dv Titre (30%) | Empty (30%) | Dv Genre (30%) */}
         <div className="dv-container title-dist">
-          {/* TODO: Implement DvTitre component */}
-          <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-            DvTitre (à implémenter)
-          </div>
+          <DvSuTitle 
+            selectedSus={selectedSus} />
         </div>
         
         <div className="dv-container empty-dist">
@@ -61,11 +61,23 @@ export const FicheSuBoard: Board = {
         </div>
 
         <div className="dv-container usages-dist">
-          {/* TODO: Implement DvUsages component */}
-          <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-            DvUsages (à implémenter)
+          <DvUsages
+            selectedSus={selectedSus}
+          />
+        </div>
+
+        <div className="dv-container sankey-dist">
+          <DvCarbonSankey
+            selectedSus={selectedSus}
+          />
+        </div>
+
+        <div className="dv-container bottom-dist">
+          <div>
+            <p className='dv-x-axis-label'>Diagnostic NEAR 2025 - Porte d&#39;Orléans</p>
           </div>
         </div>
+
       </div>
     </div>
   )
