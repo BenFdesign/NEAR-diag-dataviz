@@ -1,7 +1,6 @@
 # TODO
 [ ] Documentation
 [ ] Ajout interaction tooltip via labels
-[ ] Documentation
 [ ] Ajouter barchart / step line chart simple pour les grands secteurs d'empreinte
 
 

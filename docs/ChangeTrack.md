@@ -2,4 +2,3 @@
 - .json qui mock la BDD et les métadonnées ajoutés dans ./public/data
 - route.ts ajouté dans app/api/data/dataset pour le fetch des json depuis public/data
 - Datapacks (Dp) ajoutés dans app/lib/datapacks
-- 
