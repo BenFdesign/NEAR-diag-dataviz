@@ -790,3 +790,131 @@
 .error-retry-button:hover {
   background-color: #5a5a9d;
 }
+
+/* =========================== */
+/* MOBILITY BOARD STYLES      */
+/* =========================== */
+
+.mobility-board {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobility-board .board-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-template-rows: 1fr auto auto;
+  gap: 20px;
+  flex: 1;
+  height: calc(100% - 120px); /* Account for header */
+}
+
+.mobility-board .title-mobility {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobility-board .mobility-main {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+
+.mobility-board .mobility-info {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+
+.mobility-board .bottom-mobility {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mobility-legend h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+}
+
+.legend-items {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+}
+
+.legend-item span {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  color: #555;
+}
+
+.legend-description {
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments for mobility board */
+@media (max-width: 768px) {
+  .mobility-board .board-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto auto;
+  }
+  
+  .mobility-board .title-mobility {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  
+  .mobility-board .mobility-main {
+    grid-column: 1;
+    grid-row: 2;
+    min-height: 300px;
+  }
+  
+  .mobility-board .mobility-info {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  
+  .mobility-board .bottom-mobility {
+    grid-column: 1;
+    grid-row: 4;
+  }
+}

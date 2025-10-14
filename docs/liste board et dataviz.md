@@ -1,16 +1,14 @@
 # TODO
-[ ] Docuentation
+[ ] Documentation
 [ ] Ajout interaction tooltip via labels
 [ ] Documentation
-[ ] Clean esthétique de la Dv/Board Témoignage 
-[ ] Ajouter Volonté de changement.
 [ ] Ajouter barchart / step line chart simple pour les grands secteurs d'empreinte
 
 
 # Boards :
 []🔮 Sphères d’Usages
 Quels sont les différents groupes qui partagent des habitudes similaires ?
-    [x] Dv Titre
+    [x] Dv Titre // À adapter mieux
     [x] Dv Âge
     [x] Dv genre
     [x] Dv CSP
@@ -32,15 +30,17 @@ Sur quels thèmes les habitants sont plutôt satisfaits ou plutôt insatisfaits 
 
 ✊ Volontés de changement
 Sur les questions de transition, qui désire du changement ?
-    [] Dv Volontés de changement
+    [x] Dv Volontés de changement
 
 🚧 Barrières à la transition
 Qui est confronté à quels obstacles pour la transition ?
-    [] Dv Barrières à la transition
+    [x] Dv Barrières à la transition
+    [ ] Intégrer les barrières "Autres" sous format témoignage ?
 
 💬 Paroles d’habitant·es
 Témoignages des habitants sur différents thèmes
-    [x] Dv Témoignages //Manque correctif Quartier + carte de jeu
+    [x] Dv Témoignages
+    [x] Illustrations Dv témoignage par theme ?
 
 
 

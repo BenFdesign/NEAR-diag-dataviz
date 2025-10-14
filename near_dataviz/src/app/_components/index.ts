@@ -19,3 +19,4 @@ export { default as DvEmdvSatisfactionsByCategory } from './dataviz/DvEmdvSatisf
 export { default as DvBarrierGradient } from './dataviz/DvBarrierGradient'
 export { default as DvBarrierAggregated } from './dataviz/DvBarrierAggregated'
 export { default as DvVolonteTout } from './dataviz/DvVolonteTout'
+// export { default as DvMobilityByZone } from './dataviz/MobilityHyperGraph/DvMobilityByZone'

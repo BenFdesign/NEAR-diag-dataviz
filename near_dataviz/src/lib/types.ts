@@ -77,7 +77,7 @@ export type BoardDefinition = {
   description: string
   component: React.ComponentType<BoardProps>
   requiredSus?: number[] // Permet de spécifier les SU pour des boards comparatifs
-  defaultSus?: number[] // SU par défaut au chargement d'un board (finalement pas utilisé)
+  defaultSus?: number[] // SU par défaut au chargement d'un board (finalement peu utilisé)
 }
 
 // Board Props

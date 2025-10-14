@@ -1,7 +1,6 @@
 /**
  * TEST FINAL DE VALIDATION DES ICÔNES TRANSFORMÉES
  * ===============================================
- * 
  * Vérifie que toutes les icônes corrigées passent maintenant la validation.
  */
 
@@ -52,9 +51,9 @@ export function testTransformedIcons() {
   console.log(`📊 RÉSULTAT FINAL: ${totalPassed}/${totalTested} icônes validées`)
   
   if (allValid) {
-    console.log('🎉 SUCCÈS: Toutes les icônes transformées passent la validation!')
+    console.log('OK Toutes les icônes transformées passent la validation!')
   } else {
-    console.log('⚠️ ATTENTION: Certaines icônes nécessitent encore des corrections')
+    console.log('⚠️: Certaines icônes nécessitent encore des corrections')
   }
 
   return allValid

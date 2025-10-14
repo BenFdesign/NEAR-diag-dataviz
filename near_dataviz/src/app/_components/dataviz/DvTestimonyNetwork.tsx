@@ -14,13 +14,9 @@ interface D3ZoomEvent {
 
 // (drag event typing handled via d3.D3DragEvent in callbacks to avoid TS friction)
 
-// TestimonyNetworkComponent.tsx
-// A React component that renders a D3 force-directed network graph from real testimony data.
-// Shows testimony nodes linked to their thematic parent categories with modal popups.
 
-// -----------------------------
 // Types
-// -----------------------------
+// -----
 // Using TestimonyNode from datapack as the main node type
 type NodeDatum = TestimonyNode & {
   // Additional D3 properties for positioning
@@ -34,9 +30,8 @@ type NodeDatum = TestimonyNode & {
 
 type LinkDatum = TestimonyLink;
 
-// -----------------------------
-// Modal component for testimony details
-// -----------------------------
+// Modal component
+// ---------------
 function Modal({ open, onClose, node }: { open: boolean; onClose: () => void; node: NodeDatum | null }) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -46,17 +41,17 @@ function Modal({ open, onClose, node }: { open: boolean; onClose: () => void; no
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  // Card sizing similar to a playing card
+  // Card sizing
   const cardWidth = 384 // ~w-96
   const cardHeight = 560
   const illustrationHeight = Math.round(cardHeight / 3)
 
-  // Dynamic background and SU info
+  // Dynamic background + SU info
   const [bgColor, setBgColor] = useState<string>('#ffffff')
   const [suLocalNo, setSuLocalNo] = useState<number | null>(null)
   const [suName, setSuName] = useState<string>('')
 
-  // ----- Labels nodes catégories -----
+  // Labels nodes catégories
   const SUBCATEGORY_LABELS: Record<string, string> = {
     Food: 'Alimentation',
     Housing: 'Logement',
@@ -96,7 +91,6 @@ function Modal({ open, onClose, node }: { open: boolean; onClose: () => void; no
     }
     const direct = map[value]
     if (direct) return direct
-    // Try to prettify ranges like '15-29'
     const re = /^(\d{1,2})\s*[-–]\s*(\d{1,2})$/
     const m = re.exec(value)
     if (m) return `${m[1]}–${m[2]} ans`
@@ -110,11 +104,11 @@ function Modal({ open, onClose, node }: { open: boolean; onClose: () => void; no
         const isParentNode = node?.type === 'parent'
         const isChildNode = node?.type === 'child'
         if (isParentNode) {
-          // Quartier palette for parent nodes
+          // Quartier palette --> parent nodes
           const qc = await getSuColors(undefined)
           if (!cancelled) setBgColor(qc.colorLight2)
         } else if (isChildNode && typeof node?.suId === 'number') {
-          // SU-specific palette + mapping and name
+          // SU palette --> mapping + name
           const [colors, localIds, info] = await Promise.all([
             getSuColors(node.suId),
             mapGlobalToLocalIds([node.suId]),
@@ -134,12 +128,11 @@ function Modal({ open, onClose, node }: { open: boolean; onClose: () => void; no
     }
     void load()
     return () => { cancelled = true }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [open, node?.id])
 
   if (!open || !node) return null;
 
-  // Differentiation parent et child nodes
   const isParent = node.type === 'parent'
   const isChild = node.type === 'child'
 
@@ -150,7 +143,7 @@ function Modal({ open, onClose, node }: { open: boolean; onClose: () => void; no
         className="relative z-10 rounded-2xl shadow-2xl border border-black/5 backdrop-blur-sm"
         style={{ width: cardWidth, height: cardHeight, backgroundColor: bgColor }}
       >
-        {/* Top bar: left category, right close */}
+        {/* Top bar */}
           <div className="flex items-center justify-between px-5 py-3">
           <div className="flex items-center gap-2 text-sm text-white">
               {isParent && <span className="text-xl">{node.emoji}</span>}
@@ -209,11 +202,10 @@ function Modal({ open, onClose, node }: { open: boolean; onClose: () => void; no
   );
 }
 
-// -----------------------------
-// Main TestimonyNetwork component
-// -----------------------------
+// D3 Force-Directed Graph Component
+// ---------------------------------
 interface DvTestimonyNetworkProps {
-  selectedSus?: number[] // Keep interface consistent but not used
+  selectedSus?: number[] // 
 }
 
 const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
@@ -228,12 +220,12 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
   const [networkData, setNetworkData] = useState<TestimonyNetworkResult | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // SU-themed colors (like DvGenre)
+  // colors 
   const [mainColor, setMainColor] = useState<string>('#002878')
   const [lightColor1, setLightColor1] = useState<string>('#99AAFF')
   const [lightColor3, setLightColor3] = useState<string>('#6677DD')
-
-  // In quartier view, child nodes must use their own SU color
+  
+  // Consistance couleurs par Su pour les Nodes dans la vue quartier
   const [suColorMap, setSuColorMap] = useState<Record<number, string>>({})
 
   // Quartier base color (used for parent nodes regardless of view)
@@ -250,23 +242,18 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       const newHeight = svgContainer.current.clientHeight
       setWidth(newWidth)
       setHeight(newHeight)
-      console.log('📐 DvTestimonyNetwork dimensions updated:', { width: newWidth, height: newHeight })
     }
   }
 
   useEffect(() => {
-    // detect 'width' and 'height' on render
     getSvgContainerSize()
-    // listen for resize changes, and detect dimensions again when they change
+    // resize observer/listener
     window.addEventListener("resize", getSvgContainerSize)
-    // cleanup event listener
     return () => window.removeEventListener("resize", getSvgContainerSize)
   }, [])
 
-  // Additional effect to ensure dimensions are set after component mounts
   useEffect(() => {
     if (svgContainer.current && (!width || !height)) {
-      // Small delay to ensure DOM is fully rendered
       const timer = setTimeout(() => {
         getSvgContainerSize()
       }, 10)
@@ -274,7 +261,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     }
   }, [width, height])
 
-  // Load testimony data
+  // Load data
   useEffect(() => {
     const loadData = async () => {
       setLoading(true)
@@ -282,7 +269,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
         console.log('Chargement des témoignages format Network Graph...', { selectedSus })
         const data = await getDpTestimonyData(selectedSus)
         setNetworkData(data)
-        setNodes(data.nodes.map(node => ({ ...node }))) // Add D3 properties
+        setNodes(data.nodes.map(node => ({ ...node }))) // --> D3
         setLinks(data.links)
         console.log('Témoingages chargés !', {
           nodes: data.nodes.length,
@@ -291,7 +278,6 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
         })
       } catch (error) {
         console.error('Erreur au chargement des témoignages:', error)
-        // Set empty data on error
         setNodes([])
         setLinks([])
       } finally {
@@ -302,7 +288,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     void loadData()
   }, [selectedSus])
 
-  // Load SU colors (like DvGenre) for theming nodes/links
+  // Load SU colors --> nodes/links
   useEffect(() => {
     const loadColors = async () => {
       try {
@@ -321,21 +307,17 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
         if (suColors?.colorLight1) setLightColor1(suColors.colorLight1)
         if (suColors?.colorLight3) setLightColor3(suColors.colorLight3)
         if (quartierColors?.colorMain) setQuartierMainColor(quartierColors.colorMain)
-        console.log('🎨 Couleurs SU chargées:', {
-          main: suColors.colorMain,
-          light1: suColors.colorLight1,
-          light3: suColors.colorLight3,
-        })
-        console.log('🎨 Couleur Quartier:', quartierColors.colorMain)
+        console.log('Couleurs SU chargées')
+        console.log('Couleur Quartier')
       } catch (error) {
-        console.warn('⚠️ Impossible de charger les couleurs SU, utilisation des valeurs par défaut', error)
+        console.warn('Impossible de charger les couleurs SU', error)
       }
     }
 
     void loadColors()
   }, [selectedSus])
 
-  // Preload SU colors for all child nodes in quartier view
+  // Preload SU colors --> child nodes vue quartier
   useEffect(() => {
     const loadSuColorsForQuartier = async () => {
       try {
@@ -369,7 +351,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
         })
         setSuColorMap(map)
       } catch (err) {
-        console.warn('⚠️ Impossible de précharger les couleurs SU pour la vue quartier', err)
+        console.warn('⚠️ Impossible de précharger SU colors dans vue quartier', err)
         setSuColorMap({})
       }
     }
@@ -380,20 +362,18 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     if (!svgRef.current) return;
 
 
-    // Use fallback dimensions if responsive dimensions not yet available
+    // fallback dimensions
     const fallbackWidth = 960
     const fallbackHeight = 600
     
-    // Dimensions following ResponsiveD3 pattern
+    // Dimensions
     const dimensions = {
       width: width ?? fallbackWidth,
       height: height ?? fallbackHeight,
       margins: { top: 20, right: 20, bottom: 20, left: 20 }
     }
 
-    // Dimensions calculated but not used for force-directed graph
-
-    // deep copy to avoid mutating props
+    // deep copy / mutating props
     const nodesCopy = nodes.map((d) => ({ ...d }));
     const linksCopy = links.map((d) => ({ ...d }));
 
@@ -405,7 +385,7 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       .attr('width', dimensions.width)
       .attr('height', dimensions.height - 80)
 
-    // defs for arrowheads (optional)
+    // arrowheads
     const defs = svg.append("defs");
     defs
       .append("marker")
@@ -443,9 +423,9 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     const simulation = d3
       .forceSimulation<NodeDatum>(nodesCopy)
       .force("link", linkForce)
-      .force("charge", d3.forceManyBody().strength(-150))
+      .force("charge", d3.forceManyBody().strength(-250))
       .force("center", d3.forceCenter(dimensions.width / 2, dimensions.height / 2))
-      .force("collision", d3.forceCollide().radius(25))
+      .force("collision", d3.forceCollide().radius(50))
 
     // Build adjacency map for hover highlighting
     const neighborMap = new Map<string, Set<string>>();
@@ -533,10 +513,10 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
     // circles
     node
       .append("circle")
-      .attr("r", (d) => (d.type === 'parent' ? 26 : 14))
+      .attr("r", (d) => (d.type === 'parent' ? 40 : 14))
       .attr("fill", (d) => {
         if (d.type === 'parent') return quartierMainColor
-        // Quartier mode: color children by their own SU color
+
         if (networkData?.isQuartier && typeof d.suId === 'number') {
           return suColorMap[d.suId] ?? lightColor1
         }
@@ -563,9 +543,9 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       .append("text")
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
-      .attr("font-size", 16)
+      .attr("font-size", 40)
       .attr("pointer-events", "none")
-      .text(d => d.emoji ?? '🧩');
+      .text(d => d.emoji ?? '💬');
 
     // tick handler after elements exist
     type NodePosish = { x?: number; y?: number }
