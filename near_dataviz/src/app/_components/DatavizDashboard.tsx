@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { LeftSidebar, RightSidebar, BoardViewer } from './'
-import { getSuInfo } from '~/lib/su-service'
+import { getQuartierName, getSuInfo } from '~/lib/su-service'
 import { getBoardById, getDefaultBoard } from './'
 import type { MenuState, SuInfo } from '~/lib/types'
 
@@ -13,7 +13,7 @@ export default function DatavizDashboard() {
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false)
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false)
 
-  // Load SU data on mount
+  // Load SU data
   useEffect(() => {
     const loadSuData = async () => {
       try {
@@ -33,19 +33,18 @@ export default function DatavizDashboard() {
 
   // Initialize menu state
   const [menuState, setMenuState] = useState<MenuState>(() => {
-    // Use default board from unified BOARD_REGISTRY
+    // voir BOARD_REGISTRY
     const defaultBoard = getDefaultBoard()
     return {
       selectedBoard: defaultBoard.id,
-      selectedSus: [], // Will be set once allSus is loaded
+      selectedSus: [], // Set au load de Su
       availableSus: []
     }
   })
 
-  // Update menu state when allSus is loaded
+  // Update menu state pour allSus
   useEffect(() => {
     if (allSus.length > 0 && menuState.availableSus.length === 0) {
-      // For new board system, we select all SUs by default
       setMenuState(prev => ({
         ...prev,
         selectedSus: allSus.map(su => su.su),
@@ -61,7 +60,7 @@ export default function DatavizDashboard() {
     setMenuState(prev => ({
       ...prev,
       selectedBoard: boardId,
-      selectedSus: prev.selectedSus // Keep current selection
+      selectedSus: prev.selectedSus
     }))
   }
 
@@ -80,7 +79,6 @@ export default function DatavizDashboard() {
     setRightSidebarCollapsed(prev => !prev)
   }
 
-  // Board container now always uses the same class since it doesn't resize
   const getBoardContainerClass = () => {
     return 'board-container'
   }
@@ -90,7 +88,7 @@ export default function DatavizDashboard() {
       <div className="loading-container">
         <div className="loading-content">
           <div className="loading-spinner"></div>
-          <p className="loading-text">Chargement des données...</p>
+          <p className="loading-text">Chargement des données du quartier ...</p>
         </div>
       </div>
     )
@@ -116,7 +114,7 @@ export default function DatavizDashboard() {
   return (
     <div className="dataviz-dashboard">
       <div className="dashboard-grid">
-        {/* LeftSidebar.tsx - Menu de filtre */}
+        {/* LeftSidebar.tsx - Menu de filtre Su/Quartier */}
         <aside className={`menu-filter ${leftSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
           <LeftSidebar 
             availableSus={menuState.availableSus}
@@ -131,10 +129,8 @@ export default function DatavizDashboard() {
         <main className={getBoardContainerClass()}>
           <BoardViewer>
             {currentBoard ? (
-              // Render board, the board manages its own dimensions
               currentBoard.renderComponent({
                 selectedSus: menuState.selectedSus
-                // Remove fixed dimensions - let Board handle sizing
               })
             ) : (
               <div className="p-10 text-center text-gray-500">

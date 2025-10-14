@@ -1,0 +1,2648 @@
+[
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "CAR",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "Partout",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "CAR",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "CAR",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "ELECTRIC_CAR",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_D",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Food"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "11e",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_D",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "CAR",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_B",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_B",
+    "Mode": "SHARED_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_C",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_D",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_D",
+    "Mode": "CAR",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Hobby"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_D",
+    "Mode": "CAR",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "CAR",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "WALKING",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "CAR",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "CAR",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_D",
+    "Mode": "ELECTRIC_CAR",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_PORTE_ORLEANS",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_B",
+    "Mode": "CAR",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "CAR",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_B",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_B",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "WALKING",
+    "Time": "LESS_THAN_10_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_D",
+    "Mode": "CAR",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 477,
+    "Zone": "ZONE_A",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_C",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_C",
+    "Mode": "CAR",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_B",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "",
+    "Mode": "NONE_I_DONT_MOVE",
+    "Time": "",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_B",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "BETWEEN_20_AND_30_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_D",
+    "Mode": "PUBLIC_TRANSPORT",
+    "Time": "ABOVE_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_D",
+    "Mode": "CAR",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 478,
+    "Zone": "ZONE_A",
+    "Mode": "PERSONAL_BICYCLE",
+    "Time": "BETWEEN_10_AND_20_MIN",
+    "Usage": "Work"
+  },
+  {
+    "Su ID": 479,
+    "Zone": "ZONE_D",
+    "Mode": "CAR",
+    "Time": "BETWEEN_30_AND_45_MIN",
+    "Usage": "Work"
+  }
+]

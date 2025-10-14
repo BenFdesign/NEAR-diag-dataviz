@@ -211,38 +211,3 @@ export const clearSuMappingCache = (): void => {
   console.log('🧹 Cache de mappage SU vidé')
 }
 
-/**
- * Fonction de test pour vérifier le mappage
- */
-export const testSuIdMapping = async (): Promise<void> => {
-  console.log('🧪 Test du service de mappage des ID SU...')
-  
-  try {
-    // Test du chargement du mappage
-    const mappings = await getAllSuMappings()
-    console.log('✅ Mappings chargés:', mappings.length, 'SU')
-    
-    if (mappings.length === 0) {
-      console.warn('⚠️ Aucun mappage trouvé')
-      return
-    }
-    
-    // Test mappage local → global
-    const testLocalIds = [1, 2]
-    const globalIds = await mapLocalToGlobalIds(testLocalIds)
-    console.log('✅ Test local→global:', testLocalIds, '→', globalIds)
-    
-    // Test mappage global → local
-    const localIds = await mapGlobalToLocalIds(globalIds)
-    console.log('✅ Test global→local:', globalIds, '→', localIds)
-    
-    // Test récupération d'infos
-    const suInfo = await getSuInfoByLocalId(1)
-    console.log('✅ Info SU 1:', suInfo)
-    
-    console.log('✅ Tous les tests de mappage terminés!')
-    
-  } catch (error) {
-    console.error('❌ Test de mappage échoué:', error)
-  }
-}

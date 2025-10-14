@@ -12,12 +12,14 @@ import { EmdvByCategoryBoards } from './EmdvByCategoryBoards'
 import BarrierBoards from './BarrierBoards'
 import BarrierQuestionBoards from './BarrierQuestionBoards'
 import VolonteBoard from './VolonteBoard'
+import MobilityBoard from './MobilityBoard'
 
 // import TestBoard from './TestBoard' // Décommentez si vous voulez utiliser le TestBoard
 
 // Board registry - Configuration centrale des tableaux de bord
 export const BOARD_REGISTRY: Board[] = [
   FicheSuBoard,
+  MobilityBoard,
   TestimonyBoard,
   VolonteBoard,
   ...BarrierBoards,

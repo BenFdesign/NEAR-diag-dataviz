@@ -22,10 +22,7 @@ const DvVolonteTout: React.FC<Props> = ({ selectedSus }) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Colors like DvGenre
-  // const [mainColor, setMainColor] = useState<string>('#002878')
   const [light1, setLight1] = useState<string>('#99AAFF')
-  // const [light3, setLight3] = useState<string>('#6677DD')
 
   // Responsive container size
   useEffect(() => {
@@ -57,7 +54,7 @@ const DvVolonteTout: React.FC<Props> = ({ selectedSus }) => {
     void load()
   }, [selectedSus])
 
-  // Load colors (like DvGenre)
+  // Load colors
   useEffect(() => {
     const loadColors = async () => {
       try {
@@ -67,9 +64,7 @@ const DvVolonteTout: React.FC<Props> = ({ selectedSus }) => {
           globalSuId = globalIds[0]
         }
         const colors = await getSuColors(globalSuId)
-  // if (colors?.colorMain) setMainColor(colors.colorMain)
         if (colors?.colorLight1) setLight1(colors.colorLight1)
-  // if (colors?.colorLight3) setLight3(colors.colorLight3)
       } catch {
         /* noop fallback */
       }
@@ -102,18 +97,18 @@ const DvVolonteTout: React.FC<Props> = ({ selectedSus }) => {
         }
       })
     })
-    // Preserve first-seen order (which follows MetaEmdvChoices appearance)
+    
     return Array.from(map.values())
   }, [data])
 
-  // D3 render stacked bars per question (including title and legend inside SVG)
+  // D3 stacked bars
 useEffect(() => {
     if (!svgRef.current) return
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
     if (!data) return
 
-    // Dimensions like DvEmdvSatisfactionsByCategory
+    // Dimensions
     const margin = { top: 24, right: 16, bottom: 24, left: 16 }
     const width = Math.max(280, dimensions.width || 800)
     const innerW = Math.max(200, width - margin.left - margin.right)
@@ -123,14 +118,14 @@ useEffect(() => {
     const headerFontSize = 14
     const headerGap = 10
     const legendGap = 10
-    // Initial height without legend; will be adjusted after legend layout
+    // Initial height
     let height = Math.max(140, margin.top + headerFontSize + headerGap + totalH + legendGap + 32 + margin.bottom)
 
     svg.attr('width', width).attr('height', height)
     const root = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`)
 
-    // Main title inside SVG (left) and questions count (right)
-    const titleText = data.isQuartier ? '📊 Volonté – Quartier (pondéré)' : '📊 Volonté – SU'
+    // Main title
+    const titleText = '📊 Volontés de changement'
     root
         .append('text')
         .attr('x', 0)
@@ -149,7 +144,7 @@ useEffect(() => {
         .style('fill', '#4B5563')
         .text(`${data.summary.totalQuestions} questions`)
 
-    // Reusable tooltip in container
+    // Tooltip
     let tooltipNode = containerRef.current?.querySelector<HTMLDivElement>('.dv-tooltip')
     if (!tooltipNode && containerRef.current) {
         tooltipNode = document.createElement('div')
@@ -167,10 +162,10 @@ useEffect(() => {
         .style('border-radius', '4px')
         .style('opacity', 0)
 
-    // Bars start below header
+    // Bars + Headers
     data.data.forEach((q, i) => {
         const g = root.append('g').attr('transform', `translate(0, ${headerFontSize + headerGap + i * (rowH + gap)})`)
-        // Title above bar (emoji + Question Short, fallback to Long/Title)
+        // Titre question
         const qTitle = q.questionLabels.questionShort || q.questionLabels.title
         g.append('text')
             .attr('x', 0)
@@ -179,7 +174,7 @@ useEffect(() => {
             .style('fill', '#374151')
             .text(`${q.questionLabels.emoji ?? ''} ${qTitle}`)
 
-        // Respect order from datapack (MetaEmdvChoices order)
+        // Segments
         const segments = q.responses.filter(r => r.percentage > 0)
         const totalPct = segments.reduce((s, r) => s + r.percentage, 0) || 1
         let x = 0
@@ -225,20 +220,20 @@ useEffect(() => {
         })
     })
 
-    // Legend inside SVG under the data section, with horizontal scrolling if needed
+    // Legend
     const legendY = headerFontSize*2 + headerGap + totalH + legendGap
     const legend = root.append('g').attr('transform', `translate(0, ${legendY})`)
     const box = { w: 14, h: 14 }
     const gapX = 12
     let lx = 0
-    let ly = 0
+    const ly = 0
     const lineH = 18
     let maxLegendWidth = 0
 
-    // Place all legend items in a single row, truncate if overflow
+    // Legend items
     allChoices.forEach((item, idx) => {
         const itemG = legend.append('g')
-        const rect = itemG
+        itemG
             .append('rect')
             .attr('width', box.w)
             .attr('height', box.h)
@@ -255,13 +250,12 @@ useEffect(() => {
             .style('fill', '#4B5563')
             .text(item.label)
 
-        // Measure item width
-        const textW = (text.node() as SVGTextElement | null)?.getComputedTextLength?.() ?? 0
+        // Mesure width item
+        const textW = text.node()?.getComputedTextLength?.() ?? 0
         const itemW = box.w + 4 + textW
 
-        // If next item would overflow, stop adding more
         if (lx + itemW > innerW) {
-            // Optionally, add "…" at the end if not all items fit
+            // Trim + "…"
             if (idx < allChoices.length - 1) {
                 legend.append('text')
                     .attr('x', lx)
@@ -278,12 +272,13 @@ useEffect(() => {
         maxLegendWidth = Math.max(maxLegendWidth, lx)
     })
 
-    // Compute legend height and adjust SVG height (legend always 1 line)
+    // Legend height + ajustement height SVG
     const legendHeight = lineH
     height = margin.top + headerFontSize + headerGap + totalH + legendGap + legendHeight + margin.bottom
     svg.attr('height', height)
 }, [data, dimensions.width, light1, allChoices])
 
+  // Chargement / erreur / pas de données
   if (loading) {
     return (
       <div ref={containerRef} className="dv-container" style={{ width: '100%', height: '100%' }}>

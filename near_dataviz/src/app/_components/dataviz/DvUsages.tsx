@@ -138,11 +138,11 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove() // Clear previous content
 
-    // Use fallback dimensions if responsive dimensions not yet available
+    // fallback dimensions
     const fallbackWidth = 300
     const fallbackHeight = 250
-    
-    // Dimensions following ResponsiveD3 pattern
+
+    // Dimensions (ResponsiveD3 pattern)
     const dimensions = {
       width: width ?? fallbackWidth,
       height: height ?? fallbackHeight,
@@ -154,7 +154,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
     dimensions.containerWidth = dimensions.width - dimensions.margins * 2
     dimensions.containerHeight = dimensions.height - dimensions.margins * 2
     
-    // Set SVG dimensions with background
+    // Set SVG dimensions
     svg
       .attr('width', dimensions.width)
       .attr('height', dimensions.height)
@@ -176,7 +176,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
       .attr('class', 'container')
       .attr('transform', `translate(${dimensions.margins}, ${dimensions.margins})`)
 
-    // Add main title (same style as DvGenre)
+    // Add main title
     svg.append('text')
       .attr('x', dimensions.margins)
       .attr('y', 20)
@@ -199,19 +199,19 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
     const violinWidth = dimensions.containerWidth * 0.8 // 80% of width for violin
     const violinStartX = (dimensions.containerWidth - violinWidth) / 2
 
-    // Calculate global max percentage for comparability across all questions
+    // Calcul max percentage pour toutes questions (échelle commune)
     const globalMaxPercentage = d3.max(data.flatMap(question => 
       question.data.map((d: UsageData) => d.percentage)
     )) ?? 100
 
-    // Create violin chart for each usage category
+    // violin chart pour chaque catégorie d'usage / question du Dp
     data.forEach((question, questionIndex) => {
       const categoryY = titleHeight + questionIndex * (categoryHeight + gapBetweenSections)
       const categoryGroup = container.append('g')
         .attr('class', 'usage-category')
         .attr('transform', `translate(0, ${categoryY})`)
 
-      // Add subtitle for this usage category
+      // Sous-titres par question
       categoryGroup.append('text')
         .attr('x', dimensions.containerWidth / 2)
         .attr('y', subtitleHeight / 2)
@@ -223,7 +223,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
         .style('dominant-baseline', 'middle')
         .text(`${question.questionLabels.emoji} ${question.questionLabels.title}`)
 
-      // Ensure we have exactly 3 data points, take first 3 if more
+      // Attend 3 points de données pour le ventre/violon (gauche, centre, droite)
       const violinData = question.data.slice(0, 3)
       if (violinData.length !== 3) {
         console.warn(`Usage category ${question.questionKey} has ${violinData.length} data points, expected 3`)
@@ -234,18 +234,19 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
         .attr('class', 'violin-group')
         .attr('transform', `translate(0, ${subtitleHeight + spacingBetweenSubtitleAndViolin})`)
 
-      // Calculate violin segments positions
-      const segmentSpacing = violinWidth / 2 // Space between left-center and center-right
+      // Positions des segments
+      const segmentSpacing = violinWidth / 2
       const leftX = violinStartX
       const centerX = violinStartX + segmentSpacing
       const rightX = violinStartX + violinWidth
 
-      // Calculate violin height scale using global max for comparability
+      // Utilise le max global pour l'échelle de hauteur
       const heightScale = d3.scaleLinear()
         .domain([0, globalMaxPercentage])
-        .range([0, violinAreaHeight / 2]) // Half height for each side of horizon
+        .range([0, violinAreaHeight / 2]) 
 
-      const horizonY = violinAreaHeight / 2 // Horizon line (invisible)
+      // Utils ligne d'horizon, non affichée, positionne les labels
+      const horizonY = violinAreaHeight / 2
 
       // Calculate segment heights
       const leftHeight = heightScale(violinData[0]?.percentage ?? 0)
@@ -255,34 +256,34 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
       // Create violin shape using path with Bézier curves
       const violinPath = d3.path()
       
-      // Start at top-left
+      // Début top-left
       violinPath.moveTo(leftX, horizonY - leftHeight)
       
-      // Curve to top-center
+      // Bézier vers top-center
       violinPath.bezierCurveTo(
         leftX + segmentSpacing * 0.3, horizonY - leftHeight,
         centerX - segmentSpacing * 0.3, horizonY - centerHeight,
         centerX, horizonY - centerHeight
       )
       
-      // Curve to top-right
+      // Bézier vers top-right
       violinPath.bezierCurveTo(
         centerX + segmentSpacing * 0.3, horizonY - centerHeight,
         rightX - segmentSpacing * 0.3, horizonY - rightHeight,
         rightX, horizonY - rightHeight
       )
       
-      // Line down to bottom-right
+      // Segment bas droite
       violinPath.lineTo(rightX, horizonY + rightHeight)
-      
-      // Curve to bottom-center
+
+      // Bézier vers bottom-center
       violinPath.bezierCurveTo(
         rightX - segmentSpacing * 0.3, horizonY + rightHeight,
         centerX + segmentSpacing * 0.3, horizonY + centerHeight,
         centerX, horizonY + centerHeight
       )
-      
-      // Curve to bottom-left
+
+      // Bézier vers bottom-left
       violinPath.bezierCurveTo(
         centerX - segmentSpacing * 0.3, horizonY + centerHeight,
         leftX + segmentSpacing * 0.3, horizonY + leftHeight,
@@ -292,7 +293,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
       // Close path
       violinPath.closePath()
 
-      // Add the violin shape (sans tooltip)
+      // violinShape à partir du path
       violinGroup.append('path')
         .attr('d', violinPath.toString())
         .attr('fill', mainColor)
@@ -300,7 +301,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
         .attr('stroke', darkColor1)
         .attr('stroke-width', 1)
 
-      // Add vertical segments (visual guides)
+      // Segments verticaux + emojis + labels + pourcentages
       const segments = [
         { x: leftX, height: leftHeight, data: violinData[0] },
         { x: centerX, height: centerHeight, data: violinData[1] },
@@ -311,7 +312,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
         const segmentGroup = violinGroup.append('g')
           .attr('class', 'segment-group')
 
-        // Add vertical line segment (masqué - on ne voit que l'aire)
+        // Utils lingne verticale au centre du segment (non affichée)
         segmentGroup.append('line')
           .attr('x1', segment.x)
           .attr('y1', horizonY - segment.height)
@@ -321,7 +322,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
           .attr('stroke-width', 2)
           .attr('opacity', 0) // Masqué - seule l'aire est visible
 
-        // Add emoji above segment (avec plus d'espace depuis le sous-titre)
+        // Emoji
         if (segment.data) {
           segmentGroup.append('text')
             .attr('x', segment.x)
@@ -330,7 +331,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
             .style('font-size', '12px')
             .text(segment.data.emoji)
 
-          // Add percentage below segment
+          // %
           segmentGroup.append('text')
             .attr('x', segment.x)
             .attr('y', horizonY + segment.height + 18)
@@ -340,7 +341,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
             .style('fill', darkColor1)
             .text(`${segment.data.percentage.toFixed(0)}%`)
 
-          // Add label on horizon line 
+          // Label
           segmentGroup.append('text')
             .attr('x', segment.x)
             .attr('y', horizonY) // Sur la ligne horizontale
@@ -352,7 +353,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
             .style('text-shadow', '2px 2px 2px rgba(0,0,0,0.8)') // Contour pour lisibilité
             .text(segment.data.label.length > 10 ? segment.data.label.substring(0, 10) + '...' : segment.data.label)
 
-          // Add invisible tooltip area around each segment
+          // Util tooltip area
           const tooltipArea = segmentGroup.append('rect')
             .attr('x', segment.x - 25) // Largeur de 50px centrée sur le segment
             .attr('y', Math.min(horizonY - segment.height - 20, 0)) // Du haut du segment (avec emoji espacé)
@@ -361,7 +362,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
             .attr('fill', 'transparent')
             .style('cursor', 'pointer')
 
-          // Add tooltip interactions to each segment area
+          // Tooltip interactions
           tooltipArea
             .on('mouseover', function(event: MouseEvent) {
               // Show tooltip pour ce segment spécifique
@@ -410,7 +411,6 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
         }
       })
 
-      // Violin shape n'a plus de tooltip - les tooltips sont maintenant sur chaque segment
     })
 
   }, [data, colors, mainColor, lightColor3, lightColor1, lightColor4, darkColor1, comp2, width, height])

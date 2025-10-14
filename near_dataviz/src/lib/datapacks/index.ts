@@ -9,6 +9,7 @@ export * from './DpAgeDistribution'
 export * from './DpGenre'
 export * from './DpCsp'
 export * from './DpCarbonSankey'
+export * from './DpMobilityByZone'
 
 // Autres datapacks (à décommenter selon les besoins)
 // export * from './DpColor'
