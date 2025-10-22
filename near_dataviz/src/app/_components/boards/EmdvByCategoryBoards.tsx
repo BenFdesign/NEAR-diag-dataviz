@@ -21,10 +21,10 @@ export const EmdvByCategoryBoards: Board[] = EMDV_SUBCATEGORIES.map((cat) => ({
     <div className="other-board">
       <header className="board-header">
         <h2 className="board-title">
-          {cat.emoji} Avis sur le cadre de vie – {cat.name}
+          {cat.emoji} Avis sur le cadre de vie - {cat.name}
         </h2>
         <p className="board-subtitle">
-          Répartition Oui / Non / Pas d&apos;avis par question – vue {(!selectedSus || selectedSus.length !== 1) ? 'quartier (moyenne pondérée)' : 'SU (moyenne)'}
+          Répartition entre 🟥 Avis négatifs, 🔲Pas d&apos;avis et 🟩 Avis positifs, pour différentes questions liées au thème {cat.name}.
         </p>
       </header>
 

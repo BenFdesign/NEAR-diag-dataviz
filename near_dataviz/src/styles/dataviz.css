@@ -858,7 +858,7 @@
 
 .legend-items {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   margin-bottom: 15px;
   flex-wrap: wrap;
 }

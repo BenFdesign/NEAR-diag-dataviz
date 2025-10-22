@@ -220,7 +220,7 @@ const DvCsp: React.FC<DvCspProps> = ({
         return segmentWidth > 40 ? `${d.percentage.toFixed(0)}%` : ''
       })
 
-    // Create legend below the bar chart using HTML foreignObject for natural flow
+    // Create legend below the bar chart using HTML foreignObject
     const legend = svg.append('foreignObject')
       .attr('x', dimensions.margins.left)
       .attr('y', (chartHeight/3)*2+5)
@@ -243,8 +243,8 @@ const DvCsp: React.FC<DvCspProps> = ({
       .attr('class', 'legend-item')
       .style('display', 'inline-flex')
       .style('align-items', 'center')
-      .style('gap', '6px')
-      .style('font-size', '11px')
+      .style('gap', '5px')
+      .style('font-size', '10px')
       .style('font-weight', '500')
       .style('color', '#333')
 
