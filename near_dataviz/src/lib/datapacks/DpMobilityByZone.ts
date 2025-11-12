@@ -1,387 +1,245 @@
-// DpMobilityByZone - Données de mobilité par zone/quartier
-// Adapté pour le projet NEAR-diag-dataviz
+import { loadMobilityData } from '../data-loader'
 
-// Import des données depuis le répertoire public
-import mobilityDataImport from '../../../public/data/MobilityData.json'
-import suDataImport from '../../../public/data/Su Data.json'
+const SURVEY_ID = 1
+const DATAPACK_NAME = 'DpMobilityByZone'
 
-// Cast des données avec types appropriés
-interface MobilityEntry {
-  'Su ID': number
-  Zone: string
-  Mode: string
+interface MobilityRecord {
+  'Su ID': number | string
+  GENDER: 'MAN' | 'WOMAN'
+  AGE: 'FROM_15_TO_29' | 'FROM_30_TO_44' | 'FROM_45_TO_59' | 'FROM_60_TO_74' | 'ABOVE_75'
   Time: string
+  Mode: string
+  Zone: string
+  Destination_Zone: string
   Usage: string
 }
 
-const mobilityData = mobilityDataImport as MobilityEntry[]
-
-interface SuDataEntry {
-  ID: number
-  Su: number
-  'Pop Percentage': string
-}
-
-const suData = suDataImport as SuDataEntry[]
-
-// ===== INTERFACES =====
-
-interface UsageStats {
+interface ModeData {
   label: string
   value: number
 }
 
-interface ModeStats {
+interface UsageData {
   label: string
   value: number
 }
 
-interface ZoneStats {
+interface ZoneData {
   destination: string
   usages: {
     unit: string
-    leisure: UsageStats
-    shopping: UsageStats
-    work: UsageStats
+    leisure: UsageData
+    shopping: UsageData
+    work: UsageData
+    modal: UsageData
   }
   modes: {
     unit: string
-    foot: ModeStats
-    bike: ModeStats
-    car: ModeStats
-    transit: ModeStats
+    foot: ModeData
+    bike: ModeData
+    car: ModeData
+    transit: ModeData
   }
 }
 
-type MobilityByZoneResult = Record<string, ZoneStats>
-
-interface PrecomputedMobilityData {
-  allSuResults: Map<number, MobilityByZoneResult>
-  quartierResult: MobilityByZoneResult
-  lastComputed: number
+export interface MobilityResult {
+  Quartier: ZoneData
+  Nord1: ZoneData
+  Nord2: ZoneData
+  Sud1: ZoneData
+  Sud2: ZoneData
+  Est1: ZoneData
+  Est2: ZoneData
+  Ouest1: ZoneData
+  Ouest2: ZoneData
 }
 
-// ===== CONSTANTES =====
-
-const DATAPACK_NAME = 'DpMobilityByZone'
-
-// Mapping des zones vers les noms de quartiers de base
-const BASE_ZONE_MAPPING: Record<string, string> = {
-  'ZONE_A': 'Nord',
-  'ZONE_B': 'Est',
-  'ZONE_C': 'Sud',
-  'ZONE_D': 'Ouest',
-  'ZONE_PORTE_ORLEANS': 'Quartier'
+interface MobilityFilters {
+  selectedSus?: number[]
+  selectedGenders?: ('MAN' | 'WOMAN')[]
+  selectedAges?: ('FROM_15_TO_29' | 'FROM_30_TO_44' | 'FROM_45_TO_59' | 'FROM_60_TO_74' | 'ABOVE_75')[]
 }
 
-
-// Mapping des temps (< 30min = proche, >= 30min = loin)
-const TIME_THRESHOLD: Record<string, 'proche' | 'loin'> = {
-  'LESS_THAN_10_MIN': 'proche',
-  'BETWEEN_10_AND_20_MIN': 'proche',
-  'BETWEEN_20_AND_30_MIN': 'proche',
-  'BETWEEN_30_AND_45_MIN': 'loin',
-  'BETWEEN_45_MIN_AND_1_HOUR': 'loin',
-  'MORE_THAN_1_HOUR': 'loin'
+const getGraphZone = (destZone: string): string | null => {
+  if (!destZone) return null
+  if (destZone === 'ZONE_PORTE_ORLEANS_D0') return 'Quartier'
+  
+  const parts = destZone.split('_')
+  if (parts.length < 3) return null
+  
+  const zoneLetter = parts[1]
+  const distance = parts[2]
+  
+  if (zoneLetter === 'A') {
+    if (distance === 'D1' || distance === 'D2') return 'Nord1'
+    if (distance === 'D3' || distance === 'D4') return 'Nord2'
+    if (distance === 'D0') return 'Quartier'
+  }
+  
+  if (zoneLetter === 'B') {
+    if (distance === 'D1' || distance === 'D2') return 'Sud1'
+    if (distance === 'D3' || distance === 'D4') return 'Sud2'
+    if (distance === 'D0') return 'Quartier'
+  }
+  
+  if (zoneLetter === 'C') {
+    if (distance === 'D1' || distance === 'D2') return 'Est1'
+    if (distance === 'D3' || distance === 'D4') return 'Est2'
+    if (distance === 'D0') return 'Quartier'
+  }
+  
+  if (zoneLetter === 'D') {
+    if (distance === 'D1' || distance === 'D2') return 'Ouest1'
+    if (distance === 'D3' || distance === 'D4') return 'Ouest2'
+    if (distance === 'D0') return 'Quartier'
+  }
+  
+  return null
 }
 
-// Mapping des usages
-const USAGE_MAPPING: Record<string, keyof ZoneStats['usages']> = {
-  'Hobby': 'leisure',
-  'Food': 'shopping', 
-  'Work': 'work'
+const getModeCategory = (mode: string): string | null => {
+  if (!mode) return null
+  const modeUpper = mode.toUpperCase().trim()
+  
+  if (modeUpper === 'WALKING') return 'foot'
+  if (modeUpper === 'PERSONAL_BICYCLE' || modeUpper === 'VELIB' || modeUpper === 'SHARED_BICYCLE') return 'bike'
+  if (modeUpper === 'CAR' || modeUpper === 'MOTORCYCLE' || modeUpper === 'PERSONAL_CAR') return 'car'
+  if (modeUpper === 'PUBLIC_TRANSPORT' || modeUpper === 'METRO' || modeUpper === 'BUS' || modeUpper === 'TRAM') return 'transit'
+  if (modeUpper === 'NONE_I_DONT_MOVE' || modeUpper === 'NONE') return null
+  
+  return null
 }
 
-// Mapping des modes de transport
-const MODE_MAPPING: Record<string, keyof ZoneStats['modes']> = {
-  'WALKING': 'foot',
-  'PERSONAL_BICYCLE': 'bike',
-  'SHARED_BICYCLE': 'bike',
-  'PUBLIC_TRANSPORT': 'transit',
-  'CAR': 'car',
-  'ELECTRIC_CAR': 'car',
-  'TAXI_VTC': 'car'
-  //'NONE_I_DONT_MOVE': 'foot' // Traité comme piéton par défaut
+const getUsageCategory = (usage: string): string | null => {
+  if (!usage) return null
+  const usageTrimmed = usage.trim()
+  
+  if (usageTrimmed === 'Food') return 'shopping'
+  if (usageTrimmed === 'Hobby') return 'leisure'
+  if (usageTrimmed === 'Work') return 'work'
+  if (usageTrimmed === 'Modal') return 'modal'
+  
+  return null
 }
 
-// Labels pour les usages
-const USAGE_LABELS: Record<keyof ZoneStats['usages'], string> = {
-  unit: '%',
-  leisure: 'Sorties, sports, loisirs',
-  shopping: 'Courses alimentaires',
-  work: 'Travail, études'
-}
-
-// Labels pour les modes
-const MODE_LABELS: Record<keyof ZoneStats['modes'], string> = {
-  unit: '%',
-  foot: 'Piéton',
-  bike: 'Vélo',
-  car: 'Voiture, moto',
-  transit: 'Bus, tram, métro'
-}
-
-let precomputedCache: PrecomputedMobilityData | null = null
-
-// ===== FONCTIONS UTILITAIRES =====
-
-const getSuPopPercentage = (suId: number): number => {
-  const suEntry = suData.find((su: SuDataEntry) => su.ID === suId)
-  return suEntry ? parseFloat(suEntry['Pop Percentage']) : 0
-}
-
-const initializeZoneStats = (zoneName: string): ZoneStats => ({
-  destination: `Vers ${zoneName}`,
+const createEmptyZoneData = (destinationLabel: string): ZoneData => ({
+  destination: destinationLabel,
   usages: {
     unit: '%',
-    leisure: { label: USAGE_LABELS.leisure, value: 0 },
-    shopping: { label: USAGE_LABELS.shopping, value: 0 },
-    work: { label: USAGE_LABELS.work, value: 0 }
+    leisure: { label: 'Sorties, sports, loisirs', value: 0 },
+    shopping: { label: 'Courses alimentaires', value: 0 },
+    work: { label: 'Travail, études', value: 0 },
+    modal: { label: 'Rejoindre une gare ou aéroport', value: 0 }
   },
   modes: {
     unit: '%',
-    foot: { label: MODE_LABELS.foot, value: 0 },
-    bike: { label: MODE_LABELS.bike, value: 0 },
-    car: { label: MODE_LABELS.car, value: 0 },
-    transit: { label: MODE_LABELS.transit, value: 0 }
+    foot: { label: 'Piéton', value: 0 },
+    bike: { label: 'Vélo', value: 0 },
+    car: { label: 'Voiture, moto', value: 0 },
+    transit: { label: 'Bus, tram, métro', value: 0 }
   }
 })
 
-// ===== CALCULS =====
+const createEmptyResult = (): MobilityResult => ({
+  Quartier: createEmptyZoneData('Vers quartier'),
+  Nord1: createEmptyZoneData('Vers Nord proche'),
+  Nord2: createEmptyZoneData('Vers Nord loin'),
+  Sud1: createEmptyZoneData('Vers Sud proche'),
+  Sud2: createEmptyZoneData('Vers Sud loin'),
+  Est1: createEmptyZoneData('Vers Est proche'),
+  Est2: createEmptyZoneData('Vers Est loin'),
+  Ouest1: createEmptyZoneData('Vers Ouest proche'),
+  Ouest2: createEmptyZoneData('Vers Ouest loin')
+})
 
-const calculateMobilityForSu = (suId: number): MobilityByZoneResult => {
-  const suMobilityData = mobilityData.filter((entry: MobilityEntry) => 
-    entry['Su ID'] === suId && entry.Zone.trim() !== ''
-  )
+const filterMobilityData = (data: MobilityRecord[], filters: MobilityFilters): MobilityRecord[] => {
+  return data.filter(record => {
+    if (filters.selectedSus && filters.selectedSus.length > 0) {
+      const recordSuId = typeof record['Su ID'] === 'string' ? parseInt(record['Su ID']) : record['Su ID']
+      if (!filters.selectedSus.includes(recordSuId)) return false
+    }
+    
+    if (filters.selectedGenders && filters.selectedGenders.length > 0) {
+      if (!filters.selectedGenders.includes(record.GENDER)) return false
+    }
+    
+    if (filters.selectedAges && filters.selectedAges.length > 0) {
+      if (!filters.selectedAges.includes(record.AGE)) return false
+    }
+    
+    return true
+  })
+}
+
+const processMobilityRecords = (records: MobilityRecord[]): MobilityResult => {
+  const result = createEmptyResult()
   
-  const result: MobilityByZoneResult = {}
+  const zoneCounts: Record<string, {
+    total: number
+    modeCountsRaw: Record<string, number>
+    usageCountsRaw: Record<string, number>
+  }> = {}
   
-  // Générer toutes les combinaisons de zones (base + proche/loin)
-  const allZones: string[] = []
-  Object.values(BASE_ZONE_MAPPING).forEach(baseZone => {
-    if (baseZone === 'Quartier') {
-      // Le quartier central n'a pas de proche/loin
-      allZones.push(baseZone)
-    } else {
-      allZones.push(`${baseZone}_proche`)
-      allZones.push(`${baseZone}_loin`)
+  Object.keys(result).forEach(zoneKey => {
+    zoneCounts[zoneKey] = {
+      total: 0,
+      modeCountsRaw: { foot: 0, bike: 0, car: 0, transit: 0 },
+      usageCountsRaw: { leisure: 0, shopping: 0, work: 0, modal: 0 }
     }
   })
   
-  // Initialiser les stats pour chaque zone
-  allZones.forEach(zoneName => {
-    result[zoneName] = initializeZoneStats(zoneName)
-  })
-  
-  // Compter les occurrences par zone (avec proche/loin), usage et mode
-  const zoneUsageCounts: Record<string, Record<string, number>> = {}
-  const zoneModeCounts: Record<string, Record<string, number>> = {}
-  const zoneTotals: Record<string, number> = {}
-  
-  suMobilityData.forEach((entry: MobilityEntry) => {
-    const baseZone = BASE_ZONE_MAPPING[entry.Zone]
-    if (!baseZone) return
+  records.forEach(record => {
+    const graphZone = getGraphZone(record.Destination_Zone)
+    if (!graphZone || !zoneCounts[graphZone]) return
     
-    // Déterminer si c'est proche ou loin basé sur Time
-    const timeCategory = TIME_THRESHOLD[entry.Time]
+    const modeCategory = getModeCategory(record.Mode)
+    const usageCategory = getUsageCategory(record.Usage)
     
-    // Construire le nom de zone final
-    let finalZoneName: string
-    if (baseZone === 'Quartier') {
-      finalZoneName = baseZone
-    } else if (timeCategory) {
-      finalZoneName = `${baseZone}_${timeCategory}`
-    } else {
-      // Si pas de catégorie de temps définie, on skip
-      return
-    }
+    if (!modeCategory) return
     
-    const usageKey = USAGE_MAPPING[entry.Usage]
-    const modeKey = MODE_MAPPING[entry.Mode]
-    
-    if (!zoneUsageCounts[finalZoneName]) {
-      zoneUsageCounts[finalZoneName] = { leisure: 0, shopping: 0, work: 0 }
-      zoneModeCounts[finalZoneName] = { foot: 0, bike: 0, car: 0, transit: 0 }
-      zoneTotals[finalZoneName] = 0
-    }
-    
-    if (usageKey) {
-      const zoneCounts = zoneUsageCounts[finalZoneName]!
-      zoneCounts[usageKey] = (zoneCounts[usageKey] ?? 0) + 1
-      zoneTotals[finalZoneName] = (zoneTotals[finalZoneName] ?? 0) + 1
-    }
-    
-    if (modeKey) {
-      const modeCounts = zoneModeCounts[finalZoneName]!
-      modeCounts[modeKey] = (modeCounts[modeKey] ?? 0) + 1
+    const zoneCount = zoneCounts[graphZone]
+    zoneCount.total++
+    zoneCount.modeCountsRaw[modeCategory] = (zoneCount.modeCountsRaw[modeCategory] ?? 0) + 1
+    if (usageCategory) {
+      zoneCount.usageCountsRaw[usageCategory] = (zoneCount.usageCountsRaw[usageCategory] ?? 0) + 1
     }
   })
   
-  // Calculer les pourcentages
-  Object.entries(result).forEach(([zoneName, zoneStats]) => {
-    const totalUsages = zoneTotals[zoneName] ?? 0
-    const usageCounts = zoneUsageCounts[zoneName] ?? { leisure: 0, shopping: 0, work: 0 }
-    const modeCounts = zoneModeCounts[zoneName] ?? { foot: 0, bike: 0, car: 0, transit: 0 }
+  Object.keys(result).forEach(zoneKey => {
+    const zone = zoneCounts[zoneKey]
+    const zoneData = result[zoneKey as keyof MobilityResult]
     
-    const totalModes = Object.values(modeCounts).reduce((sum, count) => sum + count, 0)
+    if (!zone || zone.total === 0) return
     
+    zoneData.modes.foot.value = ((zone.modeCountsRaw.foot ?? 0) / zone.total) * 100
+    zoneData.modes.bike.value = ((zone.modeCountsRaw.bike ?? 0) / zone.total) * 100
+    zoneData.modes.car.value = ((zone.modeCountsRaw.car ?? 0) / zone.total) * 100
+    zoneData.modes.transit.value = ((zone.modeCountsRaw.transit ?? 0) / zone.total) * 100
+    
+    const totalUsages = Object.values(zone.usageCountsRaw).reduce((sum, count) => sum + (count ?? 0), 0)
     if (totalUsages > 0) {
-      zoneStats.usages.leisure.value = Math.round(((usageCounts.leisure ?? 0) / totalUsages) * 100)
-      zoneStats.usages.shopping.value = Math.round(((usageCounts.shopping ?? 0) / totalUsages) * 100)
-      zoneStats.usages.work.value = Math.round(((usageCounts.work ?? 0) / totalUsages) * 100)
-    }
-    
-    if (totalModes > 0) {
-      zoneStats.modes.foot.value = Math.round(((modeCounts.foot ?? 0) / totalModes) * 100)
-      zoneStats.modes.bike.value = Math.round(((modeCounts.bike ?? 0) / totalModes) * 100)
-      zoneStats.modes.car.value = Math.round(((modeCounts.car ?? 0) / totalModes) * 100)
-      zoneStats.modes.transit.value = Math.round(((modeCounts.transit ?? 0) / totalModes) * 100)
+      zoneData.usages.leisure.value = ((zone.usageCountsRaw.leisure ?? 0) / totalUsages) * 100
+      zoneData.usages.shopping.value = ((zone.usageCountsRaw.shopping ?? 0) / totalUsages) * 100
+      zoneData.usages.work.value = ((zone.usageCountsRaw.work ?? 0) / totalUsages) * 100
+      zoneData.usages.modal.value = ((zone.usageCountsRaw.modal ?? 0) / totalUsages) * 100
     }
   })
   
   return result
 }
 
-const precomputeAllMobilityData = (): PrecomputedMobilityData => {
-  console.log(`[${new Date().toISOString()}] Starting pre-computation - ${DATAPACK_NAME}`)
-  const startTime = performance.now()
-
-  const allSuIds = suData.filter((su: SuDataEntry) => su.ID !== 0).map((su: SuDataEntry) => su.ID)
-  const allSuResults = new Map<number, MobilityByZoneResult>()
-  
-  // Calculer les données pour chaque Su
-  allSuIds.forEach((suId: number) => {
-    const suResult = calculateMobilityForSu(suId)
-    allSuResults.set(suId, suResult)
-  })
-  
-  // Calculer les données agrégées pour le quartier (moyenne pondérée)
-  const quartierResult: MobilityByZoneResult = {}
-  
-  // Générer toutes les combinaisons de zones (base + proche/loin)
-  const allZones: string[] = []
-  Object.values(BASE_ZONE_MAPPING).forEach(baseZone => {
-    if (baseZone === 'Quartier') {
-      // Le quartier central n'a pas de proche/loin
-      allZones.push(baseZone)
-    } else {
-      allZones.push(`${baseZone}_proche`)
-      allZones.push(`${baseZone}_loin`)
-    }
-  })
-  
-  // Initialiser les zones
-  allZones.forEach(zoneName => {
-    quartierResult[zoneName] = initializeZoneStats(zoneName)
-  })
-  
-  // Calculer les moyennes pondérées par Pop Percentage
-  const totalPopPercentage = allSuIds.reduce((sum, suId) => sum + getSuPopPercentage(suId), 0)
-  
-  if (totalPopPercentage > 0) {
-    Object.keys(quartierResult).forEach(zoneName => {
-      let weightedUsageLeisure = 0, weightedUsageShopping = 0, weightedUsageWork = 0
-      let weightedModeFoot = 0, weightedModeBike = 0, weightedModeCar = 0, weightedModeTransit = 0
-      
-      allSuIds.forEach(suId => {
-        const suResult = allSuResults.get(suId)
-        const popPercentage = getSuPopPercentage(suId)
-        const weight = popPercentage / totalPopPercentage
-        
-        if (suResult?.[zoneName]) {
-          const zoneData = suResult[zoneName]
-          
-          weightedUsageLeisure += zoneData.usages.leisure.value * weight
-          weightedUsageShopping += zoneData.usages.shopping.value * weight
-          weightedUsageWork += zoneData.usages.work.value * weight
-          
-          weightedModeFoot += zoneData.modes.foot.value * weight
-          weightedModeBike += zoneData.modes.bike.value * weight
-          weightedModeCar += zoneData.modes.car.value * weight
-          weightedModeTransit += zoneData.modes.transit.value * weight
-        }
-      })
-      
-      if (quartierResult[zoneName]) {
-        quartierResult[zoneName].usages.leisure.value = Math.round(weightedUsageLeisure)
-        quartierResult[zoneName].usages.shopping.value = Math.round(weightedUsageShopping)
-        quartierResult[zoneName].usages.work.value = Math.round(weightedUsageWork)
-        
-        quartierResult[zoneName].modes.foot.value = Math.round(weightedModeFoot)
-        quartierResult[zoneName].modes.bike.value = Math.round(weightedModeBike)
-        quartierResult[zoneName].modes.car.value = Math.round(weightedModeCar)
-        quartierResult[zoneName].modes.transit.value = Math.round(weightedModeTransit)
-      }
-    })
-  }
-
-  const endTime = performance.now()
-  console.log(`[${DATAPACK_NAME}] Pre-computation completed in ${(endTime - startTime).toFixed(2)}ms`)
-
-  return {
-    allSuResults,
-    quartierResult,
-    lastComputed: Date.now()
-  }
-}
-
-const getPrecomputedData = (): PrecomputedMobilityData => {
-  precomputedCache ??= precomputeAllMobilityData()
-  return precomputedCache
-}
-
-// ===== FONCTION D'EXPORT PRINCIPALE =====
-
-export function fetchMobilityByZoneData(selectedSus?: number[]): MobilityByZoneResult {
-  const precomputed = getPrecomputedData()
-  
-  const isQuartierView = !selectedSus || selectedSus.length === 0 || selectedSus.length > 1
-  
-  if (isQuartierView) {
-    return precomputed.quartierResult
-  } else {
-    // Convertir le numéro Su en ID
-    const targetSu = selectedSus[0]!
-    const suEntry = suData.find((su: SuDataEntry) => su.Su === targetSu)
-    const targetSuId = suEntry ? suEntry.ID : targetSu
-    
-    return precomputed.allSuResults.get(targetSuId) ?? precomputed.quartierResult
-  }
-}
-
-export function clearMobilityByZoneCache(): void {
-  precomputedCache = null
-  console.log(`[${new Date().toISOString()}] Cache cleared - ${DATAPACK_NAME}`)
-}
-
-export function runMobilityByZoneTests(): boolean {
-  console.log(`[TEST] Starting tests for ${DATAPACK_NAME}`)
-  let allTestsPassed = true
-  
+export const getDpMobilityByZoneData = async (filters?: MobilityFilters): Promise<MobilityResult> => {
   try {
-    clearMobilityByZoneCache()
-    const data1 = fetchMobilityByZoneData()
-    console.log('✅ Quartier data loaded:', Object.keys(data1).length > 0)
-
-    const data2 = fetchMobilityByZoneData([1])
-    console.log('✅ Single SU data loaded:', Object.keys(data2).length > 0)
-
-    const data3 = fetchMobilityByZoneData([1, 2])
-    console.log('✅ Multiple SUs return quartier data:', Object.keys(data3).length > 0)
-    
-    // Test structure des données
-    const firstZone = Object.values(data1)[0]
-    if (firstZone) {
-      console.log('✅ Data structure valid:', 
-        'usages' in firstZone && 
-        'modes' in firstZone &&
-        'destination' in firstZone)
-    }
-    
+    const mobilityDataRaw = await loadMobilityData() as MobilityRecord[]
+    const filteredRecords = filterMobilityData(mobilityDataRaw, filters ?? {})
+    return processMobilityRecords(filteredRecords)
   } catch (error) {
-    console.error('❌ MobilityByZone test failed:', error)
-    allTestsPassed = false
+    console.error(`[${DATAPACK_NAME}] Error loading mobility data:`, error)
+    return createEmptyResult()
   }
-  
-  return allTestsPassed
+}
+
+export const getDpMobilityByZoneText = async (filters?: MobilityFilters): Promise<string> => {
+  const data = await getDpMobilityByZoneData(filters)
+  return JSON.stringify(data)
 }

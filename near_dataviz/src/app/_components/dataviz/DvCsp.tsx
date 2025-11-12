@@ -149,7 +149,7 @@ const DvCsp: React.FC<DvCspProps> = ({
     const g = svg.append('g')
       .attr('transform', `translate(
         ${dimensions.margins.left},
-        ${dimensions.margins.top + (barHeight) / 2}
+        ${dimensions.margins.top + (barHeight) / 3}
         )`)
 
     // Create stacked bars
@@ -223,17 +223,17 @@ const DvCsp: React.FC<DvCspProps> = ({
     // Create legend below the bar chart using HTML foreignObject
     const legend = svg.append('foreignObject')
       .attr('x', dimensions.margins.left)
-      .attr('y', (chartHeight/3)*2+5)
+      .attr('y', (chartHeight/1.5))
       .attr('width', chartWidth)
-      .attr('height', (chartHeight/3)*1+dimensions.margins.bottom)
-
+      .attr('height', (chartHeight/3)*1+dimensions.margins.bottom*2)
+12
     const legendContainer = legend.append('xhtml:div')
       .style('display', 'flex')
       .style('flex-wrap', 'wrap')
-      .style('gap', '12px')
+      .style('gap', '8px')
       .style('align-items', 'center')
       .style('font-family', 'system-ui, sans-serif')
-      .style('line-height', '1.4')
+      .style('line-height', '1.2')
 
     // Create legend items as inline divs
     const legendItems = legendContainer.selectAll('.legend-item')

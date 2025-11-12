@@ -1,6 +1,6 @@
 // Mobility Board - Visualisation des données de mobilité par zone avec le mega graph
 import type { Board } from '~/lib/types'
-
+import DvMobilityGraph from '../dataviz/DvMobilityGraph'
 
 export const MobilityBoard: Board = {
   id: 'MOBILITY',
@@ -8,8 +8,6 @@ export const MobilityBoard: Board = {
   emoji: '🚗',
   description: 'Découvrir les modes de transport et les destinations des habitant·es du quartier',
   renderComponent: ({ selectedSus }: { selectedSus?: number[] }) => {
-    const suId = selectedSus?.[0]?.toString() ?? '';
-    
     return (
       <div className="other-board">
         <header className="board-header">
@@ -17,10 +15,13 @@ export const MobilityBoard: Board = {
             {MobilityBoard.emoji} {MobilityBoard.name}
           </h2>
           <p className="board-subtitle">
-           {MobilityBoard.description}
+            {MobilityBoard.description}
           </p>
         </header>
-        <div className="dv-container" style={{ height: 1200 }}>
+        <div className="dv-container" style={{ minHeight: 1200 }}>
+          <DvMobilityGraph
+            selectedSus={selectedSus}
+          />
         </div>
       </div>
     );

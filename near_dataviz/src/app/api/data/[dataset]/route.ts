@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { getDpEmdvSatisfactionsByCategory } from '~/lib/datapacks/DpEmdvSatisfactionsByCategory'
-import { fetchMobilityByZoneData } from '~/lib/datapacks/DpMobilityByZone'
+import { getDpMobilityByZoneData } from '~/lib/datapacks/DpMobilityByZone'
 
 export async function GET(
   request: NextRequest,
@@ -37,7 +37,7 @@ export async function GET(
         ? susParam.split(',').map(s => Number(s)).filter(n => !Number.isNaN(n))
         : undefined
 
-      const payload = fetchMobilityByZoneData(selectedSus)
+      const payload = await getDpMobilityByZoneData({ selectedSus })
       return NextResponse.json(payload, { headers: { 'Cache-Control': 'no-store' } })
     }
     

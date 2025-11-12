@@ -92,6 +92,11 @@ export async function loadMetaCarbon(): Promise<unknown[]> {
   return loadDataWithCache<unknown[]>('MetaCarbon', 'metaCarbon')
 }
 
+/* Load Mobility Data */
+export async function loadMobilityData(): Promise<unknown[]> {
+  return loadDataWithCache<unknown[]>('MobilityData', 'mobilityData')
+}
+
 /* Clear data cache */
 export function clearDataCache(): void {
   dataCache = {}
