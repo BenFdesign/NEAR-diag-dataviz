@@ -129,11 +129,11 @@ interface SuBankItem {
 /**
  * Charge les données de couleurs depuis Su Bank.json
  */
+import { loadSuBankData as loadSuBankDataRaw } from '~/lib/data-loader'
+
 const loadSuBankData = async (): Promise<SuBankItem[]> => {
   try {
-    const response = await fetch('/api/data/Su%20Bank')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as SuBankItem[]
+    const data = await loadSuBankDataRaw() as SuBankItem[]
     console.log(`🎨 Chargé ${data.length} palettes de couleurs`)
     return data
   } catch (error) {
@@ -377,4 +377,44 @@ export const getColorStats = async () => {
     console.error('❌ Erreur lors du calcul des statistiques couleurs:', error)
     return null
   }
+}
+
+// =====================================
+// CONTRAT DATAPACK STANDARDISÉ (BASÉ SUR LA PALETTE QUARTIER)
+// =====================================
+
+import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
+
+export interface DpColorResult {
+  quartierColors: SuColors
+}
+
+export const getDpColorDatapack = async (
+  _request: DatapackRequest
+): Promise<DatapackResponse<DpColorResult>> => {
+  const colorData = await getColorData()
+
+  const data: DpColorResult = {
+    quartierColors: colorData.quartierColors
+  }
+
+  const context = {
+    view: 'quartier' as const,
+    selectedSus: [],
+    resolvedSuIds: undefined,
+    isPartial: false
+  }
+
+  const response: DatapackResponse<DpColorResult> = {
+    id: DATAPACK_NAME,
+    version: '1.0.0',
+    data,
+    context,
+    meta: {
+      totalSuPalettes: colorData.suColors.size,
+      hasQuartierPalette: !!colorData.quartierColors
+    }
+  }
+
+  return response
 }

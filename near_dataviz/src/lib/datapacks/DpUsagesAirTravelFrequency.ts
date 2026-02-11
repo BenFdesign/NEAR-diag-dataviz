@@ -1,11 +1,9 @@
 // DpUsagesAirTravelFrequency - Fréquence de voyage aérien
 // Adapté pour le projet NEAR-diag-dataviz
 
-// Import des données depuis le répertoire public
-import suAnswerDataImport from '../../../public/data/Su Answer.json'
-import metaSuQuestionsDataImport from '../../../public/data/MetaSuQuestions.json'
-import metaSuChoicesDataImport from '../../../public/data/MetaSuChoices.json'
-import suDataImport from '../../../public/data/Su Data.json'
+// Import des données via le data-loader (API /api/data)
+import { loadSuAnswer, loadMetaSuQuestions, loadMetaSuChoices, loadSuData } from '~/lib/data-loader'
+import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 
 // Cast des données avec types appropriés
 interface SuAnswer {
@@ -14,7 +12,6 @@ interface SuAnswer {
   // Add other fields as needed based on the structure of Su Answer.json
 }
 
-const suAnswerData = suAnswerDataImport as SuAnswer[]
 interface MetaSuQuestion {
   'Metabase Question Key': string
   'Question Short'?: string
@@ -22,7 +19,6 @@ interface MetaSuQuestion {
   Emoji?: string
   // Add other fields as needed based on the structure of MetaSuQuestions.json
 }
-const metaSuQuestionsData = metaSuQuestionsDataImport as MetaSuQuestion[]
 interface MetaSuChoice {
   'Metabase Question Key': string
   'Metabase Choice Key': string
@@ -33,13 +29,12 @@ interface MetaSuChoice {
   TypeData?: string
   // Add other fields as needed based on the structure of MetaSuChoices.json
 }
-const metaSuChoicesData = metaSuChoicesDataImport as MetaSuChoice[]
 interface SuDataEntry {
   ID: number
   Su: number
   // Add other fields as needed based on the structure of Su Data.json
 }
-const suData = suDataImport as SuDataEntry[]
+// Les données sont désormais chargées via data-loader, voir getPrecomputedData
 
 // ===== INTERFACES =====
 
@@ -104,10 +99,11 @@ const DATAPACK_NAME = 'DpUsagesAirTravelFrequency'
 const QUESTION_KEY = 'Air Travel Frequency'
 
 let precomputedCache: PrecomputedAirTravelFrequencyData | null = null
+let cachedSuData: SuDataEntry[] | null = null
 
 // ===== FONCTIONS UTILITAIRES =====
 
-const getAirTravelFrequencyChoices = () => {
+const getAirTravelFrequencyChoices = (metaSuChoicesData: MetaSuChoice[]) => {
   return metaSuChoicesData.filter((choice: MetaSuChoice) => 
     choice['Metabase Question Key'] === QUESTION_KEY &&
     choice.TypeData === "CatChoixUnique" &&
@@ -115,7 +111,7 @@ const getAirTravelFrequencyChoices = () => {
   )
 }
 
-const getQuestionMetadata = () => {
+const getQuestionMetadata = (metaSuQuestionsData: MetaSuQuestion[]) => {
   const questionMeta = metaSuQuestionsData.find((q: MetaSuQuestion) => q['Metabase Question Key'] === QUESTION_KEY)
   
   return {
@@ -127,7 +123,7 @@ const getQuestionMetadata = () => {
 }
 
 const getSuIdFromNumber = (suNumber: number): number => {
-  const suEntry = suData.find((su: SuDataEntry) => su.Su === suNumber)
+  const suEntry = cachedSuData?.find((su: SuDataEntry) => su.Su === suNumber)
   if (suEntry) {
     return suEntry.ID
   }
@@ -138,9 +134,14 @@ const getSuIdFromNumber = (suNumber: number): number => {
 
 // ===== CALCULS =====
 
-const calculateAirTravelFrequencyForSu = (suLocalId: number): AirTravelFrequencyData => {
-  const choices = getAirTravelFrequencyChoices()
-  const questionLabels = getQuestionMetadata()
+const calculateAirTravelFrequencyForSu = (
+  suAnswerData: SuAnswer[],
+  metaSuQuestionsData: MetaSuQuestion[],
+  metaSuChoicesData: MetaSuChoice[],
+  suLocalId: number
+): AirTravelFrequencyData => {
+  const choices = getAirTravelFrequencyChoices(metaSuChoicesData)
+  const questionLabels = getQuestionMetadata(metaSuQuestionsData)
   const suAnswers = suAnswerData.filter((answer: SuAnswer) => answer['Su ID'] === suLocalId)
   
   const responses: AirTravelFrequencyChoice[] = []
@@ -186,20 +187,30 @@ const calculateAirTravelFrequencyForSu = (suLocalId: number): AirTravelFrequency
   }
 }
 
-const precomputeAllAirTravelFrequencyData = (): PrecomputedAirTravelFrequencyData => {
+const precomputeAllAirTravelFrequencyData = (
+  suAnswerData: SuAnswer[],
+  metaSuQuestionsData: MetaSuQuestion[],
+  metaSuChoicesData: MetaSuChoice[],
+  suData: SuDataEntry[]
+): PrecomputedAirTravelFrequencyData => {
   console.log(`[${new Date().toISOString()}] Starting pre-computation - ${DATAPACK_NAME}`)
   const startTime = performance.now()
 
   const allSuLocalIds = suData.filter((su: SuDataEntry) => su.ID !== 0).map((su: SuDataEntry) => su.ID)
   const allSuResults = new Map<number, AirTravelFrequencyData>()
-  const questionLabels = getQuestionMetadata()
+  const questionLabels = getQuestionMetadata(metaSuQuestionsData)
   
   allSuLocalIds.forEach((suLocalId: number) => {
-    const suResult = calculateAirTravelFrequencyForSu(suLocalId)
+    const suResult = calculateAirTravelFrequencyForSu(
+      suAnswerData,
+      metaSuQuestionsData,
+      metaSuChoicesData,
+      suLocalId
+    )
     allSuResults.set(suLocalId, suResult)
   })
 
-  const choices = getAirTravelFrequencyChoices()
+  const choices = getAirTravelFrequencyChoices(metaSuChoicesData)
   const quartierResponses: AirTravelFrequencyChoice[] = []
   let totalQuartierResponses = 0
 
@@ -257,15 +268,42 @@ const precomputeAllAirTravelFrequencyData = (): PrecomputedAirTravelFrequencyDat
   }
 }
 
-const getPrecomputedData = (): PrecomputedAirTravelFrequencyData => {
-  precomputedCache ??= precomputeAllAirTravelFrequencyData()
+const getPrecomputedData = async (): Promise<PrecomputedAirTravelFrequencyData> => {
+  if (precomputedCache) return precomputedCache
+
+  // 1. Charger les données Su (Su Data + Su Answer)
+  const [suDataRaw, suAnswerRaw] = await Promise.all([
+    loadSuData(),
+    loadSuAnswer()
+  ])
+
+  // 2. Une fois les données Su prêtes, charger les métadonnées non-Su
+  const [metaSuQuestionsRaw, metaSuChoicesRaw] = await Promise.all([
+    loadMetaSuQuestions(),
+    loadMetaSuChoices()
+  ])
+
+  const suData = suDataRaw as SuDataEntry[]
+  const suAnswerData = suAnswerRaw as SuAnswer[]
+  const metaSuQuestionsData = metaSuQuestionsRaw as MetaSuQuestion[]
+  const metaSuChoicesData = metaSuChoicesRaw as MetaSuChoice[]
+
+  cachedSuData = suData
+
+  precomputedCache = precomputeAllAirTravelFrequencyData(
+    suAnswerData,
+    metaSuQuestionsData,
+    metaSuChoicesData,
+    suData
+  )
+
   return precomputedCache
 }
 
 // ===== FONCTION D'EXPORT PRINCIPALE =====
 
-export function fetchAirTravelFrequencyData(selectedSus?: number[]): AirTravelFrequencyResult {
-  const precomputed = getPrecomputedData()
+export async function fetchAirTravelFrequencyData(selectedSus?: number[]): Promise<AirTravelFrequencyResult> {
+  const precomputed = await getPrecomputedData()
   
   const isQuartierView = !selectedSus || selectedSus.length === 0 || selectedSus.length > 1
   
@@ -302,19 +340,19 @@ export function clearAirTravelFrequencyCache(): void {
   console.log(`[${new Date().toISOString()}] Cache cleared - ${DATAPACK_NAME}`)
 }
 
-export function runAirTravelFrequencyTests(): boolean {
+export async function runAirTravelFrequencyTests(): Promise<boolean> {
   console.log(`[TEST] Starting tests for ${DATAPACK_NAME}`)
   let allTestsPassed = true
   
   try {
     clearAirTravelFrequencyCache()
-    const data1 = fetchAirTravelFrequencyData()
+    const data1 = await fetchAirTravelFrequencyData()
     console.log('✅ Quartier data loaded:', data1.data.length > 0)
 
-    const data2 = fetchAirTravelFrequencyData([1])
+    const data2 = await fetchAirTravelFrequencyData([1])
     console.log('✅ Single SU data loaded:', data2.data.length > 0)
 
-    const data3 = fetchAirTravelFrequencyData([1, 2])
+    const data3 = await fetchAirTravelFrequencyData([1, 2])
     console.log('✅ Multiple SUs return quartier:', data3.isQuartier)
     
   } catch (error) {
@@ -323,4 +361,37 @@ export function runAirTravelFrequencyTests(): boolean {
   }
   
   return allTestsPassed
+}
+
+// ===== CONTRAT DATAPACK STANDARDISÉ =====
+
+export async function getDpUsagesAirTravelFrequencyDatapack(
+  request: DatapackRequest
+): Promise<DatapackResponse<AirTravelFrequencyResult>> {
+  const selectedSus = request.selectedSus
+
+  const result = await fetchAirTravelFrequencyData(selectedSus)
+
+  const isQuartier = result.isQuartier
+  const view: 'su' | 'quartier' = isQuartier ? 'quartier' : 'su'
+
+  const context = {
+    view,
+    selectedSus: selectedSus ?? [],
+    resolvedSuIds: isQuartier ? undefined : (result.suId !== undefined ? [result.suId] : undefined),
+    isPartial: false
+  }
+
+  const response: DatapackResponse<AirTravelFrequencyResult> = {
+    id: DATAPACK_NAME,
+    version: '1.0.0',
+    data: result,
+    context,
+    meta: {
+      totalResponses: result.data.reduce((sum, r) => sum + r.count, 0),
+      choicesCount: result.data.length
+    }
+  }
+
+  return response
 }

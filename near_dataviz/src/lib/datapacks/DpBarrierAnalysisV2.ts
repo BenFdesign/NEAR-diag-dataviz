@@ -1,4 +1,5 @@
 import { loadMetaEmdvChoices, loadMetaEmdvQuestions, loadWayOfLifeData, loadSuBankData, loadSuData } from '~/lib/data-loader'
+import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 
 // Types minimalistes alignés avec les données utilisées
 type ChoiceRow = Record<string, unknown> & {
@@ -441,4 +442,40 @@ export async function getAvailableBarrierQuestions() {
 
 export function clearBarrierCache() {
   precomputedCache = null
+}
+
+// =====================================
+// CONTRAT DATAPACK STANDARDISÉ
+// =====================================
+
+export async function getDpBarrierDatapack(
+  request: DatapackRequest
+): Promise<DatapackResponse<Awaited<ReturnType<typeof getBarrierData>>>> {
+  const selectedSus = request.selectedSus
+
+  const barrierData = await getBarrierData(selectedSus)
+
+  const isQuartier = barrierData.isQuartier
+  const view: 'su' | 'quartier' = isQuartier ? 'quartier' : 'su'
+
+  const context = {
+    view,
+    selectedSus: selectedSus ?? [],
+    resolvedSuIds: isQuartier ? undefined : (barrierData.suId ? [barrierData.suId] : undefined),
+    color: barrierData.color,
+    isPartial: false
+  }
+
+  const response: DatapackResponse<Awaited<ReturnType<typeof getBarrierData>>> = {
+    id: 'DpBarrierAnalysisV2',
+    version: '1.0.0',
+    data: barrierData,
+    context,
+    meta: {
+      questionsCount: barrierData.data.length,
+      isAggregated: barrierData.data.some(q => q.questionKey === '__ALL_QUESTIONS_AGGREGATED__')
+    }
+  }
+
+  return response
 }

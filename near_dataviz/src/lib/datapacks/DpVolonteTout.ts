@@ -6,6 +6,8 @@
  * - Métadonnées via MetaEmdvChoices (is_will: true) et MetaEmdvQuestions
  */
 
+import { loadMetaEmdvChoices as loadMetaEmdvChoicesRaw, loadMetaEmdvQuestions as loadMetaEmdvQuestionsRaw, loadSuBankData as loadSuBankDataRaw, loadSuData as loadSuDataRaw, loadWayOfLifeData } from '~/lib/data-loader'
+import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
 // =========================
@@ -87,9 +89,8 @@ const cache = new Map<string, { ts: number; value: VolonteToutResult }>()
 
 const loadMetaEmdvChoices = async (): Promise<MetaEmdvChoice[]> => {
   try {
-    const res = await fetch('/api/data/MetaEmdvChoices')
-    if (!res.ok) throw new Error(String(res.status))
-  return await res.json() as MetaEmdvChoice[]
+    const data = await loadMetaEmdvChoicesRaw() as MetaEmdvChoice[]
+    return data
   } catch (e) {
     console.warn('⚠️ MetaEmdvChoices load failed', e)
     return []
@@ -98,9 +99,8 @@ const loadMetaEmdvChoices = async (): Promise<MetaEmdvChoice[]> => {
 
 const loadMetaEmdvQuestions = async (): Promise<MetaEmdvQuestion[]> => {
   try {
-    const res = await fetch('/api/data/MetaEmdvQuestions')
-    if (!res.ok) throw new Error(String(res.status))
-  return await res.json() as MetaEmdvQuestion[]
+    const data = await loadMetaEmdvQuestionsRaw() as MetaEmdvQuestion[]
+    return data
   } catch (e) {
     console.warn('⚠️ MetaEmdvQuestions load failed', e)
     return []
@@ -109,9 +109,8 @@ const loadMetaEmdvQuestions = async (): Promise<MetaEmdvQuestion[]> => {
 
 const loadWayOfLifeAnswers = async (): Promise<WayOfLifeAnswer[]> => {
   try {
-    const res = await fetch('/api/data/Way%20Of%20Life%20Answer')
-    if (!res.ok) throw new Error(String(res.status))
-  return await res.json() as WayOfLifeAnswer[]
+    const data = await loadWayOfLifeData() as WayOfLifeAnswer[]
+    return data
   } catch (e) {
     console.warn('⚠️ Way Of Life Answer load failed', e)
     return []
@@ -120,9 +119,8 @@ const loadWayOfLifeAnswers = async (): Promise<WayOfLifeAnswer[]> => {
 
 const loadSuBank = async (): Promise<SuBankRow[]> => {
   try {
-    const res = await fetch('/api/data/Su%20Bank')
-    if (!res.ok) throw new Error(String(res.status))
-  return await res.json() as SuBankRow[]
+    const data = await loadSuBankDataRaw() as SuBankRow[]
+    return data
   } catch (e) {
     console.warn('⚠️ Su Bank load failed', e)
     return []
@@ -131,9 +129,8 @@ const loadSuBank = async (): Promise<SuBankRow[]> => {
 
 const loadSuData = async (): Promise<SuDataRow[]> => {
   try {
-    const res = await fetch('/api/data/Su%20Data')
-    if (!res.ok) throw new Error(String(res.status))
-  return await res.json() as SuDataRow[]
+    const data = await loadSuDataRaw() as SuDataRow[]
+    return data
   } catch (e) {
     console.warn('⚠️ Su Data load failed', e)
     return []
@@ -344,4 +341,40 @@ export const getDpVolonteToutData = async (selectedSus?: number[]): Promise<Volo
 
 export const clearVolonteToutCache = () => {
   cache.clear()
+}
+
+// =========================
+// CONTRAT DATAPACK STANDARDISÉ
+// =========================
+
+export const getDpVolonteToutDatapack = async (
+  request: DatapackRequest
+): Promise<DatapackResponse<VolonteToutResult>> => {
+  const selectedSus = request.selectedSus
+
+  const data = await getDpVolonteToutData(selectedSus)
+
+  const isQuartier = data.isQuartier
+  const view: 'su' | 'quartier' = isQuartier ? 'quartier' : 'su'
+
+  const context = {
+    view,
+    selectedSus: selectedSus ?? [],
+    resolvedSuIds: isQuartier ? undefined : (data.suId ? [data.suId] : undefined),
+    isPartial: false
+  }
+
+  const response: DatapackResponse<VolonteToutResult> = {
+    id: 'DpVolonteTout',
+    version: '1.0.0',
+    data,
+    context,
+    meta: {
+      totalQuestions: data.summary.totalQuestions,
+      dataSource: data.summary.dataSource,
+      computationType: data.summary.computationType
+    }
+  }
+
+  return response
 }

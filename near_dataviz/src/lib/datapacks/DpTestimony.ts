@@ -12,6 +12,8 @@
  * Beaucoup de problèmes ESlint non-résolubles liés au graph D3.js, mais qui ne pose normalement pas de problème pour le build.
  */
 
+import { loadMetaEmdvQuestions as loadMetaEmdvQuestionsRaw, loadMetaSuChoices, loadSuAnswer, loadWayOfLifeData } from '~/lib/data-loader'
+import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
 // =====================================
@@ -182,9 +184,7 @@ const DEFAULT_SUBCATEGORY_EMOJIS: Record<string, string> = {
  */
 const loadMetaEmdvQuestions = async (): Promise<MetaEmdvQuestion[]> => {
   try {
-    const response = await fetch('/api/data/MetaEmdvQuestions')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as MetaEmdvQuestion[]
+    const data = await loadMetaEmdvQuestionsRaw() as MetaEmdvQuestion[]
     console.log(`📝 Chargé ${data.length} métadonnées EMDV questions`)
     return data
   } catch (error) {
@@ -198,9 +198,7 @@ const loadMetaEmdvQuestions = async (): Promise<MetaEmdvQuestion[]> => {
  */
 const loadWayOfLifeAnswers = async (): Promise<WayOfLifeAnswer[]> => {
   try {
-    const response = await fetch('/api/data/Way%20Of%20Life%20Answer')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as WayOfLifeAnswer[]
+    const data = await loadWayOfLifeData() as WayOfLifeAnswer[]
     console.log(`💬 Chargé ${data.length} réponses Way Of Life`)
     return data
   } catch (error) {
@@ -214,9 +212,7 @@ const loadWayOfLifeAnswers = async (): Promise<WayOfLifeAnswer[]> => {
  */
 const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
   try {
-    const response = await fetch('/api/data/Su%20Answer')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as SuAnswer[]
+    const data = await loadSuAnswer() as SuAnswer[]
     console.log(`👥 Chargé ${data.length} métadonnées des répondants`)
     return data
   } catch (error) {
@@ -228,11 +224,9 @@ const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
 /**
  * Charge les labels SU (ex: Genre) depuis MetaSuChoices.json
  */
-const loadMetaSuChoices = async (): Promise<MetaSuChoice[]> => {
+const loadTypedMetaSuChoices = async (): Promise<MetaSuChoice[]> => {
   try {
-    const response = await fetch('/api/data/MetaSuChoices')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as MetaSuChoice[]
+    const data = await loadMetaSuChoices() as MetaSuChoice[]
     console.log(`🧾 Chargé ${data.length} MetaSuChoices`)
     return data
   } catch (error) {
@@ -436,7 +430,7 @@ export const getDpTestimonyData = async (selectedSus?: number[]): Promise<Testim
       loadMetaEmdvQuestions(),
       loadWayOfLifeAnswers(),
       loadSuAnswerData(),
-      loadMetaSuChoices()
+      loadTypedMetaSuChoices()
     ])
     
     // Déterminer si c'est une vue quartier ou SU
@@ -594,4 +588,42 @@ export const clearTestimonyCache = (): void => {
   dataCache.clear()
   cacheTimestamp = 0
   console.log(`🧹 ${DATAPACK_NAME} cache cleared`)
+}
+
+// =====================================
+// CONTRAT DATAPACK STANDARDISÉ
+// =====================================
+
+export const getDpTestimonyDatapack = async (
+  request: DatapackRequest
+): Promise<DatapackResponse<TestimonyNetworkResult>> => {
+  const selectedSus = request.selectedSus
+
+  const data = await getDpTestimonyData(selectedSus)
+
+  const isQuartier = data.isQuartier
+  const view: 'su' | 'quartier' = isQuartier ? 'quartier' : 'su'
+
+  const context = {
+    view,
+    selectedSus: selectedSus ?? [],
+    resolvedSuIds: isQuartier ? undefined : (data.suId ? [data.suId] : undefined),
+    isPartial: false
+  }
+
+  const response: DatapackResponse<TestimonyNetworkResult> = {
+    id: DATAPACK_NAME,
+    version: '1.0.0',
+    data,
+    context,
+    meta: {
+      totalNodes: data.nodes.length,
+      totalLinks: data.links.length,
+      totalTestimonies: data.totalTestimonies,
+      subcategories: data.subcategories,
+      dataSource: data.dataSource
+    }
+  }
+
+  return response
 }
