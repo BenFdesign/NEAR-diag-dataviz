@@ -37,10 +37,10 @@ export default function LeftSidebar({ availableSus, selectedSus, onSusChange, is
   const activeColorRgb = hexToRgb(activeColor)
   
   // CSS variables for dynamic coloring
-  const collapsedButtonsStyle = {
+  const collapsedButtonsStyle: Record<string, string> = {
     '--active-su-color': activeColor,
     '--active-su-color-rgb': activeColorRgb
-  } as React.CSSProperties
+  }
 
   useEffect(() => {
     const loadQuartierData = async () => {
@@ -81,6 +81,44 @@ export default function LeftSidebar({ availableSus, selectedSus, onSusChange, is
 
   const handleQuartierSelect = () => {
     onSusChange(availableSus.map(su => su.su)) // Quartier = sélectionner toutes les SUs.
+  }
+
+  const handleExportPng = async () => {
+    try {
+      const target = document.querySelector<HTMLElement>('.board-viewer')
+      if (!target) {
+        console.error('Board viewer element not found for PNG export')
+        return
+      }
+
+      const { default: html2canvasRaw } = await import('html2canvas')
+      const html2canvas = html2canvasRaw as (element: HTMLElement, options?: unknown) => Promise<HTMLCanvasElement>
+
+      const scale = window.devicePixelRatio && window.devicePixelRatio > 1 ? window.devicePixelRatio : 2
+
+      const canvas = await html2canvas(target, {
+        useCORS: true,
+        background: '#ffffff',
+        windowWidth: target.scrollWidth,
+        windowHeight: target.scrollHeight,
+        scale,
+      })
+
+      canvas.toBlob((blob) => {
+        if (!blob) return
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        const ts = new Date().toISOString().replace(/[:.]/g, '-')
+        link.href = url
+        link.download = `near-dataviz-${ts}.png`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      }, 'image/png')
+    } catch (error) {
+      console.error('Error exporting PNG from dataviz', error)
+    }
   }
 
   return (
@@ -224,7 +262,7 @@ export default function LeftSidebar({ availableSus, selectedSus, onSusChange, is
 
             {/* Sauvegarder */}
             <button 
-              onClick={() => {/* TODO: Ajouter fonction png html2canvas */}}
+              onClick={() => { void handleExportPng() }}
               className="action-button"
             >
               📸 Sauvegarder
@@ -297,7 +335,7 @@ export default function LeftSidebar({ availableSus, selectedSus, onSusChange, is
         
         <div 
           className="collapsed-button"
-          onClick={() => {/* TODO: Ajouter fonction png html2canvas */}}
+          onClick={() => { void handleExportPng() }}
           title="Sauvegarder"
         >
           <div className="emoji">📸</div>
