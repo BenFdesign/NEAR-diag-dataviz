@@ -7,7 +7,7 @@
  * - MetaSuQuestions.json et MetaSuChoices.json : Métadonnées
  */
 
-import { loadMetaSuChoices, loadMetaSuQuestions, loadQuartiers, loadSuAnswer } from '~/lib/data-loader'
+import { loadMetaSuChoices, loadMetaSuQuestions, loadQuartiersForCurrentSurvey, loadSuAnswer } from '~/lib/data-loader'
 import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
@@ -127,8 +127,8 @@ const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
  */
 const loadQuartierData = async (): Promise<QuartierData[]> => {
   try {
-    const data = await loadQuartiers() as QuartierData[]
-    console.log(`🏘️ Chargé ${data.length} quartiers`)
+    const data = await loadQuartiersForCurrentSurvey() as QuartierData[]
+    console.log(`🏘️ Chargé ${data.length} quartiers (filtrés par SurveyID courant)`)
     return data
   } catch (error) {
     console.error('Erreur lors du chargement des quartiers:', error)

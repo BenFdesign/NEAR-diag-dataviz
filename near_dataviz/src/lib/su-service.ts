@@ -12,23 +12,22 @@
 import type { SuBankData, SuData, SuInfo } from './types'
 import { 
   loadSuBankData, 
-  loadSuData, 
+  loadSuDataForCurrentSurvey, 
   loadSurveys, 
-  loadQuartiers 
+  loadQuartiersForCurrentSurvey 
 } from './data-loader'
 import { 
   validateAndSanitizeIcon, 
   getFallbackIcon, 
   logIconValidationIssues 
 } from './icon-validator'
+import { CURRENT_SURVEY_ID } from './survey-config'
 
 
 // CONFIGURATION DU SURVEY ID
 // ==========================
-// surveyId = 1 correspond au diagnostic de la Porte d'Orléans
+// CURRENT_SURVEY_ID correspond au diagnostic courant (ex. Porte d'Orléans)
 // Cette constante filtre toutes les données pour ce survey spécifique
-
-const surveyId = 1
 
 
 // RÉCUPÉRATION DU NOM DU QUARTIER
@@ -41,8 +40,8 @@ export const getQuartierName = async (): Promise<string> => {
   try {
     const surveys = await loadSurveys()
     
-    // FILTRE PAR SURVEY ID : Trouve le survey correspondant à notre surveyId
-    const currentSurvey = surveys.find(survey => survey.ID === surveyId)
+    // FILTRE PAR SURVEY ID : Trouve le survey correspondant à CURRENT_SURVEY_ID
+    const currentSurvey = surveys.find(survey => survey.ID === CURRENT_SURVEY_ID)
     
     // Retourne le nom du survey trouvé ou "Quartier" par défaut
     return currentSurvey?.Name ?? 'Quartier'
@@ -60,11 +59,11 @@ export const getQuartierName = async (): Promise<string> => {
 
 export const getQuartierPopulation = async (): Promise<number> => {
   try {
-    const quartiers = await loadQuartiers()
+    const quartiers = await loadQuartiersForCurrentSurvey()
     
-    // FILTRE PAR SURVEY ID : Trouve le quartier correspondant à notre surveyId
-    const currentQuartier = quartiers.find(quartier => quartier["Survey ID"] === surveyId)
-    
+    // Les données sont déjà filtrées par CURRENT_SURVEY_ID côté loader
+    const currentQuartier = quartiers[0]
+
     // Retourne la population totale arrondie ou 0 par défaut
     return Math.round(currentQuartier?.["Population Sum"] ?? 0)
   } catch (error) {
@@ -87,16 +86,11 @@ export const getSuInfo = async (): Promise<SuInfo[]> => {
     // Load data with caching
     const [bankData, dataEntries, totalPopulation] = await Promise.all([
       loadSuBankData(),
-      loadSuData(),
+      loadSuDataForCurrentSurvey(),
       getQuartierPopulation()
     ])
 
-    // FILTRE PAR SURVEY ID : Ne garde que les données du survey spécifié
-    const filteredDataEntries = dataEntries.filter(entry => 
-      (entry as SuData & { "Survey ID"?: number })["Survey ID"] === surveyId
-    )
-
-    return filteredDataEntries.map(entry => {
+    return dataEntries.map(entry => {
       // LIAISON DES DONNÉES : Trouve la métadonnée correspondante dans Su Bank
       // via la clé étrangère "ID" qui relie Su Data.ID avec Su Bank.Id
       const bankEntry = bankData.find(bank => bank.Id === entry.ID)

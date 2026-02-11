@@ -2,7 +2,7 @@
 // Adapté pour le projet NEAR-diag-dataviz
 
 // Import des données via le data-loader (API /api/data)
-import { loadSuAnswer, loadMetaSuQuestions, loadMetaSuChoices, loadSuData } from '~/lib/data-loader'
+import { loadSuAnswer, loadMetaSuQuestions, loadMetaSuChoices, loadSuDataForCurrentSurvey } from '~/lib/data-loader'
 import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 
 // Interfaces pour les données JSON
@@ -277,7 +277,7 @@ const getPrecomputedData = async (): Promise<PrecomputedHeatSourceData> => {
 
   // 1. Charger les données Su (Su Data + Su Answer)
   const [suDataRaw, suAnswerRaw] = await Promise.all([
-    loadSuData(),
+    loadSuDataForCurrentSurvey(),
     loadSuAnswer()
   ])
 

@@ -1,4 +1,4 @@
-import { loadWayOfLifeData, loadMetaEmdvQuestions, loadMetaEmdvChoices, loadSuData } from '~/lib/data-loader'
+import { loadWayOfLifeData, loadMetaEmdvQuestions, loadMetaEmdvChoices, loadSuDataForCurrentSurvey } from '~/lib/data-loader'
 import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 
 // Types for result
@@ -175,7 +175,7 @@ export async function getDpEmdvSatisfactionsByCategory(
     loadWayOfLifeData(),
     loadMetaEmdvQuestions(),
     loadMetaEmdvChoices(),
-    loadSuData(),
+    loadSuDataForCurrentSurvey(),
   ])
   const wol = wolRaw as WayOfLifeAnswer[]
   const questionsAll = (qRaw as MetaQuestion[]).filter(q => q.Category === 'EmdvSatisfaction' && q['Metabase Question Key'])
