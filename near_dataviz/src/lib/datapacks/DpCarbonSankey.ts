@@ -9,7 +9,16 @@
  * - /public/data/Carbon Footprint Answer.json   (valeurs par clé carbone)
  * - /public/data/MetaCarbon.json                (métadonnées des noeuds, is_node, parent_node, labels, emoji)
  * - /public/data/Su Data.json                   (poids de population + mapping Su number <-> ID)
+ * 
+ * Mode d'accès aux données : data-loader (standardisé)
  */
+
+import { 
+  loadCarbonFootprintData,
+  loadMetaCarbon as loadMetaCarbonData,
+  loadSuData as loadSuDataFromLoader
+} from '~/lib/data-loader'
+import type { DatapackRequest, DatapackResponse, DatapackView } from './contracts'
 
 // ===========================
 // TYPES EXPORTÉS (D3 Sankey)
@@ -88,18 +97,17 @@ function toNumber(val: unknown): number | null {
   return null
 }
 
-// CHARGEMENT DES DONNÉES
+// CHARGEMENT DES DONNÉES (via data-loader)
 // ======================
 async function loadCarbonAnswers(): Promise<CarbonAnswer[]> {
   try {
-    const res = await fetch('/api/data/Carbon%20Footprint%20Answer')
-    const json = (await res.json()) as unknown[]
+    const json = await loadCarbonFootprintData()
     // Type guard
     const isCarbonAnswer = (r: unknown): r is CarbonAnswer => {
       return typeof r === 'object' && r !== null && 'Su ID' in r
     }
     // Filtrer les entrées vides potentielles
-    return (json || []).filter(isCarbonAnswer)
+    return json.filter(isCarbonAnswer)
   } catch (error) {
     console.error('[DpCarbonSankey] loadCarbonAnswers error:', error)
     return []
@@ -108,8 +116,7 @@ async function loadCarbonAnswers(): Promise<CarbonAnswer[]> {
 
 async function loadMetaCarbon(): Promise<MetaCarbonItem[]> {
   try {
-    const res = await fetch('/api/data/MetaCarbon')
-    const json = (await res.json()) as Array<MetaCarbonItem | null | undefined>
+    const json = await loadMetaCarbonData() as Array<MetaCarbonItem | null | undefined>
     return (json || []).filter((m): m is MetaCarbonItem => Boolean(m?.['Metabase Question Key']))
   } catch (error) {
     console.error('[DpCarbonSankey] loadMetaCarbon error:', error)
@@ -119,8 +126,7 @@ async function loadMetaCarbon(): Promise<MetaCarbonItem[]> {
 
 async function loadSuData(): Promise<SuDataEntry[]> {
   try {
-    const res = await fetch('/api/data/Su%20Data')
-    const json = (await res.json()) as SuDataEntry[]
+    const json = await loadSuDataFromLoader() as SuDataEntry[]
     return json || []
   } catch (error) {
     console.error('[DpCarbonSankey] loadSuData error:', error)
@@ -340,8 +346,8 @@ export function clearCarbonSankeyCache() {
 }
 
 
-// EXPORT PRINCIPAL
-// ================
+// EXPORT PRINCIPAL (legacy)
+// =========================
 export async function getDpCarbonSankeyData(selectedSus?: number[]): Promise<CarbonSankeyPayload> {
   const requested = Array.isArray(selectedSus) ? [...selectedSus].filter(n => typeof n === 'number') : []
   let isQuartier = requested.length === 0
@@ -454,6 +460,42 @@ export async function getDpCarbonSankeyData(selectedSus?: number[]): Promise<Car
   dataCache.set(cacheKey, payload)
   cacheTimestamp = Date.now()
   return payload
+}
+
+// CONTRAT CIBLE
+// =============
+
+export async function getDpCarbonSankeyDatapack(
+  request: DatapackRequest
+): Promise<DatapackResponse<CarbonSankeyPayload>> {
+  const { selectedSus, view = 'auto' } = request
+  const effectiveSelectedSus = selectedSus ?? []
+
+  const base = await getDpCarbonSankeyData(effectiveSelectedSus)
+
+  const inferredView: DatapackView = base.selectedView.isQuartier ? 'quartier' : 'su'
+  const effectiveView: DatapackView =
+    view === 'auto' ? inferredView : view
+
+  return {
+    id: base.id,
+    version: base.version,
+    data: base,
+    context: {
+      view: effectiveView,
+      selectedSus: effectiveSelectedSus,
+      resolvedSuIds: base.selectedView.suIds,
+      isPartial: effectiveSelectedSus.length > 1 && effectiveView === 'su'
+    },
+    meta: {
+      totalValue: base.meta.totalValue,
+      maxNodeValue: base.meta.maxNodeValue
+    },
+    warnings: base.warnings,
+    errors: base.sankeyData.nodes.length === 0
+      ? [{ type: 'NO_DATA', message: 'Aucune donnée carbone exploitable pour cette sélection.' }]
+      : undefined
+  }
 }
 
 

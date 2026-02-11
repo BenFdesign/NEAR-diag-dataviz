@@ -1,11 +1,8 @@
 // DpUsagesPurchasingStrategy - Stratégie d'achat
 // Adapté pour le projet NEAR-diag-dataviz
 
-// Import des données depuis le répertoire public
-import suAnswerDataImport from '../../../public/data/Su Answer.json'
-import metaSuQuestionsDataImport from '../../../public/data/MetaSuQuestions.json'
-import metaSuChoicesDataImport from '../../../public/data/MetaSuChoices.json'
-import suDataImport from '../../../public/data/Su Data.json'
+// Import des données via le data-loader (API /api/data)
+import { loadSuAnswer, loadMetaSuQuestions, loadMetaSuChoices, loadSuData } from '~/lib/data-loader'
 
 // Cast des données avec types appropriés
 interface SuAnswer {
@@ -13,7 +10,6 @@ interface SuAnswer {
   'Purchasing Strategy': string
   // Add other fields as needed from Su Answer.json
 }
-const suAnswerData = suAnswerDataImport as SuAnswer[]
 interface MetaSuQuestion {
   'Metabase Question Key': string
   'Question Short'?: string
@@ -21,7 +17,6 @@ interface MetaSuQuestion {
   Emoji?: string
   // Add other fields as needed from MetaSuQuestions.json
 }
-const metaSuQuestionsData = metaSuQuestionsDataImport as MetaSuQuestion[]
 interface MetaSuChoice {
   'Metabase Question Key': string
   'Metabase Choice Key': string
@@ -32,13 +27,12 @@ interface MetaSuChoice {
   TypeData?: string
   // Add other fields as needed from MetaSuChoices.json
 }
-const metaSuChoicesData = metaSuChoicesDataImport as MetaSuChoice[]
 interface SuDataEntry {
   ID: number
   Su: number
   // Add other fields as needed from Su Data.json
 }
-const suData = suDataImport as SuDataEntry[]
+// Les données sont désormais chargées via data-loader, voir getPrecomputedData
 
 // ===== INTERFACES =====
 
@@ -103,10 +97,11 @@ const DATAPACK_NAME = 'DpUsagesPurchasingStrategy'
 const QUESTION_KEY = 'Purchasing Strategy'
 
 let precomputedCache: PrecomputedPurchasingStrategyData | null = null
+let cachedSuData: SuDataEntry[] | null = null
 
 // ===== FONCTIONS UTILITAIRES =====
 
-const getPurchasingStrategyChoices = () => {
+const getPurchasingStrategyChoices = (metaSuChoicesData: MetaSuChoice[]) => {
   return metaSuChoicesData.filter((choice: MetaSuChoice) => 
     choice['Metabase Question Key'] === QUESTION_KEY &&
     choice.TypeData === "CatChoixUnique" &&
@@ -114,7 +109,7 @@ const getPurchasingStrategyChoices = () => {
   )
 }
 
-const getQuestionMetadata = () => {
+const getQuestionMetadata = (metaSuQuestionsData: MetaSuQuestion[]) => {
   const questionMeta = metaSuQuestionsData.find((q: MetaSuQuestion) => q['Metabase Question Key'] === QUESTION_KEY)
   
   return {
@@ -126,7 +121,7 @@ const getQuestionMetadata = () => {
 }
 
 const getSuIdFromNumber = (suNumber: number): number => {
-  const suEntry = suData.find((su: SuDataEntry) => su.Su === suNumber)
+  const suEntry = cachedSuData?.find((su: SuDataEntry) => su.Su === suNumber)
   if (suEntry) {
     return suEntry.ID
   }
@@ -137,9 +132,14 @@ const getSuIdFromNumber = (suNumber: number): number => {
 
 // ===== CALCULS =====
 
-const calculatePurchasingStrategyForSu = (suLocalId: number): PurchasingStrategyData => {
-  const choices = getPurchasingStrategyChoices()
-  const questionLabels = getQuestionMetadata()
+const calculatePurchasingStrategyForSu = (
+  suAnswerData: SuAnswer[],
+  metaSuQuestionsData: MetaSuQuestion[],
+  metaSuChoicesData: MetaSuChoice[],
+  suLocalId: number
+): PurchasingStrategyData => {
+  const choices = getPurchasingStrategyChoices(metaSuChoicesData)
+  const questionLabels = getQuestionMetadata(metaSuQuestionsData)
   const suAnswers = suAnswerData.filter((answer: SuAnswer) => answer['Su ID'] === suLocalId)
   
   const responses: PurchasingStrategyChoice[] = []
@@ -185,20 +185,30 @@ const calculatePurchasingStrategyForSu = (suLocalId: number): PurchasingStrategy
   }
 }
 
-const precomputeAllPurchasingStrategyData = (): PrecomputedPurchasingStrategyData => {
+const precomputeAllPurchasingStrategyData = (
+  suAnswerData: SuAnswer[],
+  metaSuQuestionsData: MetaSuQuestion[],
+  metaSuChoicesData: MetaSuChoice[],
+  suData: SuDataEntry[]
+): PrecomputedPurchasingStrategyData => {
   console.log(`[${new Date().toISOString()}] Starting pre-computation - ${DATAPACK_NAME}`)
   const startTime = performance.now()
 
   const allSuLocalIds = suData.filter((su: SuDataEntry) => su.ID !== 0).map((su: SuDataEntry) => su.ID)
   const allSuResults = new Map<number, PurchasingStrategyData>()
-  const questionLabels = getQuestionMetadata()
+  const questionLabels = getQuestionMetadata(metaSuQuestionsData)
   
   allSuLocalIds.forEach((suLocalId: number) => {
-    const suResult = calculatePurchasingStrategyForSu(suLocalId)
+    const suResult = calculatePurchasingStrategyForSu(
+      suAnswerData,
+      metaSuQuestionsData,
+      metaSuChoicesData,
+      suLocalId
+    )
     allSuResults.set(suLocalId, suResult)
   })
 
-  const choices = getPurchasingStrategyChoices()
+  const choices = getPurchasingStrategyChoices(metaSuChoicesData)
   const quartierResponses: PurchasingStrategyChoice[] = []
   let totalQuartierResponses = 0
 
@@ -256,15 +266,42 @@ const precomputeAllPurchasingStrategyData = (): PrecomputedPurchasingStrategyDat
   }
 }
 
-const getPrecomputedData = (): PrecomputedPurchasingStrategyData => {
-  precomputedCache ??= precomputeAllPurchasingStrategyData()
+const getPrecomputedData = async (): Promise<PrecomputedPurchasingStrategyData> => {
+  if (precomputedCache) return precomputedCache
+
+  // 1. Charger les données Su (Su Data + Su Answer)
+  const [suDataRaw, suAnswerRaw] = await Promise.all([
+    loadSuData(),
+    loadSuAnswer()
+  ])
+
+  // 2. Une fois les données Su prêtes, charger les métadonnées non-Su
+  const [metaSuQuestionsRaw, metaSuChoicesRaw] = await Promise.all([
+    loadMetaSuQuestions(),
+    loadMetaSuChoices()
+  ])
+
+  const suData = suDataRaw as SuDataEntry[]
+  const suAnswerData = suAnswerRaw as SuAnswer[]
+  const metaSuQuestionsData = metaSuQuestionsRaw as MetaSuQuestion[]
+  const metaSuChoicesData = metaSuChoicesRaw as MetaSuChoice[]
+
+  cachedSuData = suData
+
+  precomputedCache = precomputeAllPurchasingStrategyData(
+    suAnswerData,
+    metaSuQuestionsData,
+    metaSuChoicesData,
+    suData
+  )
+
   return precomputedCache
 }
 
 // ===== FONCTION D'EXPORT PRINCIPALE =====
 
-export function fetchPurchasingStrategyData(selectedSus?: number[]): PurchasingStrategyResult {
-  const precomputed = getPrecomputedData()
+export async function fetchPurchasingStrategyData(selectedSus?: number[]): Promise<PurchasingStrategyResult> {
+  const precomputed = await getPrecomputedData()
   
   const isQuartierView = !selectedSus || selectedSus.length === 0 || selectedSus.length > 1
   
@@ -301,19 +338,19 @@ export function clearPurchasingStrategyCache(): void {
   console.log(`[${new Date().toISOString()}] Cache cleared - ${DATAPACK_NAME}`)
 }
 
-export function runPurchasingStrategyTests(): boolean {
+export async function runPurchasingStrategyTests(): Promise<boolean> {
   console.log(`[TEST] Starting tests for ${DATAPACK_NAME}`)
   let allTestsPassed = true
   
   try {
     clearPurchasingStrategyCache()
-    const data1 = fetchPurchasingStrategyData()
+    const data1 = await fetchPurchasingStrategyData()
     console.log('✅ Quartier data loaded:', data1.data.length > 0)
 
-    const data2 = fetchPurchasingStrategyData([1])
+    const data2 = await fetchPurchasingStrategyData([1])
     console.log('✅ Single SU data loaded:', data2.data.length > 0)
 
-    const data3 = fetchPurchasingStrategyData([1, 2])
+    const data3 = await fetchPurchasingStrategyData([1, 2])
     console.log('✅ Multiple SUs return quartier:', data3.isQuartier)
     
   } catch (error) {

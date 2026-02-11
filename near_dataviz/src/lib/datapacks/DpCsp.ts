@@ -7,6 +7,8 @@
  * - MetaSuQuestions.json et MetaSuChoices.json : Métadonnées
  */
 
+import { loadMetaSuChoices, loadMetaSuQuestions, loadQuartiers, loadSuAnswer } from '~/lib/data-loader'
+import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
 // =====================================
@@ -111,9 +113,7 @@ const INSEE_CSP_MAPPING = {
  */
 const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
   try {
-    const response = await fetch('/api/data/Su%20Answer')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as SuAnswer[]
+    const data = await loadSuAnswer() as SuAnswer[]
     console.log(`📊 Chargé ${data.length} réponses individuelles`)
     return data
   } catch (error) {
@@ -127,9 +127,7 @@ const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
  */
 const loadQuartierData = async (): Promise<QuartierData[]> => {
   try {
-    const response = await fetch('/api/data/Quartiers')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as QuartierData[]
+    const data = await loadQuartiers() as QuartierData[]
     console.log(`🏘️ Chargé ${data.length} quartiers`)
     return data
   } catch (error) {
@@ -143,9 +141,7 @@ const loadQuartierData = async (): Promise<QuartierData[]> => {
  */
 const loadMetaQuestions = async (): Promise<MetaQuestion[]> => {
   try {
-    const response = await fetch('/api/data/MetaSuQuestions')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as MetaQuestion[]
+    const data = await loadMetaSuQuestions() as MetaQuestion[]
     console.log(`🔍 Chargé ${data.length} métadonnées de questions`)
     return data
   } catch (error) {
@@ -159,9 +155,7 @@ const loadMetaQuestions = async (): Promise<MetaQuestion[]> => {
  */
 const loadMetaChoices = async (): Promise<MetaChoice[]> => {
   try {
-    const response = await fetch('/api/data/MetaSuChoices')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as MetaChoice[]
+    const data = await loadMetaSuChoices() as MetaChoice[]
     console.log(`🎯 Chargé ${data.length} métadonnées de choix`)
     return data
   } catch (error) {
@@ -485,4 +479,39 @@ export const clearCspCache = (): void => {
   dataCache.clear()
   cacheTimestamp = 0
   console.log(`🧹 ${DATAPACK_NAME} cache cleared`)
+}
+
+// =====================================
+// CONTRAT DATAPACK STANDARDISÉ
+// =====================================
+
+export const getDpCspDatapack = async (
+  request: DatapackRequest
+): Promise<DatapackResponse<CspDistributionResult>> => {
+  const selectedSus = request.selectedSus
+
+  const data = await getDpCspData(selectedSus)
+
+  const isQuartier = data.isQuartier
+  const view: 'su' | 'quartier' = isQuartier ? 'quartier' : 'su'
+
+  const context = {
+    view,
+    selectedSus: selectedSus ?? [],
+    resolvedSuIds: isQuartier ? undefined : (data.suId !== undefined ? [data.suId] : undefined),
+    isPartial: false
+  }
+
+  const response: DatapackResponse<CspDistributionResult> = {
+    id: DATAPACK_NAME,
+    version: '1.0.0',
+    data,
+    context,
+    meta: {
+      totalResponses: data.totalResponses,
+      dataSource: data.dataSource
+    }
+  }
+
+  return response
 }

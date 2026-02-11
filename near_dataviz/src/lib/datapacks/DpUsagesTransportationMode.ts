@@ -1,11 +1,9 @@
 // DpUsagesTransportationMode - Mode de transport principal
 // Adapté pour le projet NEAR-diag-dataviz
 
-// Import des données depuis le répertoire public
-import suAnswerDataImport from '../../../public/data/Su Answer.json'
-import metaSuQuestionsDataImport from '../../../public/data/MetaSuQuestions.json'
-import metaSuChoicesDataImport from '../../../public/data/MetaSuChoices.json'
-import suDataImport from '../../../public/data/Su Data.json'
+// Import des données via le data-loader (API /api/data)
+import { loadSuAnswer, loadMetaSuQuestions, loadMetaSuChoices, loadSuData } from '~/lib/data-loader'
+import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 
 // Interfaces pour les données JSON
 interface SuAnswerRecord {
@@ -40,11 +38,7 @@ interface SuRecord {
   [key: string]: unknown
 }
 
-// Cast des données avec types appropriés
-const suAnswerData = suAnswerDataImport as SuAnswerRecord[]
-const metaSuQuestionsData = metaSuQuestionsDataImport as MetaQuestion[]
-const metaSuChoicesData = metaSuChoicesDataImport as MetaChoice[]
-const suData = suDataImport as SuRecord[]
+// Les données sont désormais chargées via data-loader, voir getPrecomputedData
 
 // ===== INTERFACES =====
 
@@ -114,11 +108,12 @@ const QUESTION_KEY = 'Transportation Mode'
 
 // Cache global
 let precomputedCache: PrecomputedTransportationModeData | null = null
+let cachedSuData: SuRecord[] | null = null
 
 // ===== FONCTIONS UTILITAIRES =====
 
 // Récupérer les choix de mode de transport
-const getTransportationModeChoices = () => {
+const getTransportationModeChoices = (metaSuChoicesData: MetaChoice[]) => {
   return metaSuChoicesData.filter(choice => 
     choice['Metabase Question Key'] === QUESTION_KEY &&
     choice.TypeData === "CatChoixUnique" &&
@@ -127,7 +122,7 @@ const getTransportationModeChoices = () => {
 }
 
 // Récupérer les métadonnées de la question
-const getQuestionMetadata = () => {
+const getQuestionMetadata = (metaSuQuestionsData: MetaQuestion[]) => {
   const questionMeta = metaSuQuestionsData.find(q => q['Metabase Question Key'] === QUESTION_KEY)
   
   return {
@@ -138,9 +133,9 @@ const getQuestionMetadata = () => {
   }
 }
 
-// Conversion SU number vers ID
+// Conversion SU number vers ID (via cache Su Data)
 const getSuIdFromNumber = (suNumber: number): number => {
-  const suEntry = suData.find(su => su.Su === suNumber)
+  const suEntry = cachedSuData?.find(su => su.Su === suNumber)
   if (suEntry) {
     return suEntry.ID
   }
@@ -152,9 +147,14 @@ const getSuIdFromNumber = (suNumber: number): number => {
 // ===== CALCULS =====
 
 // Calculer pour une SU spécifique
-const calculateTransportationModeForSu = (suLocalId: number): TransportationModeData => {
-  const choices = getTransportationModeChoices()
-  const questionLabels = getQuestionMetadata()
+const calculateTransportationModeForSu = (
+  suAnswerData: SuAnswerRecord[],
+  metaSuQuestionsData: MetaQuestion[],
+  metaSuChoicesData: MetaChoice[],
+  suLocalId: number
+): TransportationModeData => {
+  const choices = getTransportationModeChoices(metaSuChoicesData)
+  const questionLabels = getQuestionMetadata(metaSuQuestionsData)
   const suAnswers = suAnswerData.filter(answer => answer['Su ID'] === suLocalId)
   
   const responses: TransportationModeChoice[] = []
@@ -203,22 +203,32 @@ const calculateTransportationModeForSu = (suLocalId: number): TransportationMode
 }
 
 // Pré-calcul de toutes les données
-const precomputeAllTransportationModeData = (): PrecomputedTransportationModeData => {
+const precomputeAllTransportationModeData = (
+  suAnswerData: SuAnswerRecord[],
+  metaSuQuestionsData: MetaQuestion[],
+  metaSuChoicesData: MetaChoice[],
+  suData: SuRecord[]
+): PrecomputedTransportationModeData => {
   console.log(`[${new Date().toISOString()}] Starting pre-computation - ${DATAPACK_NAME}`)
   const startTime = performance.now()
 
   const allSuLocalIds = suData.filter(su => su.ID !== 0).map(su => su.ID)
   const allSuResults = new Map<number, TransportationModeData>()
-  const questionLabels = getQuestionMetadata()
+  const questionLabels = getQuestionMetadata(metaSuQuestionsData)
   
   // 1. Calculer pour chaque SU individuellement
   allSuLocalIds.forEach(suLocalId => {
-    const suResult = calculateTransportationModeForSu(suLocalId)
+    const suResult = calculateTransportationModeForSu(
+      suAnswerData,
+      metaSuQuestionsData,
+      metaSuChoicesData,
+      suLocalId
+    )
     allSuResults.set(suLocalId, suResult)
   })
 
   // 2. Calculer le quartier (somme simple - pas de pondération)
-  const choices = getTransportationModeChoices()
+  const choices = getTransportationModeChoices(metaSuChoicesData)
   const quartierResponses: TransportationModeChoice[] = []
   let totalQuartierResponses = 0
 
@@ -279,15 +289,42 @@ const precomputeAllTransportationModeData = (): PrecomputedTransportationModeDat
 }
 
 // Récupérer les données pré-computées
-const getPrecomputedData = (): PrecomputedTransportationModeData => {
-  precomputedCache ??= precomputeAllTransportationModeData()
+const getPrecomputedData = async (): Promise<PrecomputedTransportationModeData> => {
+  if (precomputedCache) return precomputedCache
+
+  // 1. Charger les données Su (Su Data + Su Answer)
+  const [suDataRaw, suAnswerRaw] = await Promise.all([
+    loadSuData(),
+    loadSuAnswer()
+  ])
+
+  // 2. Une fois les données Su prêtes, charger les métadonnées non-Su
+  const [metaSuQuestionsRaw, metaSuChoicesRaw] = await Promise.all([
+    loadMetaSuQuestions(),
+    loadMetaSuChoices()
+  ])
+
+  const suData = suDataRaw as SuRecord[]
+  const suAnswerData = suAnswerRaw as SuAnswerRecord[]
+  const metaSuQuestionsData = metaSuQuestionsRaw as MetaQuestion[]
+  const metaSuChoicesData = metaSuChoicesRaw as MetaChoice[]
+
+  cachedSuData = suData
+
+  precomputedCache = precomputeAllTransportationModeData(
+    suAnswerData,
+    metaSuQuestionsData,
+    metaSuChoicesData,
+    suData
+  )
+
   return precomputedCache
 }
 
 // ===== FONCTION D'EXPORT PRINCIPALE =====
 
-export function fetchTransportationModeData(selectedSus?: number[]): TransportationModeResult {
-  const precomputed = getPrecomputedData()
+export async function fetchTransportationModeData(selectedSus?: number[]): Promise<TransportationModeResult> {
+  const precomputed = await getPrecomputedData()
   
   // Déterminer le type de vue
   const isQuartierView = !selectedSus || selectedSus.length === 0 || selectedSus.length > 1
@@ -329,22 +366,22 @@ export function clearTransportationModeCache(): void {
   console.log(`[${new Date().toISOString()}] Cache cleared - ${DATAPACK_NAME}`)
 }
 
-export function runTransportationModeTests(): boolean {
+export async function runTransportationModeTests(): Promise<boolean> {
   console.log(`[TEST] Starting tests for ${DATAPACK_NAME}`)
   let allTestsPassed = true
   
   try {
     // Test 1: Cache functionality
     clearTransportationModeCache()
-    const data1 = fetchTransportationModeData()
+    const data1 = await fetchTransportationModeData()
     console.log('✅ Quartier data loaded:', data1.data.length > 0)
 
     // Test 2: Single SU
-    const data2 = fetchTransportationModeData([1])
+    const data2 = await fetchTransportationModeData([1])
     console.log('✅ Single SU data loaded:', data2.data.length > 0)
 
     // Test 3: Multiple SUs (should return quartier)
-    const data3 = fetchTransportationModeData([1, 2])
+    const data3 = await fetchTransportationModeData([1, 2])
     console.log('✅ Multiple SUs return quartier:', data3.isQuartier)
     
   } catch (error) {
@@ -353,4 +390,37 @@ export function runTransportationModeTests(): boolean {
   }
   
   return allTestsPassed
+}
+
+// ===== CONTRAT DATAPACK STANDARDISÉ =====
+
+export async function getDpUsagesTransportationModeDatapack(
+  request: DatapackRequest
+): Promise<DatapackResponse<TransportationModeResult>> {
+  const selectedSus = request.selectedSus
+
+  const result = await fetchTransportationModeData(selectedSus)
+
+  const isQuartier = result.isQuartier
+  const view: 'su' | 'quartier' = isQuartier ? 'quartier' : 'su'
+
+  const context = {
+    view,
+    selectedSus: selectedSus ?? [],
+    resolvedSuIds: isQuartier ? undefined : (result.suId !== undefined ? [result.suId] : undefined),
+    isPartial: false
+  }
+
+  const response: DatapackResponse<TransportationModeResult> = {
+    id: DATAPACK_NAME,
+    version: '1.0.0',
+    data: result,
+    context,
+    meta: {
+      totalResponses: result.data.reduce((sum, r) => sum + r.count, 0),
+      choicesCount: result.data.length
+    }
+  }
+
+  return response
 }

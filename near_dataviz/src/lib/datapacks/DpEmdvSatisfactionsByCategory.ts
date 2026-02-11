@@ -1,4 +1,5 @@
 import { loadWayOfLifeData, loadMetaEmdvQuestions, loadMetaEmdvChoices, loadSuData } from '~/lib/data-loader'
+import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 
 // Types for result
 export interface EmdvChoice {
@@ -217,4 +218,43 @@ export async function exportAllEmdvCategories(selectedSus?: number[]) {
 
 export function clearEmdvByCategoryCache() {
   // using global data-loader cache; nothing to clear locally
+}
+
+// =====================================
+// CONTRAT DATAPACK STANDARDISÉ
+// =====================================
+
+export async function getDpEmdvSatisfactionsByCategoryDatapack(
+  request: DatapackRequest
+): Promise<DatapackResponse<EmdvByCategoryPayload>> {
+  const selectedSus = request.selectedSus
+  const selectedSubcategory = typeof request.extra?.subcategory === 'string'
+    ? String(request.extra.subcategory)
+    : undefined
+
+  const payload = await getDpEmdvSatisfactionsByCategory(selectedSus, selectedSubcategory)
+
+  const isQuartier = payload.isQuartier
+  const view: 'su' | 'quartier' = isQuartier ? 'quartier' : 'su'
+
+  const context = {
+    view,
+    selectedSus: selectedSus ?? [],
+    resolvedSuIds: undefined,
+    isPartial: selectedSubcategory !== undefined && selectedSubcategory !== 'all'
+  }
+
+  const response: DatapackResponse<EmdvByCategoryPayload> = {
+    id: 'DpEmdvSatisfactionsByCategory',
+    version: '1.0.0',
+    data: payload,
+    context,
+    meta: {
+      subcategory: selectedSubcategory ?? 'all',
+      subcategoryCount: payload.subcategories.length,
+      availableSubcategories: payload.availableSubcategories
+    }
+  }
+
+  return response
 }

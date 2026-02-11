@@ -100,8 +100,8 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
           console.log(`🎨 Mapping couleur: SU locale ${selectedSus[0]} → SU globale ${globalSuId}`)
         }
         
-        // Charger les données et les couleurs en parallèle
-        const result = fetchSuUsagesExtendedData(selectedSus)
+        // Charger les données (async) puis les couleurs en parallèle
+        const result = await (fetchSuUsagesExtendedData(selectedSus) as Promise<SuUsageQuestion[]>)
         const [palette, suColors] = await Promise.all([
           getPalette('gradient', globalSuId),
           getSuColors(globalSuId)

@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { getDpEmdvSatisfactionsByCategory } from '~/lib/datapacks/DpEmdvSatisfactionsByCategory'
-import { getDpMobilityByZoneData } from '~/lib/datapacks/DpMobilityByZone'
 
 export async function GET(
   request: NextRequest,
@@ -29,18 +28,7 @@ export async function GET(
       return NextResponse.json(payload, { headers: { 'Cache-Control': 'no-store' } })
     }
     
-    // Point d'entrée pour les données de mobilité par zone
-    if (decodedFilename === 'mobility-by-zone') {
-      const { searchParams } = new URL(request.url)
-      const susParam = searchParams.get('sus')
-      const selectedSus = susParam && susParam.length > 0
-        ? susParam.split(',').map(s => Number(s)).filter(n => !Number.isNaN(n))
-        : undefined
-
-      const payload = await getDpMobilityByZoneData({ selectedSus })
-      return NextResponse.json(payload, { headers: { 'Cache-Control': 'no-store' } })
-    }
-    
+  
     // Crée un filePath
     const filePath = path.join(process.cwd(), 'public', 'data', `${decodedFilename}.json`)
     

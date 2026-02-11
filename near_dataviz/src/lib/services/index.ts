@@ -12,5 +12,5 @@ export {
   getSuInfoByGlobalId,
   getAllSuMappings,
   clearSuMappingCache,
-  testSuIdMapping
+  //testSuIdMapping
 } from './suIdMapping'

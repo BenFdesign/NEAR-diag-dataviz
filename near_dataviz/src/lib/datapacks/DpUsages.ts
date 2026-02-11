@@ -8,6 +8,7 @@ import { fetchDigitalIntensityData, type DigitalIntensityResult } from './DpUsag
 import { fetchPurchasingStrategyData, type PurchasingStrategyResult } from './DpUsagesPurchasingStrategy'
 import { fetchAirTravelFrequencyData, type AirTravelFrequencyResult } from './DpUsagesAirTravelFrequency'
 import { fetchHeatSourceData, type HeatSourceResult } from './DpUsagesHeatSource'
+import type { DatapackRequest, DatapackResponse, DatapackView } from './contracts'
 
 // ===== INTERFACES =====
 
@@ -43,7 +44,7 @@ export interface QuestionMetadata {
   subtitle: string
   key: keyof SuUsagesData
   questionKey: string
-  fetchFunction: () => unknown
+  fetchFunction: (selectedSus?: number[]) => Promise<unknown>
 }
 
 // Interface d'export principale (backward compatibility)
@@ -56,34 +57,49 @@ export interface SuUsagesData {
   heatSource: UsageData[]
 }
 
+// Type utilitaire pour les fonctions de fetch d'usages
+type UsageFetchFunction = (selectedSus?: number[]) => Promise<
+  | MeatFrequencyResult
+  | TransportationModeResult
+  | DigitalIntensityResult
+  | PurchasingStrategyResult
+  | AirTravelFrequencyResult
+  | HeatSourceResult
+>
+
+interface SuUsagesMappingEntry {
+  fetchFunction: UsageFetchFunction
+  key: keyof SuUsagesData
+}
+
 // ===== CONSTANTES =====
 
 const DATAPACK_NAME = 'DpUsages'
 
 // Mapping des questions Su Usages avec leurs fetch functions
-const SU_USAGES_MAPPING = {
+const SU_USAGES_MAPPING: Record<string, SuUsagesMappingEntry> = {
   'Meat Frequency': {
-    fetchFunction: fetchMeatFrequencyData,
+    fetchFunction: fetchMeatFrequencyData as UsageFetchFunction,
     key: 'meatFrequency' as keyof SuUsagesData
   },
   'Transportation Mode': {
-    fetchFunction: fetchTransportationModeData,
+    fetchFunction: fetchTransportationModeData as UsageFetchFunction,
     key: 'transportationMode' as keyof SuUsagesData
   },
   'Digital Intensity': {
-    fetchFunction: fetchDigitalIntensityData,
+    fetchFunction: fetchDigitalIntensityData as UsageFetchFunction,
     key: 'digitalIntensity' as keyof SuUsagesData
   },
   'Purchasing Strategy': {
-    fetchFunction: fetchPurchasingStrategyData,
+    fetchFunction: fetchPurchasingStrategyData as UsageFetchFunction,
     key: 'purchasingStrategy' as keyof SuUsagesData
   },
   'Air Travel Frequency': {
-    fetchFunction: fetchAirTravelFrequencyData,
+    fetchFunction: fetchAirTravelFrequencyData as UsageFetchFunction,
     key: 'airTravelFrequency' as keyof SuUsagesData
   },
   'Heat Source': {
-    fetchFunction: fetchHeatSourceData,
+    fetchFunction: fetchHeatSourceData as UsageFetchFunction,
     key: 'heatSource' as keyof SuUsagesData
   }
 }
@@ -143,15 +159,15 @@ export const SU_USAGES_QUESTIONS: QuestionMetadata[] = [
 // ===== FONCTIONS PRINCIPALES =====
 
 // Récupérer les données d'une question spécifique
-const getSuUsageData = (questionKey: string, selectedSus?: number[]): SuUsageQuestion | null => {
-  const mapping = SU_USAGES_MAPPING[questionKey as keyof typeof SU_USAGES_MAPPING]
+const getSuUsageData = async (questionKey: string, selectedSus?: number[]): Promise<SuUsageQuestion | null> => {
+  const mapping = SU_USAGES_MAPPING[questionKey]
   if (!mapping) {
     console.warn(`Question key "${questionKey}" not found in SU_USAGES_MAPPING`)
     return null
   }
 
   try {
-    const result = mapping.fetchFunction(selectedSus)
+    const result = await mapping.fetchFunction(selectedSus)
     
     return {
       questionKey,
@@ -169,27 +185,24 @@ const getSuUsageData = (questionKey: string, selectedSus?: number[]): SuUsageQue
 }
 
 // Récupérer toutes les données d'usage pour les SUs sélectionnées
-const getSuUsagesData = (selectedSus?: number[]): SuUsageQuestion[] => {
-  const results: SuUsageQuestion[] = []
-  
-  Object.keys(SU_USAGES_MAPPING).forEach(questionKey => {
-    const data = getSuUsageData(questionKey, selectedSus)
-    if (data) {
-      results.push(data)
-    }
-  })
-  
-  return results
+const getSuUsagesData = async (selectedSus?: number[]): Promise<SuUsageQuestion[]> => {
+  const entries = Object.keys(SU_USAGES_MAPPING)
+
+  const results = await Promise.all(
+    entries.map(questionKey => getSuUsageData(questionKey, selectedSus))
+  )
+
+  return results.filter((d): d is SuUsageQuestion => d !== null)
 }
 
 // ===== FONCTION D'EXPORT PRINCIPALE =====
 
 // Export function (backward compatibility)
-export function fetchSuUsagesData(selectedSus?: number[]): SuUsagesData {
+export async function fetchSuUsagesData(selectedSus?: number[]): Promise<SuUsagesData> {
   console.log(`[${new Date().toISOString()}] Fetching SU Usages data - ${DATAPACK_NAME}`)
   const startTime = performance.now()
 
-  const rawData = getSuUsagesData(selectedSus)
+  const rawData = await getSuUsagesData(selectedSus)
   
   // Transform to expected format
   const result: SuUsagesData = {
@@ -203,7 +216,7 @@ export function fetchSuUsagesData(selectedSus?: number[]): SuUsagesData {
   
   // Map data to expected structure
   rawData.forEach(question => {
-    const mapping = SU_USAGES_MAPPING[question.questionKey as keyof typeof SU_USAGES_MAPPING]
+    const mapping = SU_USAGES_MAPPING[question.questionKey]
     if (mapping) {
       result[mapping.key] = question.data
     }
@@ -216,19 +229,57 @@ export function fetchSuUsagesData(selectedSus?: number[]): SuUsagesData {
 }
 
 // Fonction pour récupérer les données étendues (non backward compatible)
-export function fetchSuUsagesExtendedData(selectedSus?: number[]): SuUsageQuestion[] {
+export async function fetchSuUsagesExtendedData(selectedSus?: number[]): Promise<SuUsageQuestion[]> {
   return getSuUsagesData(selectedSus)
+}
+
+// ===== CONTRAT CIBLE =====
+
+export async function getDpUsagesDatapack(
+  request: DatapackRequest
+): Promise<DatapackResponse<SuUsageQuestion[]>> {
+  const { selectedSus, view = 'auto' } = request
+  const effectiveSelectedSus = selectedSus ?? []
+
+  const questions = await getSuUsagesData(effectiveSelectedSus)
+
+  const inferredView: DatapackView =
+    questions.every(q => q.isQuartier) ? 'quartier' : 'su'
+  const effectiveView: DatapackView =
+    view === 'auto' ? inferredView : view
+
+  const totalResponses = questions.reduce((sum, q) => sum + q.totalResponses, 0)
+
+  return {
+    id: DATAPACK_NAME,
+    version: '1.0.0',
+    data: questions,
+    context: {
+      view: effectiveView,
+      selectedSus: effectiveSelectedSus,
+      resolvedSuIds: undefined,
+      isPartial: effectiveSelectedSus.length > 1 && effectiveView === 'su'
+    },
+    meta: {
+      questionCount: questions.length,
+      totalResponses
+    },
+    warnings: questions.length === 0
+      ? [{ type: 'NO_DATA', message: 'Aucune donnée d\'usage disponible.' }]
+      : undefined,
+    errors: undefined
+  }
 }
 
 // ===== FONCTIONS UTILITAIRES =====
 
 // Testing and validation functions
-export const testSuUsages = () => {
+export const testSuUsages = async () => {
   console.log('🧪 Testing DpUsages...')
   
   try {
     // Test quartier data
-    const quartierResult = getSuUsagesData()
+    const quartierResult = await getSuUsagesData()
     console.log('✅ Quartier result:', {
       questionCount: quartierResult.length,
       hasAllQuestions: quartierResult.length === Object.keys(SU_USAGES_MAPPING).length,
@@ -236,18 +287,18 @@ export const testSuUsages = () => {
     })
     
     // Test single SU
-    const singleSuResult = getSuUsagesData([1])
+    const singleSuResult = await getSuUsagesData([1])
     console.log('✅ Single SU result:', {
       questionCount: singleSuResult.length,
       hasData: singleSuResult.every(q => q.data.length > 0)
     })
     
     // Test backward compatibility
-    const backwardCompatResult = fetchSuUsagesData([1])
+    const backwardCompatResult = await fetchSuUsagesData([1])
     console.log('✅ Backward compatibility result:', {
       hasAllKeys: Object.keys(SU_USAGES_MAPPING).every(key => {
-        const mapping = SU_USAGES_MAPPING[key as keyof typeof SU_USAGES_MAPPING]
-        return Array.isArray(backwardCompatResult[mapping.key])
+        const mapping = SU_USAGES_MAPPING[key]
+        return !!mapping && Array.isArray(backwardCompatResult[mapping.key])
       }),
       keysFound: Object.keys(backwardCompatResult)
     })

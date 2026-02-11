@@ -5,7 +5,11 @@
  * - ID local (1, 2, 3...) : Pour l'UI et l'affichage
  * - ID global (477, 478, 479...) : Pour le filtrage backend
  * - Survey ID : Pour identifier les quartiers
+ * 
+ * Mode d'accès aux données : data-loader (standardisé)
  */
+
+import { loadSuBankData } from '~/lib/data-loader'
 
 // =====================================
 // INTERFACES
@@ -39,7 +43,7 @@ const CACHE_DURATION = 3600000 // 1 heure
 // =====================================
 
 /**
- * Charge et met en cache le mappage des ID depuis Su Bank.json
+ * Charge et met en cache le mappage des ID depuis Su Bank.json (via data-loader)
  */
 const loadSuIdMapping = async (): Promise<SuIdMapping[]> => {
   const now = Date.now()
@@ -52,10 +56,7 @@ const loadSuIdMapping = async (): Promise<SuIdMapping[]> => {
   try {
     console.log('🔄 Chargement du mappage des ID SU...')
     
-    const response = await fetch('/api/data/Su%20Bank')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    
-    const suBankData = await response.json() as SuBankItem[]
+    const suBankData = await loadSuBankData() as SuBankItem[]
     
     // Filtrer et mapper les SU (exclure le quartier ID 0)
     const realSus = suBankData
@@ -197,7 +198,7 @@ export const getAllSuMappings = async (): Promise<SuIdMapping[]> => {
   try {
     return await loadSuIdMapping()
   } catch (error) {
-    console.error('❌ Erreur lors de la récupération de tous les mappings:', error)
+    console.error('Erreur lors de la récupération de tous les mappings:', error)
     return []
   }
 }
@@ -208,6 +209,6 @@ export const getAllSuMappings = async (): Promise<SuIdMapping[]> => {
 export const clearSuMappingCache = (): void => {
   suMappingCache = null
   cacheTimestamp = 0
-  console.log('🧹 Cache de mappage SU vidé')
+  console.log('Cache de mappage SU vidé')
 }
 

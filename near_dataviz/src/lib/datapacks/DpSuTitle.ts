@@ -5,6 +5,7 @@ import {
   loadQuartiers,
   getCacheStatus 
 } from '~/lib/data-loader'
+import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 
 // Interface --> Données pour une SU ou Quartier
 interface SuTitleData {
@@ -258,6 +259,44 @@ export const getDpSuTitleResult = async (selectedSus?: number[]): Promise<SuTitl
 
 // Export functions
 export { getDpSuTitleData }
+
+// =====================================
+// CONTRAT DATAPACK STANDARDISÉ
+// =====================================
+
+export const getDpSuTitleDatapack = async (
+  request: DatapackRequest
+): Promise<DatapackResponse<SuTitleResult>> => {
+  const selectedSus = request.selectedSus
+
+  const result = await getDpSuTitleResult(selectedSus)
+
+  const isQuartier = result.selectedView.suId === null
+  const view: 'su' | 'quartier' = isQuartier ? 'quartier' : 'su'
+
+  const context = {
+    view,
+    selectedSus: selectedSus ?? [],
+    resolvedSuIds: isQuartier || result.selectedView.suId === null
+      ? undefined
+      : [result.selectedView.suId],
+    isPartial: false
+  }
+
+  const response: DatapackResponse<SuTitleResult> = {
+    id: result.id,
+    version: result.version,
+    data: result,
+    context,
+    meta: {
+      nameFr: result.selectedView.nameFr,
+      popPercentage: result.selectedView.popPercentage
+    },
+    warnings: result.warnings
+  }
+
+  return response
+}
 
 // Testing and validation functions
 export const testDpSuTitle = async () => {

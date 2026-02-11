@@ -5,11 +5,19 @@
  * - Su Answer.json : Réponses individuelles pour les SUs spécifiques
  * - Quartiers.json : Données agrégées INSEE pour la vue quartier
  * - MetaSuQuestions.json et MetaSuChoices.json : Métadonnées
+ * 
+ * Mode d'accès aux données : data-loader (standardisé)
  */
 
-import { getCacheStatus } from '~/lib/data-loader'
 
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
+import { 
+  loadSuAnswer,
+  loadQuartiers,
+  loadMetaSuQuestions,
+  loadMetaSuChoices
+} from '~/lib/data-loader'
+import type { DatapackRequest, DatapackResponse, DatapackView } from './contracts'
 
 // =====================================
 // INTERFACES ET TYPES
@@ -114,13 +122,11 @@ const AGE_MIDPOINTS: Record<string, number> = {
 // =====================================
 
 /**
- * Charge les réponses individuelles depuis Su Answer.json
+ * Charge les réponses individuelles depuis Su Answer.json (via data-loader)
 */
 const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
   try {
-    const response = await fetch('/api/data/Su%20Answer')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as SuAnswer[]
+    const data = await loadSuAnswer() as SuAnswer[]
     console.log(`📊 Chargé ${data.length} réponses individuelles`)
     return data
   } catch (error) {
@@ -130,13 +136,11 @@ const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
 }
 
 /**
- * Charge les données de quartier depuis Quartiers.json
+ * Charge les données de quartier depuis Quartiers.json (via data-loader)
  */
 const loadQuartierData = async (): Promise<QuartierData[]> => {
   try {
-    const response = await fetch('/api/data/Quartiers')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as QuartierData[]
+    const data = await loadQuartiers() as QuartierData[]
     console.log(`🏘️ Chargé ${data.length} quartiers`)
     return data
   } catch (error) {
@@ -146,13 +150,11 @@ const loadQuartierData = async (): Promise<QuartierData[]> => {
 }
 
 /**
- * Charge les métadonnées des questions depuis MetaSuQuestions.json
+ * Charge les métadonnées des questions depuis MetaSuQuestions.json (via data-loader)
  */
 const loadMetaQuestions = async (): Promise<MetaQuestion[]> => {
   try {
-    const response = await fetch('/api/data/MetaSuQuestions')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as MetaQuestion[]
+    const data = await loadMetaSuQuestions() as MetaQuestion[]
     console.log(`🔍 Chargé ${data.length} métadonnées de questions`)
     return data
   } catch (error) {
@@ -162,13 +164,11 @@ const loadMetaQuestions = async (): Promise<MetaQuestion[]> => {
 }
 
 /**
- * Charge les métadonnées des choix depuis MetaSuChoices.json
+ * Charge les métadonnées des choix depuis MetaSuChoices.json (via data-loader)
  */
 const loadMetaChoices = async (): Promise<MetaChoice[]> => {
   try {
-    const response = await fetch('/api/data/MetaSuChoices')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json() as MetaChoice[]
+    const data = await loadMetaSuChoices() as MetaChoice[]
     console.log(`🎯 Chargé ${data.length} métadonnées de choix`)
     return data
   } catch (error) {
@@ -342,10 +342,10 @@ const processQuartierAgeDistribution = (
 }
 
 // =====================================
-// FONCTION PRINCIPALE
+// FONCTION PRINCIPALE (legacy)
 // =====================================
 
-// Fonction principale avec cache
+// Fonction principale historique avec cache (signature conservée)
 export const getDpAgeDistributionData = async (selectedSus?: number[]): Promise<AgeDistributionResult> => {
   try {
     const cacheKey = JSON.stringify(selectedSus ?? [])
@@ -510,89 +510,39 @@ export const analyzeSuIds = async () => {
   }
 }
 
-// Fonction de test
-export const testDpAgeDistribution = async () => {
-  console.log(`🧪 Test de ${DATAPACK_NAME} avec données réelles...`)
-  
-  try {
-    // Afficher le statut du cache
-    console.log('📊 Statut du cache:', getCacheStatus())
-    
-    // Test des données de quartier
-    const quartierResult = await getDpAgeDistributionData()
-    console.log('✅ Résultat quartier:', {
-      isQuartier: quartierResult.isQuartier,
-      dataPoints: quartierResult.data.length,
-      totalResponses: quartierResult.totalResponses,
-      dataSource: quartierResult.dataSource,
-      totalPercentage: quartierResult.data.reduce((sum, item) => sum + item.percentage, 0).toFixed(1)
-    })
-    
-    // Test SU individuel (utiliser un vrai ID de SU: 477, 478, 479...)
-    const singleSuResult = await getDpAgeDistributionData([477])
-    console.log('✅ Résultat SU individuel (ID 477):', {
-      isQuartier: singleSuResult.isQuartier,
-      suId: singleSuResult.suId,
-      dataPoints: singleSuResult.data.length,
-      totalResponses: singleSuResult.totalResponses,
-      dataSource: singleSuResult.dataSource,
-      totalPercentage: singleSuResult.data.reduce((sum, item) => sum + item.percentage, 0).toFixed(1)
-    })
-    
-    // Test avec un autre SU
-    const singleSuResult2 = await getDpAgeDistributionData([478])
-    console.log('✅ Résultat SU individuel (ID 478):', {
-      isQuartier: singleSuResult2.isQuartier,
-      suId: singleSuResult2.suId,
-      dataPoints: singleSuResult2.data.length,
-      totalResponses: singleSuResult2.totalResponses,
-      dataSource: singleSuResult2.dataSource,
-      totalPercentage: singleSuResult2.data.reduce((sum, item) => sum + item.percentage, 0).toFixed(1)
-    })
-    
-    // Afficher quelques échantillons de données
-    if (singleSuResult.data.length > 0) {
-      console.log('📋 Échantillon de données SU 477:', singleSuResult.data.slice(0, 3).map(item => ({
-        label: item.label,
-        count: item.count,
-        percentage: item.percentage + '%'
-      })))
-    }
-    
-    if (singleSuResult2.data.length > 0) {
-      console.log('📋 Échantillon de données SU 478:', singleSuResult2.data.slice(0, 3).map(item => ({
-        label: item.label,
-        count: item.count,
-        percentage: item.percentage + '%'
-      })))
-    }
-    
-    // Test avec ID local (qui devrait être mappé automatiquement)
-    console.log('\n🔄 Test du mappage automatique avec ID local...')
-    const localIdResult = await getDpAgeDistributionData([1])
-    console.log('✅ Résultat avec ID local 1 (mappé automatiquement):', {
-      isQuartier: localIdResult.isQuartier,
-      suId: localIdResult.suId,
-      dataPoints: localIdResult.data.length,
-      totalResponses: localIdResult.totalResponses,
-      dataSource: localIdResult.dataSource,
-      totalPercentage: localIdResult.data.reduce((sum, item) => sum + item.percentage, 0).toFixed(1)
-    })
-    
-    // Test du service de mappage centralisé
-    console.log('\n🧪 Test du service de mappage centralisé...')
-    const { testSuIdMapping } = await import('~/lib/services/suIdMapping')
-    await testSuIdMapping()
-    
-    console.log('✅ Tous les tests de distribution d\'âge terminés avec succès!')
-  } catch (error) {
-    console.error(`❌ Test ${DATAPACK_NAME} échoué:`, error)
-  }
-}
+// =====================================
+// FONCTION CONTRAT CIBLE
+// =====================================
 
-// Clear cache utility (for development)
-export const clearAgeDistributionCache = (): void => {
-  dataCache.clear()
-  cacheTimestamp = 0
-  console.log(`🧹 ${DATAPACK_NAME} cache cleared`)
+export const getDpAgeDistributionDatapack = async (
+  request: DatapackRequest
+): Promise<DatapackResponse<AgeDistributionResult>> => {
+  const { selectedSus, view = 'auto' } = request
+  const effectiveSelectedSus = selectedSus ?? []
+
+  const base = await getDpAgeDistributionData(effectiveSelectedSus)
+
+  const inferredView: DatapackView = base.isQuartier ? 'quartier' : 'su'
+  const effectiveView: DatapackView =
+    view === 'auto' ? inferredView : view
+
+  return {
+    id: DATAPACK_NAME,
+    version: '1.0.0',
+    data: base,
+    context: {
+      view: effectiveView,
+      selectedSus: effectiveSelectedSus,
+      resolvedSuIds: base.suId !== undefined ? [base.suId] : undefined,
+      isPartial: !base.isQuartier && effectiveSelectedSus.length > 1
+    },
+    meta: {
+      totalResponses: base.totalResponses,
+      dataSource: base.dataSource
+    },
+    warnings: base.data.length === 0
+      ? [{ type: 'NO_DATA', message: 'Aucune donnée de distribution d\'âge disponible.' }]
+      : undefined,
+    errors: undefined
+  }
 }
