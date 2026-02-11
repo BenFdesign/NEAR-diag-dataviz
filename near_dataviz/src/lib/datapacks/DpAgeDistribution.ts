@@ -13,7 +13,7 @@
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 import { 
   loadSuAnswer,
-  loadQuartiers,
+  loadQuartiersForCurrentSurvey,
   loadMetaSuQuestions,
   loadMetaSuChoices
 } from '~/lib/data-loader'
@@ -140,8 +140,8 @@ const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
  */
 const loadQuartierData = async (): Promise<QuartierData[]> => {
   try {
-    const data = await loadQuartiers() as QuartierData[]
-    console.log(`🏘️ Chargé ${data.length} quartiers`)
+    const data = await loadQuartiersForCurrentSurvey() as QuartierData[]
+    console.log(`🏘️ Chargé ${data.length} quartiers (filtrés par SurveyID courant)`)
     return data
   } catch (error) {
     console.error('Erreur lors du chargement des quartiers:', error)

@@ -1,8 +1,8 @@
 import type { SuBankData, SuData } from '~/lib/types'
 import { 
   loadSuBankData, 
-  loadSuData, 
-  loadQuartiers,
+  loadSuDataForCurrentSurvey, 
+  loadQuartiersForCurrentSurvey,
   getCacheStatus 
 } from '~/lib/data-loader'
 import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
@@ -55,7 +55,7 @@ let precomputedCache: PrecomputedSuTitleData | null = null
 // Get quartier name from quartiers data
 const getQuartierName = async (): Promise<string> => {
   try {
-    const quartiers = await loadQuartiers()
+    const quartiers = await loadQuartiersForCurrentSurvey()
     const firstQuartier = quartiers[0]
     if (firstQuartier && typeof firstQuartier === 'object' && 'Name' in firstQuartier && firstQuartier.Name) {
       return typeof firstQuartier.Name === 'string' ? firstQuartier.Name : 'Quartier'
@@ -106,7 +106,7 @@ const precomputeSuTitleData = async (): Promise<PrecomputedSuTitleData> => {
   // Load all required data (will use cache if available)
   const [bankData, suDataArray, quartierName] = await Promise.all([
     loadSuBankData(),
-    loadSuData(),
+    loadSuDataForCurrentSurvey(),
     getQuartierName()
   ])
   
@@ -183,7 +183,7 @@ const getDpSuTitleData = async (selectedSus?: number[]): Promise<SuTitleData | n
     } else if (selectedSus.length === 1) {
       // For single SU, find the corresponding data
       const targetSuNumber = selectedSus[0]!
-      const suDataArray = await loadSuData() // This will use cache
+      const suDataArray = await loadSuDataForCurrentSurvey() // This will use cache
       const targetSuId = getSuIdsFromSuNumbers(suDataArray, [targetSuNumber])[0]!
       
       const result = precomputedCache.allSuResults.get(targetSuId)

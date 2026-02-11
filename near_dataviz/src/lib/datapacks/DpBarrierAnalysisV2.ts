@@ -1,4 +1,4 @@
-import { loadMetaEmdvChoices, loadMetaEmdvQuestions, loadWayOfLifeData, loadSuBankData, loadSuData } from '~/lib/data-loader'
+import { loadMetaEmdvChoices, loadMetaEmdvQuestions, loadWayOfLifeData, loadSuBankData, loadSuDataForCurrentSurvey } from '~/lib/data-loader'
 import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 
 // Types minimalistes alignés avec les données utilisées
@@ -217,7 +217,7 @@ const precomputeAllBarrierData = async (): Promise<PrecomputedBarrierData> => {
     loadMetaEmdvQuestions(),
     loadWayOfLifeData(),
     loadSuBankData(),
-    loadSuData(),
+    loadSuDataForCurrentSurvey(),
   ])
   const choices = choicesRaw as ChoiceRow[]
   const questions = questionsRaw as QuestionRow[]
@@ -372,7 +372,7 @@ export async function getBarrierData(selectedSus?: number[]) {
     }
   } else {
     // Mapper numéros SU locaux -> IDs
-    const suData = (await loadSuData()) as SuDataRow[]
+    const suData = (await loadSuDataForCurrentSurvey()) as SuDataRow[]
   const ids = suData.filter((row) => (selectedSus ?? []).includes(row.Su)).map((row) => row.ID)
     const suId = ids[0]
     if (suId === undefined) {

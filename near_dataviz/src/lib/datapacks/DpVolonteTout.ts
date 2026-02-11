@@ -6,7 +6,7 @@
  * - Métadonnées via MetaEmdvChoices (is_will: true) et MetaEmdvQuestions
  */
 
-import { loadMetaEmdvChoices as loadMetaEmdvChoicesRaw, loadMetaEmdvQuestions as loadMetaEmdvQuestionsRaw, loadSuBankData as loadSuBankDataRaw, loadSuData as loadSuDataRaw, loadWayOfLifeData } from '~/lib/data-loader'
+import { loadMetaEmdvChoices as loadMetaEmdvChoicesRaw, loadMetaEmdvQuestions as loadMetaEmdvQuestionsRaw, loadSuBankData as loadSuBankDataRaw, loadSuDataForCurrentSurvey as loadSuDataRaw, loadWayOfLifeData } from '~/lib/data-loader'
 import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 

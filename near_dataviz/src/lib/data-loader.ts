@@ -1,4 +1,5 @@
 import type { SuBankData, SuData, DataCache } from './types'
+import { CURRENT_SURVEY_ID } from './survey-config'
 
 // Client-side cache for static data
 let dataCache: DataCache = {}
@@ -45,6 +46,20 @@ export async function loadSurveys(): Promise<Array<{ ID?: number, Name?: string 
 /* Load Quartiers data (demographics + IRIS + Survey ID) */
 export async function loadQuartiers(): Promise<Array<{ "Population Sum"?: number, "Survey ID"?: number }>> {
   return loadDataWithCache<Array<{ "Population Sum"?: number, "Survey ID"?: number }>>('Quartiers', 'quartiers')
+}
+
+/* Load Su Data filtered for current Survey ID */
+export async function loadSuDataForCurrentSurvey(): Promise<SuData[]> {
+  const all = await loadSuData()
+  return all.filter(entry => (
+    (entry as SuData & { "Survey ID"?: number })["Survey ID"] === CURRENT_SURVEY_ID
+  ))
+}
+
+/* Load Quartiers data filtered for current Survey ID */
+export async function loadQuartiersForCurrentSurvey(): Promise<Array<{ "Population Sum"?: number, "Survey ID"?: number }>> {
+  const all = await loadQuartiers()
+  return all.filter(q => q["Survey ID"] === CURRENT_SURVEY_ID)
 }
 
 /* Load Way Of Life Answer data */

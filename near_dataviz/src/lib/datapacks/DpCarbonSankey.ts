@@ -14,10 +14,11 @@
  */
 
 import { 
-  loadCarbonFootprintData,
-  loadMetaCarbon as loadMetaCarbonData,
-  loadSuData as loadSuDataFromLoader
+  loadCarbonFootprintData, 
+  loadMetaCarbon as loadMetaCarbonData, 
+  loadSuDataForCurrentSurvey as loadSuDataFromLoader 
 } from '~/lib/data-loader'
+import { CURRENT_SURVEY_ID } from '~/lib/survey-config'
 import type { DatapackRequest, DatapackResponse, DatapackView } from './contracts'
 
 // ===========================
@@ -106,8 +107,13 @@ async function loadCarbonAnswers(): Promise<CarbonAnswer[]> {
     const isCarbonAnswer = (r: unknown): r is CarbonAnswer => {
       return typeof r === 'object' && r !== null && 'Su ID' in r
     }
-    // Filtrer les entrées vides potentielles
-    return json.filter(isCarbonAnswer)
+    // Filtrer les entrées vides potentielles et ne garder que le Survey courant si présent
+    return json
+      .filter(isCarbonAnswer)
+      .filter(row => {
+        const surveyId = (row as CarbonAnswer & { SurveyId?: number }).SurveyId
+        return surveyId == null || surveyId === CURRENT_SURVEY_ID
+      })
   } catch (error) {
     console.error('[DpCarbonSankey] loadCarbonAnswers error:', error)
     return []
