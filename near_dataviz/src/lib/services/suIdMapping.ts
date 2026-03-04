@@ -11,6 +11,9 @@
 
 import { loadSuBankData } from '~/lib/data-loader'
 
+/** Borne inférieure des ID globaux SU pour le survey courant (Porte d'Orléans) */
+const MIN_GLOBAL_SU_ID = 477
+
 // =====================================
 // INTERFACES
 // =====================================
@@ -94,8 +97,8 @@ const loadSuIdMapping = async (): Promise<SuIdMapping[]> => {
 export const mapLocalToGlobalIds = async (localIds: number[]): Promise<number[]> => {
   if (!localIds || localIds.length === 0) return []
   
-  // Si les ID sont déjà dans la gamme globale (477+), les retourner tels quels
-  if (localIds.every(id => id >= 477)) {
+  // Si les ID sont déjà dans la gamme globale (MIN_GLOBAL_SU_ID+), les retourner tels quels
+  if (localIds.every(id => id >= MIN_GLOBAL_SU_ID)) {
     console.log('🔍 ID déjà globaux:', localIds)
     return localIds
   }

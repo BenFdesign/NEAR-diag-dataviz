@@ -66,7 +66,7 @@ export type SuInfo = {
   popPercentage: number
   realPopulation: number
   icon: string
-  bankData: SuBankData
+  bankData?: SuBankData
 }
 
 // Board Registry structure

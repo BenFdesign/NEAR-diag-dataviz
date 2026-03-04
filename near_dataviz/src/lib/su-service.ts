@@ -131,7 +131,7 @@ export const getSuInfo = async (): Promise<SuInfo[]> => {
         popPercentage: popPercentage,                          // Pourcentage de population
         realPopulation: realPopulation,                       // Population réelle calculée (arrondie)
         icon: validatedIcon,                                   // Icône validée et sécurisée
-        bankData: bankEntry!                                   // Référence complète aux métadonnées
+        bankData: bankEntry                                    // Référence complète aux métadonnées (undefined si SU absente du bank)
       }
     }).sort((a, b) => a.su - b.su) // Tri par Id local des SU (1, 2, 3, 4, 5, 6, 7, 8, 9)
   } catch (error) {

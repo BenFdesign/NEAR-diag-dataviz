@@ -204,7 +204,7 @@ const getDpSuTitleData = async (selectedSus?: number[]): Promise<SuTitleData | n
 }
 
 // Export function (backward compatibility) 
-export const getDpSuTitleResult = async (selectedSus?: number[]): Promise<SuTitleResult> => {
+const getDpSuTitleResult = async (selectedSus?: number[]): Promise<SuTitleResult> => {
   const data = await getDpSuTitleData(selectedSus)
   const warnings: SuTitleResult['warnings'] = []
   
@@ -257,9 +257,6 @@ export const getDpSuTitleResult = async (selectedSus?: number[]): Promise<SuTitl
   }
 }
 
-// Export functions
-export { getDpSuTitleData }
-
 // =====================================
 // CONTRAT DATAPACK STANDARDISÉ
 // =====================================
@@ -296,72 +293,6 @@ export const getDpSuTitleDatapack = async (
   }
 
   return response
-}
-
-// Testing and validation functions
-export const testDpSuTitle = async () => {
-  console.log('🧪 Testing DpSuTitle (async version)...')
-  
-  try {
-    // Show cache status
-    console.log('📊 Cache status:', getCacheStatus())
-    
-    // Test quartier data
-    const quartierResult = await getDpSuTitleData()
-    if (quartierResult) {
-      console.log('✅ Quartier result:', {
-        isQuartier: quartierResult.isQuartier,
-        nameFr: quartierResult.titleLabels.nameFr,
-        popPercentage: quartierResult.titleLabels.popPercentage,
-        hasColor: !!quartierResult.titleLabels.color
-      })
-    } else {
-      console.log('❌ Quartier result is null')
-    }
-    
-    // Test single SU
-    const singleSuResult = await getDpSuTitleData([1])
-    if (singleSuResult) {
-      console.log('✅ Single SU result:', {
-        suId: singleSuResult.suId,
-        suNumber: singleSuResult.suNumber,
-        nameFr: singleSuResult.titleLabels.nameFr,
-        popPercentage: singleSuResult.titleLabels.popPercentage
-      })
-    } else {
-      console.log('❌ Single SU result is null')
-    }
-    
-    // Test multiple SUs (should return quartier)
-    const multipleSuResult = await getDpSuTitleData([1, 2])
-    if (multipleSuResult) {
-      console.log('✅ Multiple SU result (quartier):', {
-        isQuartier: multipleSuResult.isQuartier,
-        nameFr: multipleSuResult.titleLabels.nameFr
-      })
-    } else {
-      console.log('❌ Multiple SU result is null')
-    }
-    
-    // Test backward compatibility
-    const backwardCompatResult = await getDpSuTitleResult([1])
-    console.log('✅ Backward compatibility result:', {
-      hasSelectedView: !!backwardCompatResult.selectedView,
-      hasValidStructure: backwardCompatResult.id && backwardCompatResult.version,
-      warningCount: backwardCompatResult.warnings.length,
-      version: backwardCompatResult.version
-    })
-    
-    console.log('✅ All DpSuTitle tests completed!')
-  } catch (error) {
-    console.error('❌ DpSuTitle test failed:', error)
-  }
-}
-
-// Export text function for compatibility
-export const getDpSuTitleText = async (selectedSus?: number[]): Promise<string> => {
-  const result = await getDpSuTitleResult(selectedSus)
-  return JSON.stringify(result, null, 2)
 }
 
 // Clear cache utility (for development)

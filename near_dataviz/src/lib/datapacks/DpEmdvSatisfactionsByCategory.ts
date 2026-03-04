@@ -167,7 +167,7 @@ const buildForQuartier = (
   return byQuestion
 }
 
-export async function getDpEmdvSatisfactionsByCategory(
+async function getDpEmdvSatisfactionsByCategory(
   selectedSus?: number[],
   selectedSubcategory?: string
 ): Promise<EmdvByCategoryPayload> {
@@ -204,15 +204,6 @@ export async function getDpEmdvSatisfactionsByCategory(
   }
 
   const payload: EmdvByCategoryPayload = { subcategories: out, availableSubcategories: available, isQuartier }
-  return payload
-}
-
-export async function exportEmdvCategory(category: string, selectedSus?: number[]) {
-  return getDpEmdvSatisfactionsByCategory(selectedSus, category)
-}
-
-export async function exportAllEmdvCategories(selectedSus?: number[]) {
-  const payload = await getDpEmdvSatisfactionsByCategory(selectedSus, 'all')
   return payload
 }
 

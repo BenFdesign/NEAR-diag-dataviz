@@ -359,7 +359,7 @@ const getPrecomputedData = async (): Promise<PrecomputedBarrierData> => {
 }
 
 // Public API
-export async function getBarrierData(selectedSus?: number[]) {
+async function getBarrierData(selectedSus?: number[]) {
   const pre = await getPrecomputedData()
   const isQuartierView = !selectedSus || selectedSus.length === 0 || selectedSus.length > 1
   if (isQuartierView) {
@@ -389,7 +389,7 @@ export async function getBarrierData(selectedSus?: number[]) {
   }
 }
 
-export async function getBarrierDataForQuestion(questionKey: string, selectedSus?: number[]) {
+async function getBarrierDataForQuestion(questionKey: string, selectedSus?: number[]) {
   if (questionKey === '__ALL_QUESTIONS_AGGREGATED__') {
     return getAggregatedBarrierData(selectedSus)
   }
@@ -398,7 +398,7 @@ export async function getBarrierDataForQuestion(questionKey: string, selectedSus
   return { ...all, data: q ? [q] : [] }
 }
 
-export async function getAggregatedBarrierData(selectedSus?: number[]) {
+async function getAggregatedBarrierData(selectedSus?: number[]) {
   const all = await getBarrierData(selectedSus)
   if (all.data.length === 0) return { ...all, data: [] }
 
@@ -448,12 +448,24 @@ export function clearBarrierCache() {
 // CONTRAT DATAPACK STANDARDISÉ
 // =====================================
 
+/** Résultat brut d'une requête de données barrières */
+export type BarrierDataResult = {
+  data: BarrierQuestionData[]
+  isQuartier: boolean
+  suId: number
+  color: string
+}
+
 export async function getDpBarrierDatapack(
   request: DatapackRequest
-): Promise<DatapackResponse<Awaited<ReturnType<typeof getBarrierData>>>> {
+): Promise<DatapackResponse<BarrierDataResult>> {
   const selectedSus = request.selectedSus
+  const questionKey =
+    typeof request.extra?.questionKey === 'string' ? request.extra.questionKey : undefined
 
-  const barrierData = await getBarrierData(selectedSus)
+  const barrierData: BarrierDataResult = questionKey
+    ? await getBarrierDataForQuestion(questionKey, selectedSus)
+    : await getBarrierData(selectedSus)
 
   const isQuartier = barrierData.isQuartier
   const view: 'su' | 'quartier' = isQuartier ? 'quartier' : 'su'
@@ -466,16 +478,15 @@ export async function getDpBarrierDatapack(
     isPartial: false
   }
 
-  const response: DatapackResponse<Awaited<ReturnType<typeof getBarrierData>>> = {
+  return {
     id: 'DpBarrierAnalysisV2',
     version: '1.0.0',
     data: barrierData,
     context,
     meta: {
       questionsCount: barrierData.data.length,
-      isAggregated: barrierData.data.some(q => q.questionKey === '__ALL_QUESTIONS_AGGREGATED__')
+      isAggregated: barrierData.data.some(q => q.questionKey === '__ALL_QUESTIONS_AGGREGATED__'),
+      questionKey
     }
   }
-
-  return response
 }

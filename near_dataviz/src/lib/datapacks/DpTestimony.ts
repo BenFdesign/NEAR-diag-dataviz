@@ -12,7 +12,7 @@
  * Beaucoup de problèmes ESlint non-résolubles liés au graph D3.js, mais qui ne pose normalement pas de problème pour le build.
  */
 
-import { loadMetaEmdvQuestions as loadMetaEmdvQuestionsRaw, loadMetaSuChoices, loadSuAnswer, loadWayOfLifeData } from '~/lib/data-loader'
+import { loadMetaEmdvQuestions as loadMetaEmdvQuestionsRaw, loadMetaSuChoices as loadMetaSuChoicesRaw, loadSuAnswer, loadWayOfLifeData } from '~/lib/data-loader'
 import type { DatapackRequest, DatapackResponse } from '~/lib/datapacks/contracts'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
@@ -224,9 +224,9 @@ const loadSuAnswerData = async (): Promise<SuAnswer[]> => {
 /**
  * Charge les labels SU (ex: Genre) depuis MetaSuChoices.json
  */
-const loadTypedMetaSuChoices = async (): Promise<MetaSuChoice[]> => {
+const loadMetaSuChoices = async (): Promise<MetaSuChoice[]> => {
   try {
-    const data = await loadMetaSuChoices() as MetaSuChoice[]
+    const data = await loadMetaSuChoicesRaw() as MetaSuChoice[]
     console.log(`🧾 Chargé ${data.length} MetaSuChoices`)
     return data
   } catch (error) {
@@ -421,7 +421,7 @@ const createTestimonyLinks = (
 // FONCTION PRINCIPALE
 // =====================================
 
-export const getDpTestimonyData = async (selectedSus?: number[]): Promise<TestimonyNetworkResult> => {
+const getDpTestimonyData = async (selectedSus?: number[]): Promise<TestimonyNetworkResult> => {
   try {
     console.log(`🔄 Calcul des données pour ${DATAPACK_NAME}...`)
     
@@ -430,7 +430,7 @@ export const getDpTestimonyData = async (selectedSus?: number[]): Promise<Testim
       loadMetaEmdvQuestions(),
       loadWayOfLifeAnswers(),
       loadSuAnswerData(),
-      loadTypedMetaSuChoices()
+      loadMetaSuChoices()
     ])
     
     // Déterminer si c'est une vue quartier ou SU
@@ -543,43 +543,6 @@ export const getDpTestimonyData = async (selectedSus?: number[]): Promise<Testim
       subcategories: [],
       dataSource: 'Erreur'
     }
-  }
-}
-
-// =====================================
-// FONCTIONS DE TEST ET UTILITAIRES
-// =====================================
-
-export const testDpTestimony = async () => {
-  console.log(`🧪 Test de ${DATAPACK_NAME} avec données réelles...`)
-  
-  try {
-    // Test des données de quartier (tous les témoignages)
-    const quartierResult = await getDpTestimonyData()
-    console.log('✅ Résultat quartier:', {
-      isQuartier: quartierResult.isQuartier,
-      totalNodes: quartierResult.nodes.length,
-      totalLinks: quartierResult.links.length,
-      totalTestimonies: quartierResult.totalTestimonies,
-      subcategories: quartierResult.subcategories,
-      dataSource: quartierResult.dataSource
-    })
-    
-    // Test SU individuel
-    const singleSuResult = await getDpTestimonyData([1])
-    console.log('✅ Résultat SU individuel:', {
-      isQuartier: singleSuResult.isQuartier,
-      suId: singleSuResult.suId,
-      totalNodes: singleSuResult.nodes.length,
-      totalLinks: singleSuResult.links.length,
-      totalTestimonies: singleSuResult.totalTestimonies,
-      subcategories: singleSuResult.subcategories,
-      dataSource: singleSuResult.dataSource
-    })
-    
-    console.log('✅ Test de réseau de témoignages terminé avec succès!')
-  } catch (error) {
-    console.error(`❌ Test ${DATAPACK_NAME} échoué:`, error)
   }
 }
 

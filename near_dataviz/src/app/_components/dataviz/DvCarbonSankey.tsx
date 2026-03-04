@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import { sankey, sankeyLinkHorizontal, type SankeyGraph, type SankeyLink, type SankeyNode } from 'd3-sankey'
-import { getDpCarbonSankeyData, type CarbonSankeyPayload } from '~/lib/datapacks'
+import { getDpCarbonSankeyDatapack, type CarbonSankeyPayload } from '~/lib/datapacks'
 import { getSuColors } from '~/lib/datapacks/DpColor'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
@@ -76,8 +76,8 @@ const DvCarbonSankey: React.FC<Props> = ({ selectedSus }) => {
       try {
         setLoading(true)
         setError(null)
-        const data = await getDpCarbonSankeyData(selectedSus)
-        setPayload(data)
+        const response = await getDpCarbonSankeyDatapack({ selectedSus })
+        setPayload(response.data)
       } catch (e) {
         console.error('[DvCarbonSankey] load error:', e)
         setError('Impossible de charger les données du Sankey carbone')

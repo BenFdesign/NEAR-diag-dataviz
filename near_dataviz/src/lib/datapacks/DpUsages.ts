@@ -197,8 +197,8 @@ const getSuUsagesData = async (selectedSus?: number[]): Promise<SuUsageQuestion[
 
 // ===== FONCTION D'EXPORT PRINCIPALE =====
 
-// Export function (backward compatibility)
-export async function fetchSuUsagesData(selectedSus?: number[]): Promise<SuUsagesData> {
+// (backward-compat shape, used internally only)
+async function fetchSuUsagesData(selectedSus?: number[]): Promise<SuUsagesData> {
   console.log(`[${new Date().toISOString()}] Fetching SU Usages data - ${DATAPACK_NAME}`)
   const startTime = performance.now()
 
@@ -228,10 +228,7 @@ export async function fetchSuUsagesData(selectedSus?: number[]): Promise<SuUsage
   return result
 }
 
-// Fonction pour récupérer les données étendues (non backward compatible)
-export async function fetchSuUsagesExtendedData(selectedSus?: number[]): Promise<SuUsageQuestion[]> {
-  return getSuUsagesData(selectedSus)
-}
+
 
 // ===== CONTRAT CIBLE =====
 
@@ -271,66 +268,3 @@ export async function getDpUsagesDatapack(
   }
 }
 
-// ===== FONCTIONS UTILITAIRES =====
-
-// Testing and validation functions
-export const testSuUsages = async () => {
-  console.log('🧪 Testing DpUsages...')
-  
-  try {
-    // Test quartier data
-    const quartierResult = await getSuUsagesData()
-    console.log('✅ Quartier result:', {
-      questionCount: quartierResult.length,
-      hasAllQuestions: quartierResult.length === Object.keys(SU_USAGES_MAPPING).length,
-      questionsFound: quartierResult.map(q => q.questionKey)
-    })
-    
-    // Test single SU
-    const singleSuResult = await getSuUsagesData([1])
-    console.log('✅ Single SU result:', {
-      questionCount: singleSuResult.length,
-      hasData: singleSuResult.every(q => q.data.length > 0)
-    })
-    
-    // Test backward compatibility
-    const backwardCompatResult = await fetchSuUsagesData([1])
-    console.log('✅ Backward compatibility result:', {
-      hasAllKeys: Object.keys(SU_USAGES_MAPPING).every(key => {
-        const mapping = SU_USAGES_MAPPING[key]
-        return !!mapping && Array.isArray(backwardCompatResult[mapping.key])
-      }),
-      keysFound: Object.keys(backwardCompatResult)
-    })
-    
-    console.log('✅ All DpUsages tests passed!')
-  } catch (error) {
-    console.error('❌ DpUsages test failed:', error)
-  }
-}
-
-// Export des fonctions de test individuelles
-export const runAllUsagesTests = () => {
-  console.log('🧪 Running all usage datapack tests...')
-  
-  try {
-    // Import des fonctions de test (dynamique pour éviter les erreurs de dépendance)
-    const tests = [
-      () => import('./DpUsagesMeatFrequency').then(m => m.runMeatFrequencyTests()),
-      () => import('./DpUsagesTransportationMode').then(m => m.runTransportationModeTests()),
-      () => import('./DpUsagesDigitalIntensity').then(m => m.runDigitalIntensityTests()),
-      () => import('./DpUsagesPurchasingStrategy').then(m => m.runPurchasingStrategyTests()),
-      () => import('./DpUsagesAirTravelFrequency').then(m => m.runAirTravelFrequencyTests()),
-      () => import('./DpUsagesHeatSource').then(m => m.runHeatSourceTests())
-    ]
-    
-    Promise.all(tests.map(test => test())).then(results => {
-      const allPassed = results.every(Boolean)
-      console.log(allPassed ? '✅ All usage tests passed!' : '❌ Some usage tests failed')
-    }).catch(error => {
-      console.error('❌ Error running usage datapack tests:', error)
-    })
-  } catch (error) {
-    console.error('❌ Failed to run usage tests:', error)
-  }
-}

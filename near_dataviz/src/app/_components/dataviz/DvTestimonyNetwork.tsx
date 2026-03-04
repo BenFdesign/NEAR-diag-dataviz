@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import type { ZoomTransform } from 'd3'
-import { getDpTestimonyData, type TestimonyNetworkResult, type TestimonyNode, type TestimonyLink } from '~/lib/datapacks/DpTestimony'
+import { getDpTestimonyDatapack, type TestimonyNetworkResult, type TestimonyNode, type TestimonyLink } from '~/lib/datapacks/DpTestimony'
 import { getSuColors } from '~/lib/datapacks/DpColor'
 import { mapLocalToGlobalIds, mapGlobalToLocalIds, getSuInfoByGlobalId } from '~/lib/services/suIdMapping'
 
@@ -267,7 +267,8 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
       setLoading(true)
       try {
         console.log('Chargement des témoignages format Network Graph...', { selectedSus })
-        const data = await getDpTestimonyData(selectedSus)
+        const response = await getDpTestimonyDatapack({ selectedSus })
+        const data = response.data
         setNetworkData(data)
         setNodes(data.nodes.map(node => ({ ...node }))) // --> D3
         setLinks(data.links)
@@ -596,7 +597,8 @@ const DvTestimonyNetwork: React.FC<DvTestimonyNetworkProps> = ({
             onClick={async () => {
               setLoading(true)
               try {
-                const data = await getDpTestimonyData(selectedSus)
+                const response = await getDpTestimonyDatapack({ selectedSus })
+                const data = response.data
                 setNetworkData(data)
                 setNodes(data.nodes.map(node => ({ ...node })))
                 setLinks(data.links)

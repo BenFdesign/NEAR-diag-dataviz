@@ -3,10 +3,7 @@
 
 // Export du datapack agrégateur principal
 export { 
-  fetchSuUsagesData, 
-  fetchSuUsagesExtendedData,
-  testSuUsages,
-  runAllUsagesTests,
+  getDpUsagesDatapack,
   SU_USAGES_QUESTIONS,
   type SuUsagesData,
   type QuestionMetadata
@@ -16,41 +13,35 @@ export {
 export { 
   fetchMeatFrequencyData,
   clearMeatFrequencyCache,
-  runMeatFrequencyTests,
   type MeatFrequencyResult
 } from './DpUsagesMeatFrequency'
 
 export { 
   fetchTransportationModeData,
   clearTransportationModeCache,
-  runTransportationModeTests,
   type TransportationModeResult
 } from './DpUsagesTransportationMode'
 
 export { 
   fetchDigitalIntensityData,
   clearDigitalIntensityCache,
-  runDigitalIntensityTests,
   type DigitalIntensityResult
 } from './DpUsagesDigitalIntensity'
 
 export { 
   fetchPurchasingStrategyData,
   clearPurchasingStrategyCache,
-  runPurchasingStrategyTests,
   type PurchasingStrategyResult
 } from './DpUsagesPurchasingStrategy'
 
 export { 
   fetchAirTravelFrequencyData,
   clearAirTravelFrequencyCache,
-  runAirTravelFrequencyTests,
   type AirTravelFrequencyResult
 } from './DpUsagesAirTravelFrequency'
 
 export { 
   fetchHeatSourceData,
   clearHeatSourceCache,
-  runHeatSourceTests,
   type HeatSourceResult
 } from './DpUsagesHeatSource'

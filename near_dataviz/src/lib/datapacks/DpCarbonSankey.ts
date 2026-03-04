@@ -352,9 +352,7 @@ export function clearCarbonSankeyCache() {
 }
 
 
-// EXPORT PRINCIPAL (legacy)
-// =========================
-export async function getDpCarbonSankeyData(selectedSus?: number[]): Promise<CarbonSankeyPayload> {
+async function getDpCarbonSankeyData(selectedSus?: number[]): Promise<CarbonSankeyPayload> {
   const requested = Array.isArray(selectedSus) ? [...selectedSus].filter(n => typeof n === 'number') : []
   let isQuartier = requested.length === 0
   let effectiveSuNumber: number | null = null
@@ -505,11 +503,3 @@ export async function getDpCarbonSankeyDatapack(
 }
 
 
-// DEV/TEST
-// ========
-export async function testDpCarbonSankey() {
-  // Simple smoke test
-  const quartier = await getDpCarbonSankeyData([])
-  const su1 = await getDpCarbonSankeyData([1])
-  return { quartier, su1 }
-}

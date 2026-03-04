@@ -305,7 +305,7 @@ const processQuartierGenreDistribution = (
 // FONCTION PRINCIPALE
 // =====================================
 
-export const getDpGenreData = async (selectedSus?: number[]): Promise<GenreDistributionResult> => {
+const getDpGenreData = async (selectedSus?: number[]): Promise<GenreDistributionResult> => {
   try {
     const cacheKey = JSON.stringify(selectedSus ?? [])
     
