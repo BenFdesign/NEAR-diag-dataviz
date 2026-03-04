@@ -289,7 +289,7 @@ const computeQuartierWeighted = (
 // Public API
 // =========================
 
-export const getDpVolonteToutData = async (selectedSus?: number[]): Promise<VolonteToutResult> => {
+const getDpVolonteToutData = async (selectedSus?: number[]): Promise<VolonteToutResult> => {
   const cacheKey = JSON.stringify(selectedSus ?? [])
   const now = Date.now()
   const cached = cache.get(cacheKey)

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { getDpGenreData, type GenreDistributionResult } from '~/lib/datapacks/DpGenre'
+import { getDpGenreDatapack, type GenreDistributionResult } from '~/lib/datapacks/DpGenre'
 import { getPalette, getSuColors } from '~/lib/datapacks/DpColor'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
@@ -77,8 +77,8 @@ const DvGenre: React.FC<DvGenreProps> = ({
         }
         
         // Charger les données et les couleurs en parallèle
-        const [result, palette, suColors] = await Promise.all([
-          getDpGenreData(selectedSus),
+        const [response, palette, suColors] = await Promise.all([
+          getDpGenreDatapack({ selectedSus }),
           getPalette('gradient', globalSuId), // Palette pour les secteurs avec ID global
           getSuColors(globalSuId) // Couleur principale pour le titre avec ID global
         ])
@@ -89,7 +89,7 @@ const DvGenre: React.FC<DvGenreProps> = ({
         console.log(`🎨 Couleur light1:`, suColors.colorLight1)
         console.log(`🎨 Couleur dark1:`, suColors.colorDark1)
         
-        setData(result)
+        setData(response.data)
         setColors(palette)
         setMainColor(suColors.colorMain)
         setLightColor4(suColors.colorLight4)

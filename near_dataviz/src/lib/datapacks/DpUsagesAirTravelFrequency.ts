@@ -340,29 +340,6 @@ export function clearAirTravelFrequencyCache(): void {
   console.log(`[${new Date().toISOString()}] Cache cleared - ${DATAPACK_NAME}`)
 }
 
-export async function runAirTravelFrequencyTests(): Promise<boolean> {
-  console.log(`[TEST] Starting tests for ${DATAPACK_NAME}`)
-  let allTestsPassed = true
-  
-  try {
-    clearAirTravelFrequencyCache()
-    const data1 = await fetchAirTravelFrequencyData()
-    console.log('✅ Quartier data loaded:', data1.data.length > 0)
-
-    const data2 = await fetchAirTravelFrequencyData([1])
-    console.log('✅ Single SU data loaded:', data2.data.length > 0)
-
-    const data3 = await fetchAirTravelFrequencyData([1, 2])
-    console.log('✅ Multiple SUs return quartier:', data3.isQuartier)
-    
-  } catch (error) {
-    console.error('❌ AirTravelFrequency test failed:', error)
-    allTestsPassed = false
-  }
-  
-  return allTestsPassed
-}
-
 // ===== CONTRAT DATAPACK STANDARDISÉ =====
 
 export async function getDpUsagesAirTravelFrequencyDatapack(

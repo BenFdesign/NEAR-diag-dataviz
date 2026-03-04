@@ -366,32 +366,6 @@ export function clearTransportationModeCache(): void {
   console.log(`[${new Date().toISOString()}] Cache cleared - ${DATAPACK_NAME}`)
 }
 
-export async function runTransportationModeTests(): Promise<boolean> {
-  console.log(`[TEST] Starting tests for ${DATAPACK_NAME}`)
-  let allTestsPassed = true
-  
-  try {
-    // Test 1: Cache functionality
-    clearTransportationModeCache()
-    const data1 = await fetchTransportationModeData()
-    console.log('✅ Quartier data loaded:', data1.data.length > 0)
-
-    // Test 2: Single SU
-    const data2 = await fetchTransportationModeData([1])
-    console.log('✅ Single SU data loaded:', data2.data.length > 0)
-
-    // Test 3: Multiple SUs (should return quartier)
-    const data3 = await fetchTransportationModeData([1, 2])
-    console.log('✅ Multiple SUs return quartier:', data3.isQuartier)
-    
-  } catch (error) {
-    console.error('❌ TransportationMode test failed:', error)
-    allTestsPassed = false
-  }
-  
-  return allTestsPassed
-}
-
 // ===== CONTRAT DATAPACK STANDARDISÉ =====
 
 export async function getDpUsagesTransportationModeDatapack(

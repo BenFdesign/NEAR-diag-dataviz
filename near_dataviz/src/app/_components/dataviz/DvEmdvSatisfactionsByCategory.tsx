@@ -2,31 +2,14 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { getDpEmdvSatisfactionsByCategory } from '~/lib/datapacks/DpEmdvSatisfactionsByCategory'
+import { getDpEmdvSatisfactionsByCategoryDatapack, type EmdvByCategoryPayload } from '~/lib/datapacks/DpEmdvSatisfactionsByCategory'
 
 type Props = { selectedSus?: number[]; category?: string }
-
-type Payload = {
-  subcategories: Array<{
-    subcategory: string
-    subcategoryLabel: string
-    subcategoryEmoji: string
-    questions: Array<{
-      questionKey: string
-      questionTitle: string
-      emoji: string
-      totalResponses: number
-      responses: Array<{ choiceKey: string; absoluteCount: number; percentage: number; emoji: string }>
-    }>
-  }>
-  availableSubcategories: string[]
-  isQuartier: boolean
-}
 
 const DvEmdvSatisfactionsByCategory: React.FC<Props> = ({ selectedSus, category = 'all' }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
-  const [data, setData] = useState<Payload | null>(null)
+  const [data, setData] = useState<EmdvByCategoryPayload | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [width, setWidth] = useState<number>()
@@ -51,8 +34,8 @@ const DvEmdvSatisfactionsByCategory: React.FC<Props> = ({ selectedSus, category 
       try {
         setLoading(true)
         setError(null)
-        const payload = await getDpEmdvSatisfactionsByCategory(selectedSus, category)
-        setData(payload)
+        const response = await getDpEmdvSatisfactionsByCategoryDatapack({ selectedSus, extra: { subcategory: category } })
+        setData(response.data)
       } catch (e) {
         console.error('[DvEmdvSatisfactionsByCategory] load error', e)
         setError('Impossible de charger les satisfactions EMDV')
@@ -65,7 +48,7 @@ const DvEmdvSatisfactionsByCategory: React.FC<Props> = ({ selectedSus, category 
 
   // Flatten questions for rendering
   const questions = useMemo(() => {
-    if (!data) return [] as Payload['subcategories'][number]['questions']
+    if (!data) return [] as EmdvByCategoryPayload['subcategories'][number]['questions']
     return data.subcategories.flatMap(sc => sc.questions)
   }, [data])
 

@@ -64,7 +64,7 @@ interface MetaChoice {
   "Metabase Choice Key": string
 }
 
-// Export interface (backward compatibility)
+// Export interface 
 export interface AgeDistributionResult {
   data: {
     value: string         // Clé du choix (ex: "FROM_15_TO_29")
@@ -95,7 +95,7 @@ const DATAPACK_NAME = 'DpAgeDistribution'
 // Cache côté client pour éviter les recalculs
 const dataCache = new Map<string, AgeDistributionResult>()
 let cacheTimestamp = 0
-const CACHE_DURATION = 3600000 // 1 heure en millisecondes
+const CACHE_DURATION = 3600000 
 
 // Mappage des tranches d'âge INSEE vers nos codes
 const INSEE_AGE_MAPPING = {
@@ -342,11 +342,11 @@ const processQuartierAgeDistribution = (
 }
 
 // =====================================
-// FONCTION PRINCIPALE (legacy)
+// FONCTION PRINCIPALE (ancien fonctionnement)
 // =====================================
 
 // Fonction principale historique avec cache (signature conservée)
-export const getDpAgeDistributionData = async (selectedSus?: number[]): Promise<AgeDistributionResult> => {
+const getDpAgeDistributionData = async (selectedSus?: number[]): Promise<AgeDistributionResult> => {
   try {
     const cacheKey = JSON.stringify(selectedSus ?? [])
     
@@ -466,47 +466,6 @@ export const getDpAgeDistributionData = async (selectedSus?: number[]): Promise<
       totalResponses: 0,
       dataSource: 'Erreur'
     }
-  }
-}
-
-// =====================================
-// FONCTIONS DE TEST ET UTILITAIRES
-// =====================================
-
-// Fonction pour analyser les ID de SU disponibles dans les données
-export const analyzeSuIds = async () => {
-  console.log('🔍 Analyse des ID de SU disponibles...')
-  
-  try {
-    const suAnswers = await loadSuAnswerData()
-    
-    // Extraire les ID uniques
-    const suIds = [...new Set(suAnswers.map(answer => answer["Su ID"]))].sort((a, b) => a - b)
-    
-    console.log('📊 ID des SU trouvés:', suIds)
-    console.log('📈 Nombre total de réponses:', suAnswers.length)
-    
-    // Compter les réponses par SU
-    const countBySu: Record<number, number> = {}
-    suAnswers.forEach(answer => {
-      const suId = answer["Su ID"]
-      countBySu[suId] = (countBySu[suId] ?? 0) + 1
-    })
-    
-    console.log('📋 Répartition des réponses par SU:')
-    Object.entries(countBySu).forEach(([suId, count]) => {
-      console.log(`  SU ${suId}: ${count} réponses`)
-    })
-    
-    // Analyser les catégories d'âge disponibles
-    const ageCategories = [...new Set(suAnswers.map(answer => answer["Age Category"]).filter(Boolean))]
-    console.log('🎯 Catégories d\'âge trouvées:', ageCategories)
-    
-    return { suIds, countBySu, ageCategories, totalAnswers: suAnswers.length }
-    
-  } catch (error) {
-    console.error('❌ Erreur lors de l\'analyse des SU:', error)
-    return null
   }
 }
 

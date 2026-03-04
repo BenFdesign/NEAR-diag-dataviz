@@ -338,25 +338,3 @@ export function clearPurchasingStrategyCache(): void {
   console.log(`[${new Date().toISOString()}] Cache cleared - ${DATAPACK_NAME}`)
 }
 
-export async function runPurchasingStrategyTests(): Promise<boolean> {
-  console.log(`[TEST] Starting tests for ${DATAPACK_NAME}`)
-  let allTestsPassed = true
-  
-  try {
-    clearPurchasingStrategyCache()
-    const data1 = await fetchPurchasingStrategyData()
-    console.log('✅ Quartier data loaded:', data1.data.length > 0)
-
-    const data2 = await fetchPurchasingStrategyData([1])
-    console.log('✅ Single SU data loaded:', data2.data.length > 0)
-
-    const data3 = await fetchPurchasingStrategyData([1, 2])
-    console.log('✅ Multiple SUs return quartier:', data3.isQuartier)
-    
-  } catch (error) {
-    console.error('❌ PurchasingStrategy test failed:', error)
-    allTestsPassed = false
-  }
-  
-  return allTestsPassed
-}

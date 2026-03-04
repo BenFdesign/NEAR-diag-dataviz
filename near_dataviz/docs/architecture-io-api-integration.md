@@ -21,7 +21,7 @@ Ce document donne à un futur développeur une vue **schématique** du fonctionn
   - `Carbon Footprint Answer.json`, `MetaCarbon.json` ;
   - `Surveys.json`, `Quartiers.json` (diagnostics / quartiers) ;
   - autres fichiers décrits dans [docs/datapacks.md](docs/datapacks.md).
-- **Configuration de diagnostic courant** :
+- **Configuration du diagnostic milésimé de quartier courant** :
   - `CURRENT_SURVEY_ID` dans [src/lib/survey-config.ts](src/lib/survey-config.ts) indique quel diagnostic/quartier est affiché.
 
 ### 1.2. API internes
@@ -95,7 +95,6 @@ Approche proposée :
 2. **Adapter `/api/data/[dataset]`** pour chaque dataset critique :
    - au lieu de lire `public/data/<name>.json`, appeler le client Metabase ;
    - **mapper** la réponse Metabase vers le même schéma que les JSON actuels (mêmes clés, mêmes types) ;
-   - conserver éventuellement un **mode fallback** : si Metabase n’est pas joignable, lire le JSON local.
 
 3. **Paramétrer SurveyID / quartier** côté API :
    - propager `CURRENT_SURVEY_ID` ou un `surveyId` passé en query (ex. `/api/data/Su%20Data?surveyId=2`) jusqu’au client Metabase ;
@@ -121,9 +120,7 @@ Si une connexion live n’est pas souhaitée :
 
 ## 3. Intégration comme page-module dans un autre projet
 
-### 3.1. Scénario : intégration dans un site Next/React existant
-
-Objectif : intégrer le dashboard comme **page/module** d’un site plus large.
+### 3.1. --> site Next/React NEAR existant
 
 #### 3.1.1. Côté UI
 
@@ -134,7 +131,6 @@ Objectif : intégrer le dashboard comme **page/module** d’un site plus large.
   - ex. `app/diag/page.tsx` qui rend simplement `<DatavizDashboard />` dans le layout global de la plateforme.
 - Vérifier la compatibilité CSS :
   - éviter les collisions de styles globaux ;
-  - ajuster les variables de couleurs / fonts pour respecter la charte du site hôte.
 
 #### 3.1.2. Côté données / API
 
@@ -191,9 +187,6 @@ Inconvénients :
 ### 4.3. Sécurité, auth, multi-tenant
 
 - Aujourd’hui, `/api/data/*` lit des JSON et ne gère pas d’auth stricte.
-- Dans une plateforme existante, il faudra décider :
-  - si ces routes deviennent **protégées** (middleware auth, vérification de rôle, filtrage par tenant) ;
-  - comment le périmètre de données d’un utilisateur (diagnostics accessibles) est appliqué (côté backend avant d’appeler Metabase, ou dans Metabase lui-même).
 
 ### 4.4. CSS global et collisions
 
@@ -204,14 +197,6 @@ Inconvénients :
 - Mitigations :
   - préfixer les classes dataviz (`.near-dv-*`) ;
   - encapsuler le dashboard dans un conteneur avec un namespace CSS dédié ;
-  - à terme, migrer vers des solutions plus isolées (CSS Modules, styled-components, etc.).
-
-### 4.5. Performances et volumétrie
-
-- Les datapacks chargent parfois des datasets complets en mémoire (toutes les réponses SU/WOL, etc.).
-- Sur de très gros volumes ou en multi-diagnostics, il faudra :
-  - filtrer davantage côté Metabase / backend avant de renvoyer les données ;
-  - ou paginer / streamer les réponses.
 
 ---
 

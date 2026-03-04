@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { fetchSuUsagesExtendedData } from '~/lib/datapacks/DpUsages'
+import { getDpUsagesDatapack } from '~/lib/datapacks/DpUsages'
 
 // Interface locale pour les données d'usage
 interface UsageData {
@@ -101,7 +101,7 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
         }
         
         // Charger les données (async) puis les couleurs en parallèle
-        const result = await (fetchSuUsagesExtendedData(selectedSus) as Promise<SuUsageQuestion[]>)
+        const response = await getDpUsagesDatapack({ selectedSus })
         const [palette, suColors] = await Promise.all([
           getPalette('gradient', globalSuId),
           getSuColors(globalSuId)
@@ -109,9 +109,9 @@ const DvUsages: React.FC<DvUsagesProps> = ({ selectedSus }) => {
         
         console.log(`🎨 Palette chargée pour SU ${globalSuId}:`, palette.slice(0, 3), '...')
         console.log(`🎨 Couleur principale:`, suColors.colorMain)
-        console.log(`📊 Données d'usage chargées:`, result.length, 'questions')
+        console.log(`📊 Données d'usage chargées:`, response.data.length, 'questions')
         
-        setData(result)
+        setData(response.data)
         setColors(palette)
         setMainColor(suColors.colorMain)
         setLightColor3(suColors.colorLight3)

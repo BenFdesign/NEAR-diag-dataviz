@@ -328,7 +328,7 @@ const processQuartierCspDistribution = (
 // FONCTION PRINCIPALE
 // =====================================
 
-export const getDpCspData = async (selectedSus?: number[]): Promise<CspDistributionResult> => {
+const getDpCspData = async (selectedSus?: number[]): Promise<CspDistributionResult> => {
   try {
     const cacheKey = JSON.stringify(selectedSus ?? [])
     

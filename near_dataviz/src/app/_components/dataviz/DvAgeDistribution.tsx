@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { getDpAgeDistributionData, type AgeDistributionResult } from '~/lib/datapacks/DpAgeDistribution'
+import { getDpAgeDistributionDatapack, type AgeDistributionResult } from '~/lib/datapacks/DpAgeDistribution'
 import { getPalette, getSuColors } from '~/lib/datapacks/DpColor'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 
@@ -75,8 +75,8 @@ const DvAgeDistribution: React.FC<DvAgeDistributionProps> = ({
         }
         
         // Charger les données et les couleurs en parallèle
-        const [result, palette, suColors] = await Promise.all([
-          getDpAgeDistributionData(selectedSus),
+        const [response, palette, suColors] = await Promise.all([
+          getDpAgeDistributionDatapack({ selectedSus }),
           getPalette('gradient', globalSuId), // Palette pour les barres avec ID global
           getSuColors(globalSuId) // Couleur principale pour le titre avec ID global
         ])
@@ -85,7 +85,7 @@ const DvAgeDistribution: React.FC<DvAgeDistributionProps> = ({
         console.log(`🎨 Couleur principale:`, suColors.colorMain)
         console.log(`🎨 Couleur light3:`, suColors.colorLight3)
         
-        setData(result)
+        setData(response.data)
         setColors(palette)
         setMainColor(suColors.colorMain)
         setLightColor3(suColors.colorLight3)

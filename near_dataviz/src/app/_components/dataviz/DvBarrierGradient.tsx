@@ -1,7 +1,7 @@
 "use client"
 import React, { useRef, useEffect, useState } from 'react'
 import * as d3 from 'd3'
-import { getBarrierDataForQuestion } from '~/lib/datapacks/DpBarrierAnalysisV2'
+import { getDpBarrierDatapack } from '~/lib/datapacks/DpBarrierAnalysisV2'
 import type { BarrierQuestionData } from '~/lib/datapacks/DpBarrierAnalysisV2'
 
 interface DvBarrierGradientProps {
@@ -53,8 +53,8 @@ const DvBarrierGradient: React.FC<DvBarrierGradientProps> = ({ selectedSus, sele
       try {
         setLoading(true)
         setError(null)
-        const res = await getBarrierDataForQuestion(selectedQuestionKey, selectedSus)
-        setData(res.data[0] ?? null)
+        const response = await getDpBarrierDatapack({ selectedSus, extra: { questionKey: selectedQuestionKey } })
+        setData(response.data.data[0] ?? null)
       } catch {
         setError("Impossible de charger les barrières")
       } finally {

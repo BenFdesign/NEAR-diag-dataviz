@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { getDpVolonteToutData, type VolonteToutResult } from '~/lib/datapacks/DpVolonteTout'
+import { getDpVolonteToutDatapack, type VolonteToutResult } from '~/lib/datapacks/DpVolonteTout'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
 import { getSuColors } from '~/lib/datapacks/DpColor'
 
@@ -42,8 +42,8 @@ const DvVolonteTout: React.FC<Props> = ({ selectedSus }) => {
       setLoading(true)
       try {
         setError(null)
-        const result = await getDpVolonteToutData(selectedSus)
-        setData(result)
+        const response = await getDpVolonteToutDatapack({ selectedSus })
+        setData(response.data)
       } catch (e) {
         console.error('[DvVolonteTout] load error', e)
         setError("Impossible de charger les données 'Volonté'")

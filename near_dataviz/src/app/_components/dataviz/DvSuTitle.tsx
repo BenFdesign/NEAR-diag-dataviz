@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { getDpSuTitleResult } from '~/lib/datapacks/DpSuTitle'
+import { getDpSuTitleDatapack } from '~/lib/datapacks/DpSuTitle'
 import type { SuTitleResult } from '~/lib/datapacks/DpSuTitle'
 import { getSuColors } from '~/lib/datapacks/DpColor'
 import { mapLocalToGlobalIds } from '~/lib/services/suIdMapping'
@@ -67,8 +67,8 @@ export default function DvSuTitle({ selectedSus }: Props) {
       try {
         setLoading(true)
         setError(null)
-        const result = await getDpSuTitleResult(selectedSus)
-        setPayload(result)
+        const response = await getDpSuTitleDatapack({ selectedSus })
+        setPayload(response.data)
       } catch (err) {
         console.error('Error loading SU title data:', err)
         setError('Erreur lors du chargement des données')
