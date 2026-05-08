@@ -9,18 +9,22 @@ let dataCache: DataCache = {}
  Les datas sont statiques pour un utilisateur donné, pas besoin de reload.
 */
 
-async function loadDataWithCache<T>(endpoint: string, cacheKey: string): Promise<T> {
-  if (dataCache[cacheKey]) {
-    return dataCache[cacheKey] as T
+async function loadDataWithCache<T>(endpoint: string, cacheKey: string, surveyId?: number): Promise<T> {
+  const fullCacheKey = surveyId != null ? `${cacheKey}_s${surveyId}` : cacheKey
+  if (dataCache[fullCacheKey]) {
+    return dataCache[fullCacheKey] as T
   }
 
   try {
-    const response = await fetch(`/api/data/${endpoint}`)
+    const url = surveyId != null
+      ? `/api/data/${endpoint}?surveyId=${surveyId}`
+      : `/api/data/${endpoint}`
+    const response = await fetch(url)
     if (!response.ok) {
       throw new Error(`Failed to load ${endpoint}: ${response.statusText}`)
     }
     const data = await response.json() as T
-    dataCache[cacheKey] = data
+    dataCache[fullCacheKey] = data
     return data
   } catch (error) {
     console.error(`Error loading ${endpoint}:`, error)
@@ -35,7 +39,7 @@ export async function loadSuBankData(): Promise<SuBankData[]> {
 
 /* Load Su Data (field data: population percentages, etc.) */
 export async function loadSuData(): Promise<SuData[]> {
-  return loadDataWithCache<SuData[]>('Su%20Data', 'suData')
+  return loadDataWithCache<SuData[]>('Su%20Data', 'suData', CURRENT_SURVEY_ID)
 }
 
 /* Load Surveys data / Nom du quartier */
@@ -45,31 +49,27 @@ export async function loadSurveys(): Promise<Array<{ ID?: number, Name?: string 
 
 /* Load Quartiers data (demographics + IRIS + Survey ID) */
 export async function loadQuartiers(): Promise<Array<{ "Population Sum"?: number, "Survey ID"?: number }>> {
-  return loadDataWithCache<Array<{ "Population Sum"?: number, "Survey ID"?: number }>>('Quartiers', 'quartiers')
+  return loadDataWithCache<Array<{ "Population Sum"?: number, "Survey ID"?: number }>>('Quartiers', 'quartiers', CURRENT_SURVEY_ID)
 }
 
-/* Load Su Data filtered for current Survey ID */
+/* Load Su Data filtered for current Survey ID (filtrage fait en amont par l'API) */
 export async function loadSuDataForCurrentSurvey(): Promise<SuData[]> {
-  const all = await loadSuData()
-  return all.filter(entry => (
-    (entry as SuData & { "Survey ID"?: number })["Survey ID"] === CURRENT_SURVEY_ID
-  ))
+  return loadSuData()
 }
 
-/* Load Quartiers data filtered for current Survey ID */
+/* Load Quartiers data filtered for current Survey ID (filtrage fait en amont par l'API) */
 export async function loadQuartiersForCurrentSurvey(): Promise<Array<{ "Population Sum"?: number, "Survey ID"?: number }>> {
-  const all = await loadQuartiers()
-  return all.filter(q => q["Survey ID"] === CURRENT_SURVEY_ID)
+  return loadQuartiers()
 }
 
 /* Load Way Of Life Answer data */
 export async function loadWayOfLifeData(): Promise<unknown[]> {
-  return loadDataWithCache<unknown[]>('Way%20Of%20Life%20Answer', 'wayOfLifeData')
+  return loadDataWithCache<unknown[]>('Way%20Of%20Life%20Answer', 'wayOfLifeData', CURRENT_SURVEY_ID)
 }
 
 /* Load Carbon Footprint Answer data */
 export async function loadCarbonFootprintData(): Promise<unknown[]> {
-  return loadDataWithCache<unknown[]>('Carbon%20Footprint%20Answer', 'carbonFootprintData')
+  return loadDataWithCache<unknown[]>('Carbon%20Footprint%20Answer', 'carbonFootprintData', CURRENT_SURVEY_ID)
 }
 
 /* Load Meta EMDV Questions data */
@@ -94,7 +94,7 @@ export async function loadMetaSuChoices(): Promise<unknown[]> {
 
 /* Load Su Answer data */
 export async function loadSuAnswer(): Promise<unknown[]> {
-  return loadDataWithCache<unknown[]>('Su%20Answer', 'suAnswer')
+  return loadDataWithCache<unknown[]>('Su%20Answer', 'suAnswer', CURRENT_SURVEY_ID)
 }
 
 /* Load Forms data (pas utile pour l'instant, éventuellement utile si on se met à utiliser l'API Create de Typeform) */
