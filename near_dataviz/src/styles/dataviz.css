@@ -403,8 +403,8 @@
   align-items: center;
   justify-content: flex-start;
   background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  /*border-radius: 12px;*/
+  /*box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);*/
 }
 
 .board-content {
@@ -462,7 +462,7 @@
   grid-template-rows: 200px 200px 200px 200px 200px 200px 200px 200px 200px 200px ;
   grid-template-areas: 
     "title-dist title-dist title-dist empty-dist empty-dist empty-dist empty-dist genre-dist genre-dist genre-dist"
-    "age-dist age-dist age-dist age-dist csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist"
+    "csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist"
     "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
     "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
     "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
@@ -521,7 +521,7 @@
 .dv-container {
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /*box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);*/
   /* padding: 16px;*/
   display: flex;
   flex-direction: column;

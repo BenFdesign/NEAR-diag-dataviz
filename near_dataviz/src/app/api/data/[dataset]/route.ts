@@ -34,12 +34,28 @@ export async function GET(
     
     // Read
     const fileContents = await fs.readFile(filePath, 'utf8')
-    const data: unknown = JSON.parse(fileContents)
-    
+    let data: unknown = JSON.parse(fileContents)
+
+    // Filtre par surveyId si fourni en query param (?surveyId=1)
+    // Supporte les deux conventions de nommage: "Survey ID" (espace) et "SurveyId" (camelCase)
+    const { searchParams } = new URL(request.url)
+    const surveyIdParam = searchParams.get('surveyId')
+    if (surveyIdParam !== null && Array.isArray(data)) {
+      const surveyId = Number(surveyIdParam)
+      data = data.filter((row: unknown) => {
+        if (typeof row !== 'object' || row === null) return false
+        const r = row as Record<string, unknown>
+        const hasSpaceKey = Object.prototype.hasOwnProperty.call(r, 'Survey ID')
+        const hasCamelKey = Object.prototype.hasOwnProperty.call(r, 'SurveyId')
+        if (!hasSpaceKey && !hasCamelKey) return true // ligne sans champ survey (métadonnée) : passthrough
+        return r['Survey ID'] === surveyId || r.SurveyId === surveyId
+      })
+    }
+
     // Return data with proper JSON response // Retourne les données avec une réponse JSON appropriée.
     return NextResponse.json(data, {
       headers: {
-        'Cache-Control': 'public, max-age=86400', // Cache de 24H, pas opti mais me permet de contourner le rafraichissement.
+        'Cache-Control': 'public, max-age=86400', // Cache 24H — l'URL inclut ?surveyId donc les entrées sont naturellement isolées par survey
       },
     })
   } catch (error) {

@@ -33,7 +33,9 @@ export const FicheSuBoard: Board = {
         </div>
         
         <div className="dv-container empty-dist">
-          {/* Empty */}
+          <DvAgeDistribution 
+            selectedSus={selectedSus}
+          />
         </div>
         
         <div className="dv-container genre-dist">
@@ -44,9 +46,7 @@ export const FicheSuBoard: Board = {
 
         {/* Row 2: Dv Âge (35% spanning 2 cols) | DvCsp (65%) */}
         <div className="dv-container age-dist">
-          <DvAgeDistribution 
-            selectedSus={selectedSus}
-          />
+          {/* Empty */}
         </div>
 
         <div className="dv-container csp-dist">
