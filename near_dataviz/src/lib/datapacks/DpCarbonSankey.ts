@@ -460,6 +460,45 @@ async function getDpCarbonSankeyData(selectedSus?: number[]): Promise<CarbonSank
   return payload
 }
 
+// GLOBAL MAX PARENT VALUE (cross-SU, for normalised scale)
+// =========================================================
+let globalMaxCache: number | null = null
+
+export async function getDpCarbonGlobalMaxParentValue(): Promise<number> {
+  if (globalMaxCache !== null) return globalMaxCache
+
+  const [answers, meta, suData] = await Promise.all([
+    loadCarbonAnswers(),
+    loadMetaCarbon(),
+    loadSuData(),
+  ])
+
+  if (!answers.length || !meta.length || !suData.length) return 1
+
+  let globalMax = 0
+
+  for (const su of suData) {
+    const suAnswers = answers.filter(a => a['Su ID'] === su.ID)
+    if (!suAnswers.length) continue
+
+    // Use the same buildD3SankeyData path so root values match what the render sees
+    const vals = buildMeanValuesFromAnswers(suAnswers, meta)
+    const sankeyData = buildD3SankeyData(vals, meta)
+
+    // Root nodes = nodes that are never a link target, but do have outgoing links
+    const targetSet = new Set(sankeyData.links.map(l => l.target))
+    for (let i = 0; i < sankeyData.nodes.length; i++) {
+      if (!targetSet.has(i) && sankeyData.links.some(l => l.source === i)) {
+        const rootVal = sankeyData.nodes[i]?.value ?? 0
+        if (rootVal > globalMax) globalMax = rootVal
+      }
+    }
+  }
+
+  globalMaxCache = globalMax || 1
+  return globalMaxCache
+}
+
 // CONTRAT CIBLE
 // =============
 

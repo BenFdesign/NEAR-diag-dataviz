@@ -14,9 +14,9 @@ import { loadSuBankData } from '~/lib/data-loader'
 /** Borne inférieure des ID globaux SU pour le survey courant (Porte d'Orléans) */
 const MIN_GLOBAL_SU_ID = 477
 
-// =====================================
+// ==========
 // INTERFACES
-// =====================================
+// ==========
 
 interface SuBankItem {
   Id: number           // ID global (477, 478, 479...)
@@ -57,7 +57,7 @@ const loadSuIdMapping = async (): Promise<SuIdMapping[]> => {
   }
   
   try {
-    console.log('🔄 Chargement du mappage des ID SU...')
+    console.log('Chargement du mappage des ID SU...')
     
     const suBankData = await loadSuBankData() as SuBankItem[]
     
@@ -74,8 +74,8 @@ const loadSuIdMapping = async (): Promise<SuIdMapping[]> => {
       color: su.colorMain || '#002878'
     }))
     
-    console.log(`✅ Mappage créé: ${mapping.length} SU`)
-    console.log('📋 Correspondances:', mapping.map(m => `${m.localId}→${m.globalId}`).join(', '))
+    console.log(`Mappage créé: ${mapping.length} SU`)
+    console.log('Correspondances:', mapping.map(m => `${m.localId}→${m.globalId}`).join(', '))
     
     // Mettre en cache
     suMappingCache = mapping

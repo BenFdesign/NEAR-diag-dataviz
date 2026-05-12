@@ -11,9 +11,12 @@ type LeftSidebarProps = {
   onSusChange: (sus: number[]) => void
   isCollapsed: boolean
   onToggleCollapse: () => void
+  isZoneSelectMode: boolean
+  onToggleZoneSelectMode: () => void
+  isBoardReady: boolean
 }
 
-export default function LeftSidebar({ availableSus, selectedSus, onSusChange, isCollapsed, onToggleCollapse }: LeftSidebarProps) {
+export default function LeftSidebar({ availableSus, selectedSus, onSusChange, isCollapsed, onToggleCollapse, isZoneSelectMode, onToggleZoneSelectMode, isBoardReady }: LeftSidebarProps) {
   const [quartierName, setQuartierName] = useState<string>('Quartier')
   const [quartierPopulation, setQuartierPopulation] = useState<number>(0)
   const [quartierIcon, setQuartierIcon] = useState<string>('🏘️')
@@ -244,28 +247,30 @@ export default function LeftSidebar({ availableSus, selectedSus, onSusChange, is
         {/* Section des boutons d'action - Zone fixe en bas */}
         <div className="action-buttons-section">
           <div className="action-buttons-container">
-            {/* Plus d'infos */}
+            {/* 
             <button 
-              onClick={() => {/* TODO: Ajouter pop-up modal infos quartier */}}
               className="action-button"
             >
               ℹ️ Plus d&apos;infos
             </button>
+            */}
 
-            {/* Quelle est ma SU */}
+            {/* 
             <button 
-              onClick={() => {/* TODO: Ajouter pop-up modal test Su */}}
               className="action-button"
             >
               🕵️‍♂️ Quelle est ma S.U. ?
             </button>
+            */}
 
             {/* Sauvegarder */}
             <button 
-              onClick={() => { void handleExportPng() }}
-              className="action-button"
+              onClick={onToggleZoneSelectMode}
+              disabled={!isBoardReady}
+              className={`action-button${isZoneSelectMode ? ' action-button--active' : ''}${!isBoardReady ? ' action-button--loading' : ''}`}
+              title={!isBoardReady ? 'En attente du chargement...' : undefined}
             >
-              📸 Sauvegarder
+              {isBoardReady ? '📸' : '⏳'} Sauvegarder
             </button>
           </div>
         </div>
@@ -316,29 +321,30 @@ export default function LeftSidebar({ availableSus, selectedSus, onSusChange, is
           margin: '10px 0' 
         }} />
         
-        {/* Action buttons collapsed */}
+        {/* 
         <div 
           className="collapsed-button"
-          onClick={() => {/* TODO: Ajouter pop-up modal infos quartier */}}
           title="Plus d'infos"
         >
           <div className="emoji">ℹ️</div>
         </div>
-        
+        */}
+
+        {/*
         <div 
           className="collapsed-button"
-          onClick={() => {/* TODO: Ajouter pop-up modal test Su */}}
           title="Quelle est ma S.U. ?"
         >
           <div className="emoji">🕵️‍♂️</div>
         </div>
-        
+        */}
+
         <div 
-          className="collapsed-button"
-          onClick={() => { void handleExportPng() }}
-          title="Sauvegarder"
+          className={`collapsed-button${isZoneSelectMode ? ' active' : ''}${!isBoardReady ? ' disabled' : ''}`}
+          onClick={isBoardReady ? onToggleZoneSelectMode : undefined}
+          title={!isBoardReady ? 'En attente du chargement...' : 'Sauvegarder'}
         >
-          <div className="emoji">📸</div>
+          <div className="emoji">{isBoardReady ? '📸' : '⏳'}</div>
         </div>
       </div>
     </div>

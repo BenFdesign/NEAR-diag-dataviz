@@ -388,6 +388,39 @@
   transform: translateY(0);
 }
 
+/* Active state: latch engaged (zone-select mode) */
+.action-button--active {
+  background-color: #002878;
+  color: white;
+  border-color: #002878;
+  box-shadow: 0 0 0 3px rgba(0, 40, 120, 0.25);
+}
+
+.action-button--active:hover {
+  background-color: #001a50;
+  border-color: #001a50;
+  color: white;
+}
+
+/* Disabled/loading state: board not yet ready */
+.action-button--loading,
+.action-button--loading:hover {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #6e6eb9ff;
+  border-color: #6e6eb9ff;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Collapsed button disabled state */
+.collapsed-button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* ======================= */
 /* BOARD COMPONENTS STYLES */
 /* ======================= */
@@ -412,6 +445,192 @@
   min-height: 100%;
   box-sizing: border-box;
   padding: 30px;
+}
+
+/* ========================== */
+/* ZONE SELECT MODE OVERLAY   */
+/* ========================== */
+
+/* Cursor cue when latch is active */
+.zone-select-active {
+  cursor: crosshair !important;
+}
+
+/* Transparent overlay capturing mouse events above board content */
+.zone-select-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: transparent;
+  cursor: crosshair;
+}
+
+/* Blue highlight drawn over the hovered zone */
+.zone-highlight {
+  position: absolute;
+  z-index: 11;
+  border: 2px solid #002878;
+  background-color: rgba(0, 40, 120, 0.07);
+  border-radius: 8px;
+  pointer-events: none;
+  transition: top 80ms ease, left 80ms ease, width 80ms ease, height 80ms ease;
+  box-shadow: 0 0 0 4px rgba(0, 40, 120, 0.1);
+}
+
+/* Feedback overlay while html2canvas is running */
+.zone-capturing-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(2px);
+  font-size: 15px;
+  font-weight: 600;
+  color: #002878;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ========================== */
+/* EXPORT MODAL               */
+/* ========================== */
+
+.export-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(3px);
+}
+
+.export-modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  max-width: 880px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.export-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.export-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.export-modal-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.export-modal-subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.export-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.export-modal-close:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.export-modal-preview-container {
+  flex: 1;
+  overflow: auto;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+}
+
+.export-modal-preview {
+  max-width: 100%;
+  max-height: 55vh;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  display: block;
+}
+
+.export-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.export-modal-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.export-modal-btn--secondary {
+  background: white;
+  color: #6e6eb9;
+  border-color: #6e6eb9;
+}
+
+.export-modal-btn--secondary:hover {
+  background: #6e6eb9;
+  color: white;
+}
+
+.export-modal-btn--primary {
+  background: #002878;
+  color: white;
+  border-color: #002878;
+}
+
+.export-modal-btn--primary:hover {
+  background: #001a50;
+  border-color: #001a50;
 }
 
 /* =================== */
@@ -463,13 +682,10 @@
   grid-template-areas: 
     "title-dist title-dist title-dist empty-dist empty-dist empty-dist empty-dist genre-dist genre-dist genre-dist"
     "csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist csp-dist"
-    "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
-    "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
-    "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
-    "left-dist left-dist usages-dist usages-dist usages-dist usages-dist usages-dist usages-dist right-dist right-dist"
-    "left-dist left-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist right-dist right-dist"
-    "left-dist left-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist right-dist right-dist"
-    "left-dist left-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist right-dist right-dist"
+    "usages-dist usages-dist usages-dist usages-dist usages-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist"
+    "usages-dist usages-dist usages-dist usages-dist usages-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist"
+    "usages-dist usages-dist usages-dist usages-dist usages-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist"
+    "usages-dist usages-dist usages-dist usages-dist usages-dist sankey-dist sankey-dist sankey-dist sankey-dist sankey-dist"
     "bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist bottom-dist";
   gap: 15px;
   padding: 10px;
