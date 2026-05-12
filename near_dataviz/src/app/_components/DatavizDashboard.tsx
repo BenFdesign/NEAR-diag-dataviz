@@ -5,6 +5,7 @@ import { LeftSidebar, RightSidebar, BoardViewer } from './'
 import { getQuartierName, getSuInfo } from '~/lib/su-service'
 import { getBoardById, getDefaultBoard } from './'
 import type { MenuState, SuInfo } from '~/lib/types'
+import ExportModal from './ExportModal'
 
 export default function DatavizDashboard() {
   const [allSus, setAllSus] = useState<SuInfo[]>([])
@@ -12,6 +13,10 @@ export default function DatavizDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false)
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false)
+  const [isZoneSelectMode, setIsZoneSelectMode] = useState(false)
+  const [exportCanvas, setExportCanvas] = useState<HTMLCanvasElement | null>(null)
+  const [exportZoneLabel, setExportZoneLabel] = useState<string | undefined>()
+  const [isBoardReady, setIsBoardReady] = useState(false)
 
   // Load SU data
   useEffect(() => {
@@ -57,6 +62,8 @@ export default function DatavizDashboard() {
   const currentBoard = getBoardById(menuState.selectedBoard)
 
   const handleBoardChange = (boardId: string) => {
+    setIsBoardReady(false)
+    setIsZoneSelectMode(false)
     setMenuState(prev => ({
       ...prev,
       selectedBoard: boardId,
@@ -65,6 +72,7 @@ export default function DatavizDashboard() {
   }
 
   const handleSusChange = (sus: number[]) => {
+    setIsBoardReady(false)
     setMenuState(prev => ({
       ...prev,
       selectedSus: sus
@@ -77,6 +85,28 @@ export default function DatavizDashboard() {
 
   const toggleRightSidebar = () => {
     setRightSidebarCollapsed(prev => !prev)
+  }
+
+  const toggleZoneSelectMode = () => {
+    if (!isBoardReady) return
+    setIsZoneSelectMode(prev => !prev)
+    setExportCanvas(null)
+  }
+
+  const handleZoneCapture = (canvas: HTMLCanvasElement, zoneLabel?: string) => {
+    setExportCanvas(canvas)
+    setExportZoneLabel(zoneLabel)
+  }
+
+  const handleModalClose = () => {
+    setExportCanvas(null)
+    setExportZoneLabel(undefined)
+    setIsZoneSelectMode(false)
+  }
+
+  const handleChangeVisualization = () => {
+    setExportCanvas(null)
+    setExportZoneLabel(undefined)
   }
 
   const getBoardContainerClass = () => {
@@ -122,12 +152,19 @@ export default function DatavizDashboard() {
             onSusChange={handleSusChange}
             isCollapsed={leftSidebarCollapsed}
             onToggleCollapse={toggleLeftSidebar}
+            isZoneSelectMode={isZoneSelectMode}
+            onToggleZoneSelectMode={toggleZoneSelectMode}
+            isBoardReady={isBoardReady}
           />
         </aside>
 
         {/* Main Board Container */}
         <main className={getBoardContainerClass()}>
-          <BoardViewer>
+          <BoardViewer
+            isZoneSelectMode={isZoneSelectMode}
+            onZoneCapture={handleZoneCapture}
+            onBoardReady={setIsBoardReady}
+          >
             {currentBoard ? (
               currentBoard.renderComponent({
                 selectedSus: menuState.selectedSus
@@ -151,6 +188,21 @@ export default function DatavizDashboard() {
           />
         </aside>
       </div>
+
+      {exportCanvas && (
+        <ExportModal
+          canvas={exportCanvas}
+          onClose={handleModalClose}
+          onChangeVisualization={handleChangeVisualization}
+          boardName={currentBoard?.name}
+          suLabel={
+            menuState.selectedSus.length === menuState.availableSus.length
+              ? 'quartier'
+              : menuState.availableSus.find(su => su.su === menuState.selectedSus[0])?.name
+          }
+          zoneLabel={exportZoneLabel}
+        />
+      )}
     </div>
   )
 }

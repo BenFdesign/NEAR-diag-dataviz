@@ -7,8 +7,10 @@
 
 import type { Board } from '~/lib/types'
 import { FicheSuBoard } from './FicheSuBoard'
+import CarbonBoard from './CarbonBoard'
 import { TestimonyBoard } from './TestimonyBoard'
 import { EmdvByCategoryBoards } from './EmdvByCategoryBoards'
+import EmdvPieChartsBoard from './EmdvPieChartsBoards'
 import BarrierBoards from './BarrierBoards'
 import BarrierQuestionBoards from './BarrierQuestionBoards'
 import VolonteBoard from './VolonteBoard'
@@ -17,12 +19,14 @@ import MobilityBoard from './MobilityBoard'
 // Board registry - Configuration centrale des tableaux de bord
 export const BOARD_REGISTRY: Board[] = [
   FicheSuBoard,
+  CarbonBoard,
+  EmdvPieChartsBoard,
   MobilityBoard,
-  TestimonyBoard,
   VolonteBoard,
   ...BarrierBoards,
   ...BarrierQuestionBoards,
   ...EmdvByCategoryBoards,
+  TestimonyBoard,
 ]
 
 // Utility functions

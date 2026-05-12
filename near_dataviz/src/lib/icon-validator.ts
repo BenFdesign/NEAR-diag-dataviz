@@ -2,8 +2,7 @@
  * UTILITAIRE DE VALIDATION D'ICÔNES SVG
  * =====================================
  * 
- * Ce module fournit une validation stricte côté serveur pour les icônes SVG
- * afin de prévenir les attaques XSS, même depuis une BDD sécurisée.
+ * Ce module fournit une validation stricte côté serveur pour les icônes SVG afin de prévenir les attaques XSS.
  * 
  * Règles de validation :
  * - Doit être un SVG valide

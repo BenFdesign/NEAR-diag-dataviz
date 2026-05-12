@@ -59,7 +59,7 @@ const DvMobility: React.FC<Props> = ({ selectedSus }) => {
     svg.selectAll('*').remove()
 
     const colorMain = suColors?.colorMain ?? '#1565c0'
-    const colorLight = suColors?.colorLight3 ?? '#90caf9'
+    const colorLight = suColors?.colorLight4 ?? '#90caf9'
 
     const cx = width / 2
     const cy = height / 2
@@ -173,8 +173,8 @@ const DvMobility: React.FC<Props> = ({ selectedSus }) => {
     const modeToMtKey: Record<string, 'FOOT' | 'BIKE' | 'TRANS' | 'CAR'> = {
       foot: 'FOOT', bike: 'BIKE', trans: 'TRANS', car: 'CAR',
     }
-    const LINE_STROKE_MIN = 1
-    const LINE_STROKE_MAX = 10
+    const LINE_STROKE_MIN = 0.5
+    const LINE_STROKE_MAX = 15
     const getMtPct = (zoneKey: string | undefined, mtKey: 'FOOT' | 'BIKE' | 'TRANS' | 'CAR'): number | null => {
       if (!zoneKey) return null
       const cell = mobilityData?.zoneDistribution[zoneKey]
@@ -282,7 +282,7 @@ const DvMobility: React.FC<Props> = ({ selectedSus }) => {
 
     // Icônes usage en triangle à l'intérieur de chaque cercle
     const USAGE_ICON_SIZE_MIN = 10
-    const USAGE_ICON_SIZE_MAX = 20
+    const USAGE_ICON_SIZE_MAX = 25
     const usageTriangleR = r * 0.45
     const usages: { id: string; icon: string; angle: number }[] = [
       { id: 'hobby', icon: '🪁', angle: -Math.PI / 2 },
@@ -361,7 +361,7 @@ const DvMobility: React.FC<Props> = ({ selectedSus }) => {
           .attr('text-anchor', 'middle')
           .attr('dominant-baseline', 'central')
           .attr('font-family', 'Outfit')
-          .attr('font-size', r * 0.45)
+          .attr('font-size', 12)
           .attr('fill', colorMain)
           .attr('pointer-events', 'none')
           .text('Quartier')
